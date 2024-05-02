@@ -19,6 +19,7 @@ async function SendPasswordReset(email: string) {
 }
 
 async function handleOnClick(email: string) {
+  console.log(email)
  await SendPasswordReset(email);
 }
 
@@ -29,7 +30,7 @@ export default function forgotPassword() {
     <div className="h-screen w-screen flex flex-col justify-center items-center gap-4">
       <div>Logo</div>
       <div className="w-[20rem] flex items-center flex-col">
-        <Input type="email" placeholder="@email" onChange={(e)=>setEmail(email=>email+e.target.value)} />
+        <Input type="email" placeholder="@email" onChange={(e)=>setEmail(email=>e.target.value)} />
         <Button className="my-4" onClick={async ()=>handleOnClick(email)}>
           Submit
         </Button>

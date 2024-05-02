@@ -1,0 +1,92 @@
+{
+    "events": [
+      {
+        "eventId": 2468,
+        "name": "Summer Food Truck Festival",
+        "startDate": "2024-07-05",
+        "endDate": "2024-07-07",
+        "location": "Waterfront Park, Seattle",
+        "description": "Indulge in a variety of cuisines from local food trucks by the waterfront.",
+        "availableSeats": [{"tier" : "VIP","number": 10, "price":200}, {"tier" : "General", "number": 50, "price":100}],
+        "categories": ["Food", "Festival", "Outdoor"],
+        "imageUrl": "https://example.com/spring-music-festival.jpg"
+      },
+      {
+        "eventId": 1357,
+        "name": "Yoga Retreat: Serenity in the Mountains",
+        "startDate": "2024-08-20",
+        "endDate": "2024-08-25",
+        "location": "Tranquil Peaks Resort, Colorado",
+        "description": "Reconnect with nature and find inner peace through daily yoga sessions surrounded by breathtaking mountain views.",
+        "availableSeats": [{"tier" : "VIP","number": 10, "price":200}, {"tier" : "General", "number": 50, "price":100}],
+        "categories": ["Wellness", "Retreat", "Nature"],
+        "imageUrl": "https://example.com/yoga-retreat.jpg"
+      },
+      {
+        "eventId": 3690,
+        "name": "Science Fiction Book Club",
+        "startDate": "2024-09-08",
+        "endDate": "2024-09-30",
+        "location": "Virtual (Online)",
+        "description": "Dive into captivating sci-fi novels and discuss mind-bending concepts with fellow enthusiasts.",
+        "availableSeats": "Unlimited (Online)",
+        "categories": ["Literature", "Book Club", "Sci-Fi"],
+        "imageUrl": "https://example.com/sci-fi-book-club.jpg"
+      },
+      {
+        "eventId": 8020,
+        "name": "Charity Gala: A Night of Giving",
+        "startDate": "2024-10-12",
+        "endDate": "2024-10-12",
+        "location": "Grand Ballroom, Hilton Charity Plaza",
+        "description": "Dress up for an elegant evening of philanthropy, auctions, and live performances.",
+        "availableSeats": [{"tier" : "VIP","number": 10, "price":200}, {"tier" : "General", "number": 50, "price":100}],
+        "categories": ["Charity", "Gala", "Fundraising"],
+        "imageUrl": "https://example.com/charity-gala.jpg"
+      },
+      {
+        "eventId": 5432,
+        "name": "Photography Workshop: Capturing Autumn Colors",
+        "startDate": "2024-11-05",
+        "endDate": "2024-11-07",
+        "location": "Maple Forest, Vermont",
+        "description": "Learn techniques to capture the vibrant fall foliage in this hands-on photography workshop.",
+        "availableSeats": [{"tier" : "VIP","number": 10, "price":200}, {"tier" : "General", "number": 50, "price":100}],
+        "categories": ["Photography", "Workshop", "Nature"],
+        "imageUrl": "https://example.com/autumn-photography-workshop.jpg"
+      },
+      {
+        "eventId": 9870,
+        "name": "Comedy Night: Laughter Therapy",
+        "startDate": "2024-12-15",
+        "endDate": "2024-12-15",
+        "location": "Chuckle Club, Los Angeles",
+        "description": "Get ready for a rib-tickling evening with stand-up comedians and hilarious improv acts.",
+        "availableSeats": [{"tier" : "VIP","number": 10, "price":200}, {"tier" : "General", "number": 50, "price":100}],
+        "categories": ["Comedy", "Entertainment", "Nightlife"],
+        "imageUrl": "https://example.com/comedy-night.jpg"
+      },
+      {
+        "eventId": 1122,
+        "name": "Winter Wonderland Ice Skating",
+        "startDate": "2025-01-10",
+        "endDate": "2025-01-20",
+        "location": "Frosty Rink, Central Park",
+        "description": "Glide across the ice under twinkling lights in this magical winter skating experience.",
+        "availableSeats": [{"tier" : "VIP","number": 10, "price":200}, {"tier" : "General", "number": 50, "price":100}],
+        "categories": ["Sports", "Winter", "Family"],
+        "imageUrl": "https://example.com/winter-ice-skating.jpg"
+      },
+      {
+        "eventId": 4567,
+        "name": "Culinary Workshop: Sushi Masterclass",
+        "startDate": "2025-02-28",
+        "endDate": "2025-02-28",
+        "location": "Umami Kitchen, San Francisco",
+        "description": "Roll your own sushi and discover the art of Japanese cuisine.",
+        "availableSeats": [{"tier" : "VIP","number": 10, "price":200}, {"tier" : "General", "number": 50, "price":100}],
+        "categories": ["Food", "Workshop", "Culinary"],
+        "imageUrl": "https://example.com/sushi-masterclass.jpg"
+        }
+    ]
+}
