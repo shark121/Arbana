@@ -2,6 +2,8 @@ import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import GoogleSVG from "../public/images/Google__G__logo.svg.png";
 import { auth } from "../firebase.config";
 import Image from "next/image";
+import { set } from "firebase/database";
+import { setCookie } from "@/lib/utils";
 
 const provider = new GoogleAuthProvider();
 
@@ -13,6 +15,8 @@ async function triggerPopup() {
       const token = credential && credential.accessToken;
       // The signed-in user info.
       const user = result.user;
+      setCookie("user", JSON.stringify(user), 7);
+      window.location.href = "/home";
     //   console.log(user);
       return user;
       // ...

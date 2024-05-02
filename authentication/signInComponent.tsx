@@ -5,6 +5,7 @@ import { auth } from "../firebase.config";
 import { Button } from "../src/components/ui/button";
 import { Input } from "../src/components/ui/input";
 import GoogleAuth from "./googleAuth";
+import { setCookie } from "@/lib/utils";
 
 export async function emailAndPasswordSignIn(email: string, password: string) {
   await signInWithEmailAndPassword(auth, email, password)
@@ -12,7 +13,8 @@ export async function emailAndPasswordSignIn(email: string, password: string) {
       // Signed in
       const user = userCredential.user;
       console.log(user);
-
+      setCookie("user", JSON.stringify(user), 7);
+      window.location.href = "/home";
       // ...
     })
     .catch((error) => {
@@ -57,7 +59,7 @@ export default function SignInComponent() {
         />
         <Button onClick={(e) => handleOnclick(e)}>Submit</Button>
         <div>
-        <GoogleAuth />
+        <GoogleAuth/>
         </div>
       </div>
     </main>
