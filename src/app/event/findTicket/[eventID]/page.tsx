@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { EventType } from "../../../../../components/ui/eventComponent";
 import Combobox from "../../../../../components/ui/combobox";
+import { Button } from "@/components/ui/button";
 
 export default function EventItem(params: { params: { eventID: string } }) {
   const [eventState, setEventState] = useState<EventType>();
@@ -11,7 +12,7 @@ export default function EventItem(params: { params: { eventID: string } }) {
     name: seat.tier,
   }));
 
-  const [valueState, setValueState] = useState<{ name: string }>({name:"select tier"});
+  const [valueState, setValueState] = useState<{ name: string }>();
 
   useEffect(() => {
     const eventData = sessionStorage.getItem(eventID);
@@ -20,38 +21,46 @@ export default function EventItem(params: { params: { eventID: string } }) {
   }, []);
 
   useEffect(() => {
-    console.log(eventState);
+    setValueState({ name: eventState?.availableSeats[0].tier })
   }, [eventState]);
 
   console.log(tierMap);
 
-  function handleOnClick() {}
+
+  let presentState = eventState?.availableSeats.find(seat => seat.tier === valueState?.name)
+  console.log(presentState)
+  // presentState && console.log(Object.keys(presentState))
+  let fields = presentState && Object.keys(presentState).map((element: string, i: number) => {
+    return (
+      <div key={i}>
+        <h1>{presentState[element]}</h1>
+      </div>
+    )
+  })
+
+  console.log(fields)
+
+  function handleOnClick() {
+    
+   }
 
   return (
-    <div>
-      {/* <h1>{eventState?.name}</h1>
-      <h1>{eventState?.startDate}</h1>
-      <h1>{eventState?.location}</h1>
-      <h1>{eventState?.endDate}</h1>
-      <h1>{eventState?.description}</h1> */}
-      {tierMap && (
+    <div className="flex items-center h-screen w-screen ">
+      <div className="relative">
+      {valueState && (
         <Combobox
-          data={tierMap}
-          selected={valueState}
-          setSelected={setValueState}
+        data={tierMap}
+        selected={valueState}
+        setSelected={setValueState}
         />
       )}
-      <div className="flex flex-col gap-3">
-        {eventState &&
-          eventState.availableSeats.map((seat, i) => (
-            <div className="w-full" key={i}>
-              <h1>{seat.number}</h1>
-              <h1>{seat.price}</h1>
-              <h1>{seat.tier}</h1>
-              <button>Buy</button>
-            </div>
-          ))}
       </div>
+      <div>
+        {fields && fields}
+      </div>
+      <Button onClick={handleOnClick} >
+        Book
+      </Button>
     </div>
   );
 }
