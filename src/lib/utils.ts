@@ -33,7 +33,7 @@ export function getCookie(name: string): string | null {
 
 
 export function generateRandomId(length: number): string {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const characters = '0123456789';
   let result = '';
 
   for (let i = 0; i < length; i++) {

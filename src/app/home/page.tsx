@@ -1,25 +1,34 @@
+"use client";
+import { useState, useRef } from "react";
+import SignInComponent from "../../../authentication/signInComponent"
+import SignUpComponent from "../../../authentication/signUpComponent";
+import Link from "next/link";
 import { getCookie } from "@/lib/utils";
-import { useEffect, useState } from "react";
-import EventComponent, {EventType} from "../../../components/ui/eventComponent";
+import {auth} from "../../../firebase.config" 
 
-export default async function Home() {
 
-const fetchData = async () => {
-    const response = await fetch("http://localhost:5000/events");
-    const data: EventType[] = await response.json();
-    console.log(data);
-    return data;
-};
 
-  let data = await fetchData().then((data) => data)
-
- const list =  data.map((event) => <EventComponent {...event} />)
-
+export default function Home() {
+  const [hasAccount, setHasAccount] = useState(true);
+  
 
   return (
-    <div className="h-screen w-screen flex flex-col py-4 items-center gap-4">
-      <div>{list}</div>
-      <div className="w-[20rem] flex items-center flex-col"></div>
+    <div className="flex flex-col items-center justify-center m-0 p-0 h-[100vh] w-[100wv] overflow-hidden ">
+      {hasAccount ? <SignInComponent /> : <SignUpComponent />}
+      <button className="text-[0.8rem] flex w-[15rem]">
+        {hasAccount ? (
+          <div className="w-full flex justify-between">
+            <div onClick={() => setHasAccount(false)}>
+              New here? Sign up
+            </div>
+            <Link className="text-blue-300" href={"/forgotPassword?verified=false"}>Forgot password?</Link>
+          </div>
+        ) : (
+          <div onClick={() => setHasAccount(!hasAccount)} className="">
+            Already have an account? sign in
+          </div>
+        )}
+      </button>
     </div>
   );
 }

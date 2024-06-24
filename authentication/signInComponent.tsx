@@ -14,7 +14,7 @@ export async function emailAndPasswordSignIn(email: string, password: string) {
       const user = userCredential.user;
       console.log(user);
       setCookie("user", JSON.stringify(user), 7);
-      window.location.href = "/home";
+      window.location.href = "/";
       // ...
     })
     .catch((error) => {
@@ -42,7 +42,7 @@ export default function SignInComponent() {
   }
 
   return (
-    <main className=" flex flex-col items-center justify-center">
+    <main className=" flex flex-col items-center justify-center text-black">
       <div>Logo</div>
       <div className="w-[20rem]  flex flex-col items-center justify-center gap-4">
         <Input
@@ -50,12 +50,14 @@ export default function SignInComponent() {
           placeholder="email"
           ref={emailRef}
           onChange={(e) => setEmail(() => e.target.value)}
+          className="text-black"
         />
         <Input
           type="password"
           placeholder="password"
           ref={passwordRef}
           onChange={(e) => setPassword(() => e.target.value)}
+          className="text-black"
         />
         <Button onClick={(e) => handleOnclick(e)}>Submit</Button>
         <div>

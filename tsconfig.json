@@ -21,6 +21,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/page.jsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/page.jsx", "components/components/qrcodeGenrator.Jsx", "components/components/searchComponent.tsx", "components/components/headlessCombobox.jsx"],
   "exclude": ["node_modules"]
 }
