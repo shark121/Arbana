@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Minus, Plus } from "lucide-react";
 import { Bar, BarChart, ResponsiveContainer } from "recharts";
-import { FilterButton } from "./searchBar";
+import { FilterButton } from "../ui/searchBar";
 
 import { Button } from "@/components/ui/button";
 import {

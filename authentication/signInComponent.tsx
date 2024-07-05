@@ -14,6 +14,7 @@ export async function emailAndPasswordSignIn(email: string, password: string) {
       const user = userCredential.user;
       console.log(user);
       setCookie("user", JSON.stringify(user), 7);
+      sessionStorage.setItem("user", JSON.stringify(user));
       window.location.href = "/";
       // ...
     })

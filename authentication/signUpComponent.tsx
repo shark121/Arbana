@@ -7,6 +7,7 @@ import {
 import { auth } from "../firebase.config";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { setCookie } from "@/lib/utils";
 
 
 
@@ -14,6 +15,8 @@ function createNewUserWithEmailAndPassword(email: string, password: string) {
   createUserWithEmailAndPassword(auth, email, password)
     .then(async (userCredential) => {
       const user = userCredential.user;
+      setCookie("user", JSON.stringify(user), 7);
+      sessionStorage.setItem("user", JSON.stringify(user));
       console.log(user);
 
       sendEmailVerification(user).then((verification) => {

@@ -16,6 +16,7 @@ async function triggerPopup() {
       // The signed-in user info.
       const user = result.user;
       setCookie("user", JSON.stringify(user), 7);
+      sessionStorage.setItem("user", JSON.stringify(user));
       window.location.href = "/";
     //   console.log(user);
       return user;

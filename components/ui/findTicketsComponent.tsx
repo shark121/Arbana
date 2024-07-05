@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import { EventType } from "../ui/eventComponent";
+import { EventType } from "./eventComponent";
 // import Combobox from "../../../../../components/ui/combobox";
 import { Button } from "@/components/ui/button";
-import Counter from "../ui/counter";
+import Counter from "../components/counter";
 import { COLORSMAP } from "../../data/colors";
 
 type TicketStateType = {

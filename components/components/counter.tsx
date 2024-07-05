@@ -1,4 +1,5 @@
 import { HTMLAttributes } from "react";
+import { useState } from "react";
 
 export default function Counter({
   max,
@@ -11,15 +12,17 @@ export default function Counter({
   id: string;
   defaultValue: number;
   setDefaultValue: React.Dispatch<React.SetStateAction<number>>;
-  props? : HTMLDivElement
+  props?: HTMLDivElement;
 }) {
+  const [counterValue, setCounterValue] = useState<number>(1);
   function changeDefaltValue(step: number) {
-    setDefaultValue((defaultValue) => Number(defaultValue) + step || 1);
+    const newValue = Number(defaultValue) + step || 1;
+
+    // setCounterValue(newValue);
+    setDefaultValue(newValue);
 
     if (defaultValue == 1 && step < 0) return;
-  } 
-
-  
+  }
 
   return (
     <div className="flex h-full  items-center  justify-center " {...props}>

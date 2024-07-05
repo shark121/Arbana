@@ -2,8 +2,10 @@ import { getCookie } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import EventComponent, { EventType } from "../../components/ui/eventComponent";
 import { auth } from "../../firebase.config";
-import ListComponent from "../../components/components/listComponent";
+import ListComponent from "../../components/ui/listComponent";
 import {Comfortaa} from "next/font/google"
+// import {auth} from "../../firebase.config"
+
 
 export const comfortaa = Comfortaa({
   weight: ["400", "700","300", "500","600"],

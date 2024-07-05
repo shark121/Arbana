@@ -5,7 +5,7 @@ import SearchIcon from "../../src/images/svg/search";
 import { SearchCombobox } from "../components/headlessCombobox";
 import { EventType } from "../ui/eventComponent";
 import { useState } from "react";
-import { DrawerComponent } from "./drawer";
+import { DrawerComponent } from "../components/drawer";
 import { parametersList } from "../../data/parameters";
 
 export function FilterButton() {

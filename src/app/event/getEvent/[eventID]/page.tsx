@@ -11,8 +11,9 @@ import { Calendar } from "lucide-react";
 import DateSVG from "@/images/svg/date";
 import MapComponent from "../../../../../components/components/map";
 import LocationSVG from "@/images/svg/location";
-import FindEventItem from "../../../../../components/components/findTicketsComponent";
+import FindEventItem from "../../../../../components/ui/findTicketsComponent";
 import { DaysOfTheWeek } from "../../../../../data/days";
+import {useRouter} from "next/navigation"
 
 const comfortaa = Comfortaa({
   weight: ["400", "700", "300", "500"],
@@ -47,10 +48,10 @@ export function convertDate(date: string | undefined): DateMapType {
 }
 
 export default function EventItem(params: { params: { eventID: string } }) {
+  const router = useRouter();
   const [eventState, setEventState] = useState<EventType>();
   const [displayTickets, setDisplayTickets] = useState(false);
   const eventID = params.params.eventID;
-
 
   const convertedDate = convertDate(eventState?.startDate);
 
@@ -80,7 +81,7 @@ export default function EventItem(params: { params: { eventID: string } }) {
       className={`w-full items-center  flex-col  text-black ${comfortaa.className} pb-20 bg-gray-50/10`}
     >
       <div className="w-full h-[3.5rem]  flex items-center justify-between p-4">
-        <button>
+        <button onClick={()=>router.back()}>
           <BackSVG height="20px" width="20px" />
         </button>
         <div>

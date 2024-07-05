@@ -1,16 +1,17 @@
 "use client";
 import { useState, useEffect } from "react";
 import { getCookie } from "@/lib/utils";
-import { SearchCombobox } from "./headlessCombobox";
-import EventComponent, { EventType } from "../ui/eventComponent";
+import { SearchCombobox } from "../components/headlessCombobox";
+import EventComponent, { EventType } from "./eventComponent";
 import Categories from "./categories";
-import LoaderComponent from "../ui/loader";
+import LoaderComponent from "../components/loader";
 import Link from "next/link";
 import UserSVG from "@/images/svg/user";
 import { Comfortaa } from "next/font/google";
-import SearchBar from "../ui/searchBar";
+import SearchBar from "./searchBar";
 import MenuSVG from "@/images/svg/menu";
 import { COLORSMAP } from "../../data/colors";
+import SheetComponent from "../components/sheet";
 
 const comfortaa = Comfortaa({
   weight: ["400", "700", "300", "500"],
@@ -59,9 +60,9 @@ export default function ListComponent({ data }: { data: EventType[] }) {
         <div className="w-screen flex justify-between p-4 flex-col">
           <div className="h-[40px] w-full flex justify-between ">
             <Link href={""} className="relative w-[30px] h-[30px]">
-              <UserSVG fill="#371fef" />
+              {/* <UserSVG fill="#371fef" /> */}
             </Link>
-            <MenuSVG  width="30px" height="30px" fill={COLORSMAP.primaryBlue}/>
+            <SheetComponent />
           </div>
           <div className="relative h-[4rem] flex items-center justify-center ">
             {<SearchBar data={data} value={value} setValue={setValue} />}

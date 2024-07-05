@@ -4,7 +4,7 @@ import Image from "next/image";
 import Head from "next/head";
 import QRcode from "qrcode";
 import { use, useEffect, useState } from "react";
-import DialogComponent from "../../../../components/ui/dialog";
+import DialogComponent from "../../../../components/components/dialog";
 import { Link } from "lucide-react";
 import { jsPDF } from "jspdf";
 import { Button } from "@/components/ui/button";

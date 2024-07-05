@@ -20,11 +20,14 @@ export function setCookie(data:string, values:string, days:number) {
 export function getCookie(name: string): string | null {
   const cookieString = document.cookie;
   const cookies = cookieString.split('; ');
+  console.log(cookies)
 
   for (const cookie of cookies) {
     const [cookieName, cookieValue] = cookie.split('=');
     if (cookieName === name) {
+      // JSON.parse(cookieValue)
       return decodeURIComponent(cookieValue);
+      // return cookieValue;
     }
   }
 

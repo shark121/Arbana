@@ -14,12 +14,16 @@ export type EventType = {
   name: string;
   startDate: string;
   endDate: string;
+  time : string;
   location: string;
   description: string;
   availableSeats: TicketType[];
-  level: string;
+  level?: string;
   categories: string[];
-  imageUrl: string;
+  imageUrl: string; 
+  creatorMailAdress?:string | null |undefined
+  createdAt?: string;
+  fallBackMailAdress?: string;  
 };
 
 export default function EventComponent({ event }: { event: EventType }) {

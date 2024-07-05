@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
 
+
+
+
 export async function GET(req: NextRequest, context:{params:{data:string[]}}) {
 
 //   const requestedNumber = Number(context.params.data[0])
