@@ -19,7 +19,7 @@ export default function ScanQRCode() {
         Start
       </Button>
       <div id="qr-code-reader"></div>
-      <div className="bg-red-200 h-[200px] w-[200px]">{cameraId}</div>
+      {/* <div className="bg-red-200 h-[200px] w-[200px]">{cameraId}</div> */}
     </div>
   );
 }

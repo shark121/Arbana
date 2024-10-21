@@ -12,6 +12,7 @@ import { comfortaa } from "../../page";
 import Image from "next/image";
 import {Separator} from "@/components/ui/separator";
 import {useRouter} from "next/navigation";
+import { TicketType} from "@/lib/types";
 
 const Providers = [
   { label: "MTN", value: "MTN" },
@@ -26,25 +27,12 @@ export default function Booking({ params }: { params: {} }) {
   const [providerState, setProviderState] = useState<string>("MTN");
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [defaultValue, setDefaultValue] = useState<number>(1);
-  const [ticketState, setTicketState] = useState<{
-    name: string;
-    startDate: string;
-    endDate: string;
-    eventID: string;
-    tier: string;
-    price: number;
-    quantity: number;
-    imageUrl: string;
-  }>();
+  const [ticketState, setTicketState] = useState<Omit<TicketType, "transactionID"> | null>(null);
   const [headerText, setHeaderText] = useState<string>("");
   const [text, setText] = useState<string>("");
   const [isOpen, setIsOpen] = useState(false);
   
   const tax = 3.50;
-  
-  
-
-
 
   function TicketComponent({
     imageUrl,
@@ -76,12 +64,8 @@ export default function Booking({ params }: { params: {} }) {
             <div className="p-x w-[60%] flex  flex-col justify-start items-start">
               <div className="font-bold ">{name}</div>
               <div className="text-[0.8rem] text-gray-500 flex w-full ">
-                {/* <div>{`${startDate}   -   ${endDate}`}</div> */}
                 <div>{tier}</div>
               </div>
-              {/* <div className="font-bold  absolute right-2 bottom-2">
-                ${price}
-              </div> */}
             </div>
           </div>
         </div>
@@ -123,8 +107,8 @@ export default function Booking({ params }: { params: {} }) {
 
   useEffect(() => {
     console.log(providerState);
-    const ticket = sessionStorage.getItem("ticket");
-    let parsedTicket = ticket && JSON.parse(ticket);
+    const ticket = sessionStorage.getItem("ticket") as string;
+    let parsedTicket = JSON.parse(ticket) as Omit<TicketType,"transactionID">;
     setTicketState(parsedTicket);
   }, [providerState]);
 
@@ -136,7 +120,7 @@ export default function Booking({ params }: { params: {} }) {
   ) {
     price = price ?? 0;
 
-    await fetch(`http://localhost:3000/api/data/read/getTickets/${quantity}`)
+    await fetch(`/api/data/read/tickets/${quantity}/${ticketState?.tier}/${ticketState?.eventID}`)
       .then(async (response) => {
         let text = await response.json();
         console.log(text);
@@ -150,35 +134,46 @@ export default function Booking({ params }: { params: {} }) {
         }
       })
       .catch((error) => {
-        // console.log(error);
+        console.log(error);
         setText("There was an error completing your request.");
         setHeaderText("Error");
         setIsOpen(true);
         return "error";
       })
       .then(async () => {
+        const ticketFormData = new FormData();
+        ticketFormData.append("ticket", JSON.stringify(ticketState));
+
         await fetch(
-          `http://localhost:3000/api/payment/request/${phoneNumber}/${provider}/${price}`
+          `/api/payment/request/${phoneNumber}/${provider}/${price}/${quantity}`,{
+            method: "POST",
+            body: ticketFormData,
+          }
         )
           .then(async (response) => {
             let text = await response.json();
+            const textresponse = text.response as string;
             console.log(text);
-            if (text.response === false) {
+            if (textresponse === "false") {
               setText("Payment failed, please try again later.");
               setHeaderText("Payment failed");
               setIsOpen(true);
               return "error";
             }
 
-            const ticketWithID = { ...ticketState, ticketID: text.response };
+            console.log(ticketState)
+
+            const ticketWithID : TicketType = { ...ticketState, transactionID: textresponse }  as TicketType;
+  
             sessionStorage.setItem("ticket", JSON.stringify(ticketWithID));
 
             const verificationID = generateRandomId(10);
             sessionStorage.setItem("verificationID", verificationID);
 
-            window.location.href = `/ticket/${text.response}/${verificationID}`;
+            // window.location.href = `/ticket/${text.response}/${verificationID}`;
           })
           .catch((error) => {
+
             console.log(error);
             setText(String(error));
             setHeaderText("Payment failed");
@@ -186,15 +181,15 @@ export default function Booking({ params }: { params: {} }) {
           });
       });
 
-    const text = { response: generateRandomId(10) };
+    // const text = { response: generateRandomId(10) };
 
-    const ticketWithID = { ...ticketState, ticketID: text.response, quantity };
-    sessionStorage.setItem("ticket", JSON.stringify(ticketWithID));
+    // const ticketWithID = { ...ticketState, ticketID: text.response, scans :quantity };
+    // sessionStorage.setItem("ticket", JSON.stringify(ticketWithID));
 
-    const verificationID = generateRandomId(10);
-    sessionStorage.setItem("verificationID", verificationID);
+    // const verificationID = generateRandomId(10);
+    // sessionStorage.setItem("verificationID", verificationID);
 
-    window.location.href = `/ticket/${text.response}/${verificationID}`;
+    // window.location.href = `/ticket/${text.response}/${verificationID}`;
   }
 
   return (
@@ -217,7 +212,7 @@ export default function Booking({ params }: { params: {} }) {
           tier={ticketState?.tier}
         />
       )}
-     { ticketState && <OrderSummary price={ticketState.price} quantity={ticketState.quantity} />}
+     { ticketState && <OrderSummary price={ticketState.price} quantity={ticketState.scans} />}
 
       <div className="relative -z-10">
         <DialogComponent
@@ -242,7 +237,7 @@ export default function Booking({ params }: { params: {} }) {
       <Button
         onClick={async () =>
           await handleOnClick(
-            ticketState?.quantity || 0,
+            ticketState?.scans || 0,
             phoneNumber,
             providerState,
             ticketState?.price

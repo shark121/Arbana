@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { storage, database } from "@/../../firebase.config";
+import { storage, database } from "@/firebase.config";
 import { createRequestType } from "@/app/myEvents/create/page";
 import {
   collection,
@@ -9,6 +9,7 @@ import {
   updateDoc,
   addDoc,
   runTransaction,
+  arrayUnion
 } from "firebase/firestore";
 import {
   getStorage,
@@ -20,12 +21,13 @@ import {
 
 const eventCollectionRef = collection(database, "events");
 
-async function fileUploadFunc(
+async function addEvent(
   buffer: Buffer,
   nameID: string,
   fileType: string,
   restToJSON: Omit<createRequestType, "imageFile">,
-  eventIdtoString: string
+  eventIdtoString: string,
+  userID: string
 ) {
   const nameIDTrim = nameID.trim();
   console.log(nameIDTrim, fileType);
@@ -58,22 +60,27 @@ async function fileUploadFunc(
             imageUrl: url as unknown as string,
           };
 
-          console.log(url, ".........................url");
+          const eventDocRef = doc(eventCollectionRef, eventIdtoString);
+          const userDocRef = doc(collection(database, "users"), userID);
 
-          const docRef = doc(eventCollectionRef, eventIdtoString);
-
-          await setDoc(docRef, eventUploadData)
-            .then((docRef) => {
-              console.log(
-                "document added ...................................................."
-              );
+          runTransaction(database, async (transaction) => {
+            transaction.set(eventDocRef, eventUploadData);
+            transaction.set(
+              userDocRef,
+              { events: arrayUnion(eventUploadData) },
+              { merge: true }
+            );
+          })
+            .then(() => {
+              console.log("transaction done");
             })
-            .catch((error) => console.error("Error adding document: ", error));
+            .catch((error) => {
+              console.error("Error adding document: ", error);
+            });
         })
         .catch((error) => NextResponse.error());
     }
   );
-
 }
 
 export async function POST(
@@ -86,18 +93,23 @@ export async function POST(
   const restToJSON: Omit<createRequestType, "imageFile"> =
     rest && JSON.parse(rest);
   const getFileTypeStartIndex = imageFile.type.indexOf("/") + 1;
+  console.log(getFileTypeStartIndex, "getFileTypeStartIndex");
   const fileType = imageFile.type.slice(getFileTypeStartIndex);
   const bytes = await imageFile.arrayBuffer();
   const buffer = Buffer.from(bytes);
   const eventId = restToJSON.eventId;
   const eventIdtoString = String(eventId);
+  const userID = restToJSON.userID;
 
-  await fileUploadFunc(
+  console.log(restToJSON, "restToJSON.....................................................................");
+
+  await addEvent(
     buffer,
     eventIdtoString,
     fileType,
     restToJSON,
-    eventIdtoString
+    eventIdtoString,
+    userID
   )
     .catch((error) => console.error("Error adding document: ", error))
     .then(async () => {

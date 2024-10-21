@@ -24,6 +24,7 @@ export type EventType = {
   creatorMailAdress?:string | null |undefined
   createdAt?: string;
   fallBackMailAdress?: string;  
+  userID: string;
 };
 
 export default function EventComponent({ event }: { event: EventType }) {

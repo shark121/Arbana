@@ -1,6 +1,7 @@
 "use client"
 import { useState, CSSProperties } from "react";
 import SyncLoader from "react-spinners/MoonLoader";
+import {COLORSMAP} from "../../data/colors"
 
 // const override: CSSProperties = {
 //   display: "block",
@@ -12,8 +13,8 @@ export default function LoaderComponent() {
 
   return (
       <SyncLoader
-        color={"#000000"}
-        size={14}
+        color={COLORSMAP.primaryBlue}
+        size={40}
         aria-label="Loading Spinner"
         data-testid="loader"
       />

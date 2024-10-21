@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase.config";
+import { auth } from "../src/firebase.config";
 import { Button } from "../src/components/ui/button";
 import { Input } from "../src/components/ui/input";
 import GoogleAuth from "./googleAuth";

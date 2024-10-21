@@ -14,31 +14,13 @@ import z from "zod";
 import { Form } from "react-hook-form";
 import { EventType } from "../../../../components/ui/eventComponent";
 import { User } from "firebase/auth";
+import { runTransaction } from "firebase/firestore";
 
 type RequestType = EventType & { imageFile: File | null };
 
 export type createRequestType = Omit<RequestType, "imageUrl">;
 
-async function sendCreateRequest({ event }: { event: createRequestType }) {
-  const { imageFile, ...rest } = event;
-  const requestFormData = new FormData();
-  imageFile && requestFormData.append("imageFile", imageFile);
-  requestFormData.append("rest", JSON.stringify(rest));
-
-  await fetch("/api/data/create/event/", {
-    method: "POST",
-    body: requestFormData,
-  })
-    .then((res) => res.json())
-    .then((data) => console.log(data))
-    .catch((error) => console.log(error));
-}
-
-function AddTicket({
-  setAvailableSeatsState,
-}: {
-  setAvailableSeatsState: React.Dispatch<React.SetStateAction<TicketType[]>>;
-}) {
+function TicketTierType({setAvailableSeatsState}: {setAvailableSeatsState: React.Dispatch<React.SetStateAction<TicketType[]>>}) {
   const [ticketTier, setTicketTier] = useState<string>("");
   const [tierPrice, setTierPrice] = useState<number>(0);
   const [tierQuantity, setTierQuantity] = useState<number>(0);
@@ -83,8 +65,42 @@ function AddTicket({
   );
 }
 
+async function sendCreateRequest({ event }: { event: createRequestType }) {
+  const { imageFile, ...rest } = event;
+  const requestFormData = new FormData();
+  imageFile && requestFormData.append("imageFile", imageFile);
+  requestFormData.append("rest", JSON.stringify(rest));
+
+  await fetch("/api/data/create/event/", {
+    method: "POST",
+    body: requestFormData,
+  })
+    .then((res) => res.json())
+    .then((data) => console.log(data))
+    .catch((error) => console.log(error));
+}
+
+function AddTicket({
+  setAvailableSeatsState,
+}: {
+  setAvailableSeatsState: React.Dispatch<React.SetStateAction<TicketType[]>>;
+}) {
+  const [typesQty, setTypesQty] = useState<number>(1);
+
+
+
+  return (
+    <div>
+      {[...Array(typesQty)].map((_, i) => (
+        <TicketTierType setAvailableSeatsState={setAvailableSeatsState} />
+      ))}
+      <Button onClick={() => setTypesQty(typesQty + 1)}>Add Ticket Type</Button>
+    </div>
+  );
+}
+
 export default function CreateEvent() {
-  const [eventNameState, setEventNameState] = useState("");
+  const [eventNameState, setEventNameState] = useState<string>("");
   const [startDateState, setStartDateState] = useState<string>("");
   const [endDateState, setEndDateState] = useState<string>("");
   const [startTimeState, setStartTimeState] = useState<string>("00:00");
@@ -159,6 +175,10 @@ export default function CreateEvent() {
       (category) => category !== ""
     );
 
+    const userIDAsString = userInfoState?.uid as string;
+
+    console.log(userIDAsString, "user ID");
+
     console.log(fileteredCategories);
 
     const event: Omit<RequestType, "imageUrl"> = {
@@ -175,10 +195,11 @@ export default function CreateEvent() {
       createdAt: new Date().toISOString(),
       creatorMailAdress: userInfoState?.email,
       fallBackMailAdress: fallBackMailAdressState,
+      userID: userIDAsString,
     };
 
     console.log(event);
-    await sendCreateRequest({ event });
+    await sendCreateRequest({ event }).catch((err) => console.log(err, "err"));
   }
 
   return (
@@ -221,10 +242,11 @@ export default function CreateEvent() {
         accept="image/*"
         max={"1000"}
         placeholder="Image URL"
-        onChange={(e) =>
+        onChange={(e) => {
+          console.log(e.target.files);
           e.target.files &&
-          setImageFileState(e.target.files?.[0] as unknown as File)
-        }
+            setImageFileState(e.target.files?.[0] as unknown as File);
+        }}
       />
       <Input
         placeholder="Fallback Mail Adress"

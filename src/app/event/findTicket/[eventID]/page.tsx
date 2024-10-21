@@ -9,6 +9,9 @@ import { COLORSMAP } from "../../../../../data/colors";
 import { useRouter } from "next/navigation";
 import { convertDate } from "../../getEvent/[eventID]/page";
 import Image from "next/image";
+import { User } from "firebase/auth";
+import { generateRandomId } from "@/lib/utils";
+
 const comfortaa = Comfortaa({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
@@ -30,6 +33,7 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
   const [defaultValueState, setDefaultValueState] = useState(1);
   const [currentTier, setCurrentTier] = useState<string>("");
   const [currentPrice, setCurrentPrice] = useState<number>(1);
+  const [userInfoState, setUserInfoState] = useState<User>();
   const router = useRouter();
   const eventID = params.params.eventID;
 
@@ -42,6 +46,9 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
   useEffect(() => {
     const eventData = sessionStorage.getItem(eventID);
     eventData && setEventState(JSON.parse(eventData));
+    const userInformation = sessionStorage.getItem("user");
+    setUserInfoState(JSON.parse(userInformation as string));
+
     console.log(eventData);
   }, []);
 
@@ -126,7 +133,11 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
         eventID,
         tier,
         price,
-        quantity: defaultValueState,
+        scans: defaultValueState,
+        createdAt: new Date().toISOString(),
+        uid: userInfoState?.uid,
+        ticketID: generateRandomId(10),
+
       })
     );
     window.location.href = `/booking/${eventID}`;

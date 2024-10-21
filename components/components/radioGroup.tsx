@@ -12,9 +12,9 @@ export default function RadioGroupComponent({
   setValueState: React.Dispatch<React.SetStateAction<string>>;
   data: { label: string; value: string }[];
 }) {
-  const list = data.map((item) => {
+  const list = data.map((item, i) => {
     return (
-      <Label htmlFor={item.value}>
+      <Label htmlFor={item.value} key={i}>
         <div className="flex items-center justify-start p-4 space-x-2 h-[5rem]  m-2 rounded-xl shadow-sm ">
           <RadioGroupItem
             value={item.value}

@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "../../../firebase.config";
+import { auth } from "../../firebase.config";
 import { useState } from "react";
 
 async function SendPasswordReset(email: string) {

@@ -1,5 +1,9 @@
-import LoaderComponent from "../../components/components/loader"
+import LoaderComponent from "../../components/components/loader";
 
 export default function Loading() {
-    return <LoaderComponent />
-  }
+  return (
+    <div className="h-screen w-screen flex items-center justify-center">
+      <LoaderComponent />
+    </div>
+  );
+}

@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { auth } from "../../firebase.config";
+import { auth } from "../../src/firebase.config";
 import { useEffect, useState } from "react";
 import { getCookie } from "../../src/lib/utils";
 import parseJson from "parse-json";

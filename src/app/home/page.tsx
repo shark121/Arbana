@@ -4,7 +4,7 @@ import SignInComponent from "../../../authentication/signInComponent"
 import SignUpComponent from "../../../authentication/signUpComponent";
 import Link from "next/link";
 import { getCookie } from "@/lib/utils";
-import {auth} from "../../../firebase.config" 
+import {auth} from "../../firebase.config" 
 
 
 
