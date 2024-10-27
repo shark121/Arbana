@@ -48,11 +48,13 @@ export default function Ticket({ params }: { params: { data: string[] } }) {
   console.log(userID, verificationID);
 
   useEffect(() => {
-    if (sessionStorage.getItem("verificationID") !== verificationID) {
-      setDialogHeader("Invalid Ticket");
-      setDialogText("The ticket you are trying to access is invalid");
-      setDialogIsOpen(true);
-    } else {
+    // if (sessionStorage.getItem("verificationID") !== verificationID) {
+    //   setDialogHeader("Invalid Ticket");
+    //   setDialogText("The ticket you are trying to access is invalid");
+    //   setDialogIsOpen(true);
+    // } 
+    
+    // else {
       const ticket = sessionStorage.getItem("ticket");
       let parsedTicket = ticket && JSON.parse(ticket);
       setTicketState(parsedTicket);
@@ -67,7 +69,7 @@ export default function Ticket({ params }: { params: { data: string[] } }) {
       getQrCode().then((url) => {
         setQrCode(url);
       });
-    }
+    
   }, []);
 
   useEffect(() => {

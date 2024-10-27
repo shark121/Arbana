@@ -9,7 +9,7 @@ import {
   updateDoc,
   addDoc,
   runTransaction,
-  arrayUnion
+  arrayUnion,
 } from "firebase/firestore";
 import {
   getStorage,
@@ -88,20 +88,34 @@ export async function POST(
   context: { params: { data: string[] } }
 ) {
   const collectedData = await req.formData();
+
   const imageFile = collectedData.get("imageFile") as File;
+
   const rest = collectedData.get("rest") as string;
+
   const restToJSON: Omit<createRequestType, "imageFile"> =
     rest && JSON.parse(rest);
+
   const getFileTypeStartIndex = imageFile.type.indexOf("/") + 1;
+
   console.log(getFileTypeStartIndex, "getFileTypeStartIndex");
+
   const fileType = imageFile.type.slice(getFileTypeStartIndex);
+
   const bytes = await imageFile.arrayBuffer();
+
   const buffer = Buffer.from(bytes);
+
   const eventId = restToJSON.eventId;
+
   const eventIdtoString = String(eventId);
+
   const userID = restToJSON.userID;
 
-  console.log(restToJSON, "restToJSON.....................................................................");
+  console.log(
+    restToJSON,
+    "restToJSON....................................................................."
+  );
 
   await addEvent(
     buffer,

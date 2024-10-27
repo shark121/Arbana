@@ -15,55 +15,13 @@ import { Form } from "react-hook-form";
 import { EventType } from "../../../../components/ui/eventComponent";
 import { User } from "firebase/auth";
 import { runTransaction } from "firebase/firestore";
+import TicketTierType, {
+  AddNewTicket,
+} from "../../../../components/components/eventInfo/ticketTierTypeComponent";
 
 type RequestType = EventType & { imageFile: File | null };
 
 export type createRequestType = Omit<RequestType, "imageUrl">;
-
-function TicketTierType({setAvailableSeatsState}: {setAvailableSeatsState: React.Dispatch<React.SetStateAction<TicketType[]>>}) {
-  const [ticketTier, setTicketTier] = useState<string>("");
-  const [tierPrice, setTierPrice] = useState<number>(0);
-  const [tierQuantity, setTierQuantity] = useState<number>(0);
-
-  return (
-    <div className="flex flex-col gap-4 w-full ">
-      <Input
-        placeholder="Ticket Tier"
-        required={true}
-        onChange={(e) => setTicketTier(e.target.value)}
-      />
-      <Input
-        placeholder="Ticket Price"
-        required={true}
-        type="number"
-        onChange={(e) => setTierPrice(Number(e.target.value))}
-      />
-      <Input
-        placeholder="Ticket Quantity"
-        required={true}
-        type="number"
-        onChange={(e) => setTierQuantity(Number(e.target.value))}
-      />
-      <Button
-        onClick={(e) => {
-          const allFieldsFilled = ticketTier && tierPrice && tierQuantity;
-
-          allFieldsFilled &&
-            setAvailableSeatsState((availableSeatsState) => [
-              ...availableSeatsState,
-              { tier: ticketTier, number: tierQuantity, price: tierPrice },
-            ]);
-
-          setTicketTier("");
-          setTierPrice(0);
-          setTierQuantity(0);
-        }}
-      >
-        Add Ticket
-      </Button>
-    </div>
-  );
-}
 
 async function sendCreateRequest({ event }: { event: createRequestType }) {
   const { imageFile, ...rest } = event;
@@ -82,23 +40,70 @@ async function sendCreateRequest({ event }: { event: createRequestType }) {
 
 function AddTicket({
   setAvailableSeatsState,
+  availableSeatsState,
+  seatsState,
+  setSeatsState,
 }: {
+  seatsState: TicketType[];
+  setSeatsState: React.Dispatch<React.SetStateAction<TicketType[]>>;
   setAvailableSeatsState: React.Dispatch<React.SetStateAction<TicketType[]>>;
+  availableSeatsState: TicketType[];
 }) {
-  const [typesQty, setTypesQty] = useState<number>(1);
+  const [isAddingNewTicket, setIsAddingNewTicket] = useState<boolean>(false);
 
+  useEffect(() => {
+    availableSeatsState &&
+      setSeatsState((seatsState) => [
+        ...seatsState,
+        ...(availableSeatsState as TicketType[]),
+      ]);
+  }, [availableSeatsState]);
 
+  function RemoveTicketType({ seat }: { seat: TicketType }) {
+    setSeatsState((seatsState) =>
+      seatsState.filter((el) => el.tier !== seat.tier)
+    );
+  }
+
+  function AddTicketType(
+    ticketTier: string,
+    tierPrice: number,
+    tierQuantity: number
+  ) {
+    if (!ticketTier || !tierPrice || !tierQuantity) return;
+
+    if (seatsState.map((el) => el.tier).includes(ticketTier)) return;
+
+    setSeatsState((seatsState) => [
+      ...seatsState,
+      { tier: ticketTier, number: tierQuantity, price: tierPrice },
+    ]);
+  }
 
   return (
     <div>
-      {[...Array(typesQty)].map((_, i) => (
-        <TicketTierType setAvailableSeatsState={setAvailableSeatsState} />
-      ))}
-      <Button onClick={() => setTypesQty(typesQty + 1)}>Add Ticket Type</Button>
+      {seatsState.map((el, i) => {
+        return (
+          <TicketTierType
+            RemoveTicketType={RemoveTicketType}
+            AddTicketType={AddTicketType}
+            seat={el}
+            key={el.tier}
+          />
+        );
+      })}
+      {isAddingNewTicket ? (
+        <AddNewTicket
+          seatsState={seatsState}
+          setSeatsState={setSeatsState}
+          setIsAddingNewTicket={setIsAddingNewTicket}
+        />
+      ) : (
+        <Button onClick={() => setIsAddingNewTicket(true)}>Add New Tier</Button>
+      )}
     </div>
   );
 }
-
 export default function CreateEvent() {
   const [eventNameState, setEventNameState] = useState<string>("");
   const [startDateState, setStartDateState] = useState<string>("");
@@ -121,6 +126,8 @@ export default function CreateEvent() {
   const [userInfoState, setUserInfoState] = useState<User>();
   const [fallBackMailAdressState, setFallBackMailAdressState] =
     useState<string>("");
+
+  const [seatsState, setSeatsState] = useState<TicketType[]>([]);
 
   useEffect(() => {
     const userInfo = JSON.parse(sessionStorage.getItem("user") as string);
@@ -188,7 +195,7 @@ export default function CreateEvent() {
       location: locationState,
       description: descriptionState,
       categories: fileteredCategories,
-      availableSeats: availableSeatsState,
+      availableSeats: seatsState,
       eventId: eventIDState,
       time: startTimeState,
       imageFile: imageFileState,
@@ -198,7 +205,8 @@ export default function CreateEvent() {
       userID: userIDAsString,
     };
 
-    console.log(event);
+    console.log(event, "event");
+
     await sendCreateRequest({ event }).catch((err) => console.log(err, "err"));
   }
 
@@ -253,7 +261,16 @@ export default function CreateEvent() {
         onChange={(e) => setFallBackMailAdressState(e.target.value)}
       />
       <div className="w-full ">{chosenCategoriesList}</div>
-      <div>{<AddTicket setAvailableSeatsState={setAvailableSeatsState} />}</div>
+      <div>
+        {
+          <AddTicket
+            setAvailableSeatsState={setAvailableSeatsState}
+            availableSeatsState={availableSeatsState}
+            seatsState={seatsState}
+            setSeatsState={setSeatsState}
+          />
+        }
+      </div>
       <Button onClick={async () => await handleCreateEvent()}>
         Create Event
       </Button>

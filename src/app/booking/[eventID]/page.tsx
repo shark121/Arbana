@@ -170,7 +170,7 @@ export default function Booking({ params }: { params: {} }) {
             const verificationID = generateRandomId(10);
             sessionStorage.setItem("verificationID", verificationID);
 
-            // window.location.href = `/ticket/${text.response}/${verificationID}`;
+            window.location.href = `/ticket/${text.response}/${verificationID}`;
           })
           .catch((error) => {
 
@@ -229,11 +229,11 @@ export default function Booking({ params }: { params: {} }) {
         max={10}
         onChange={(e) => setPhoneNumber(e.target.value)}
       /> */}
-      <RadioGroupComponent
+      {/* <RadioGroupComponent
         data={Providers}
         valueState={providerState}
         setValueState={setProviderState}
-      />
+      /> */}
       <Button
         onClick={async () =>
           await handleOnClick(

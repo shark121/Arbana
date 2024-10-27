@@ -17,7 +17,10 @@ import z from "zod";
 import { Form } from "react-hook-form";
 import { EventType } from "../../../../components/ui/eventComponent";
 import { User } from "firebase/auth";
-import { runTransaction } from "firebase/firestore";
+import TicketPopOver from "../../../../components/components/ticketPopOver";
+import TicketTierType, {
+  AddNewTicket,
+} from "../../../../components/components/eventInfo/ticketTierTypeComponent";
 
 async function sendCreateRequest({ event }: { event: createRequestType }) {
   const { imageFile, ...rest } = event;
@@ -38,123 +41,69 @@ type RequestType = EventType & { imageFile: File | null };
 
 export type createRequestType = Omit<RequestType, "imageUrl">;
 
-function TicketTierType({
+function AddTicket({
   setAvailableSeatsState,
-  seat,
   availableSeatsState,
   seatsState,
   setSeatsState,
 }: {
-  setAvailableSeatsState: React.Dispatch<React.SetStateAction<TicketType[]>>;
-  seat: TicketType;
-  availableSeatsState: TicketType[];
   seatsState: TicketType[];
   setSeatsState: React.Dispatch<React.SetStateAction<TicketType[]>>;
-}) {
-  const alreadyAdded = availableSeatsState
-    .map((el) => el.tier)
-    .includes(seat.tier);
-
-  const [ticketTier, setTicketTier] = useState<string>("");
-  const [tierPrice, setTierPrice] = useState<number>(0);
-  const [tierQuantity, setTierQuantity] = useState<number>(0);
-  const [isAdded, setIsAdded] = useState<boolean>(alreadyAdded);
-
-  return (
-    <div className="flex flex-col gap-4 w-full ">
-      <Input
-        placeholder="Ticket Tier"
-        required={true}
-        defaultValue={seat.tier}
-        onChange={(e) => setTicketTier(e.target.value)}
-        readOnly={alreadyAdded}
-      />
-      <Input
-        placeholder="Ticket Price"
-        defaultValue={seat.price}
-        required={true}
-        type="number"
-        onChange={(e) => setTierPrice(Number(e.target.value))}
-        readOnly={alreadyAdded}
-      />
-      <Input
-        placeholder="Ticket Quantity"
-        defaultValue={seat.number}
-        required={true}
-        type="number"
-        onChange={(e) => setTierQuantity(Number(e.target.value))}
-        readOnly={alreadyAdded}
-      />
-      {isAdded ? (
-        <Button
-          onClick={(e) => {
-            setSeatsState((seatsState)=>seatsState.filter((el) => el.tier !== seat.tier));
-            console.log(seatsState, "seatsState");
-          }}
-        >
-          Remove Ticket
-        </Button>
-      ) : (
-        <Button
-          onClick={(e) => {
-            const allFieldsFilled = ticketTier && tierPrice && tierQuantity;
-
-            allFieldsFilled &&
-              setSeatsState((seatsState) => [
-                ...seatsState,
-                { tier: ticketTier, number: tierQuantity, price: tierPrice },
-              ]);
-
-            setTicketTier("");
-            setTierPrice(0);
-            setTierQuantity(0);
-            setIsAdded(true);
-          }}
-        >
-          Add Ticket
-        </Button>
-      )}
-    </div>
-  );
-}
-
-function AddTicket({
-  setAvailableSeatsState,
-  availableSeatsState,
-}: {
   setAvailableSeatsState: React.Dispatch<React.SetStateAction<TicketType[]>>;
   availableSeatsState: TicketType[];
 }) {
-  const [seatsState, setSeatsState] = useState<TicketType[]>([]);
+  const [isAddingNewTicket, setIsAddingNewTicket] = useState<boolean>(false);
 
   useEffect(() => {
-    availableSeatsState && setSeatsState(availableSeatsState as TicketType[]);
-    console.log(availableSeatsState, "availableSeatsState");
+    availableSeatsState &&
+      setSeatsState((seatsState) => [
+        ...seatsState,
+        ...(availableSeatsState as TicketType[]),
+      ]);
   }, [availableSeatsState]);
+
+  function RemoveTicketType({ seat }: { seat: TicketType }) {
+    setSeatsState((seatsState) =>
+      seatsState.filter((el) => el.tier !== seat.tier)
+    );
+  }
+
+  function AddTicketType(
+    ticketTier: string,
+    tierPrice: number,
+    tierQuantity: number
+  ) {
+    if (!ticketTier || !tierPrice || !tierQuantity) return;
+
+    if (seatsState.map((el) => el.tier).includes(ticketTier)) return;
+
+    setSeatsState((seatsState) => [
+      ...seatsState,
+      { tier: ticketTier, number: tierQuantity, price: tierPrice },
+    ]);
+  }
 
   return (
     <div>
-      {seatsState &&
-        seatsState.map((el, i) => (
+      {seatsState.map((el, i) => {
+        return (
           <TicketTierType
-            setAvailableSeatsState={setAvailableSeatsState}
-            availableSeatsState={availableSeatsState}
-            seatsState={seatsState}
-            setSeatsState={setSeatsState}
+            RemoveTicketType={RemoveTicketType}
+            AddTicketType={AddTicketType}
             seat={el}
-            key={i}
+            key={el.tier}
           />
-        ))}
-      <Button
-        onClick={() => {
-          setSeatsState([
-            ...(seatsState as TicketType[]),
-            { tier: "", number: 0, price: 0 },
-          ]);
-        }}
-      >
-        Add Ticket Type
-      </Button>
+        );
+      })}
+      {isAddingNewTicket ? (
+        <AddNewTicket
+          seatsState={seatsState}
+          setSeatsState={setSeatsState}
+          setIsAddingNewTicket={setIsAddingNewTicket}
+        />
+      ) : (
+        <Button onClick={() => setIsAddingNewTicket(true)}>Add New Tier</Button>
+      )}
     </div>
   );
 }
@@ -183,6 +132,7 @@ export default function EventInfo(params: {
     []
   );
   const [currentItem, setCurrentItem] = useState<string>("");
+  const [seatsState, setSeatsState] = useState<TicketType[]>([]);
   const [categoriesState, setCategoriesState] = useState<string[]>([]);
   const [chosenCategoriesList, setChosenCategoriesList] =
     useState<JSX.Element[]>();
@@ -201,14 +151,10 @@ export default function EventInfo(params: {
   }, []);
 
   useEffect(() => {
-    console.log(currentItem, "currentItem");
-
-    categoriesState?.includes(currentItem)
-      ? setCategoriesState((categoriesState) => [
-          ...categoriesState,
-          currentItem,
-        ])
-      : null;
+    console.log(categoriesState, "currentItem");
+    categoriesState && categoriesState?.includes(currentItem)
+      ? null
+      : setCategoriesState([...categoriesState, currentItem]);
   }, [currentItem]);
 
   useEffect(() => {
@@ -219,6 +165,10 @@ export default function EventInfo(params: {
         return <CategoriesComponent currentItem={category} key={i} />;
       })
     );
+  }, [categoriesState]);
+
+  useEffect(() => {
+    console.log(categoriesState, "categories state");
   }, [categoriesState]);
 
   useEffect(() => {
@@ -234,7 +184,6 @@ export default function EventInfo(params: {
     setFallBackMailAdressState(eventState?.fallBackMailAdress as string);
     setCategoriesState(eventState?.categories as string[]);
   }, [eventState]);
-
 
   function CategoriesComponent({ currentItem }: { currentItem: string }) {
     function handleOnClick() {
@@ -275,7 +224,7 @@ export default function EventInfo(params: {
       location: locationState,
       description: descriptionState,
       categories: fileteredCategories,
-      availableSeats: availableSeatsState,
+      availableSeats: seatsState,
       eventId: eventIDState,
       time: startTimeState,
       imageFile: imageFileState,
@@ -285,12 +234,14 @@ export default function EventInfo(params: {
       userID: userIDAsString,
     };
 
+    console.log(event);
+
     await sendCreateRequest({ event }).catch((err) => console.log(err, "err"));
   }
 
   return (
     <div className="w-full min-h-full flex items-center justify-center gap-2 flex-col px-2">
-      <div className="font-bold text-[1.2rem]">Create Event</div>
+      <div className="font-bold text-[1.2rem]">Edit Event</div>
       <Input
         placeholder="Event Name"
         onChange={(e) => setEventNameState(e.target.value)}
@@ -324,11 +275,7 @@ export default function EventInfo(params: {
         onChange={(e) => setEndDateState(e.target.value)}
         defaultValue={eventState?.endDate}
       />
-      <Selector
-        label="Genre"
-        items={categoriesList}
-        setCurrentItemState={setCurrentItem}
-      />
+
       <Input
         type="file"
         accept="image/*"
@@ -346,15 +293,21 @@ export default function EventInfo(params: {
         onChange={(e) => setFallBackMailAdressState(e.target.value)}
         defaultValue={eventState?.fallBackMailAdress}
       />
+      <Selector
+        label="Genre"
+        items={categoriesList}
+        setCurrentItemState={setCurrentItem}
+      />
       <div className="w-full ">{chosenCategoriesList}</div>
       <div>
         {
           <AddTicket
             setAvailableSeatsState={setAvailableSeatsState}
             availableSeatsState={availableSeatsState}
+            seatsState={seatsState}
+            setSeatsState={setSeatsState}
           />
         }
-        {/* <Button>Add Ticket</Button> */}
       </div>
       <Button onClick={async () => await handleCreateEvent()}>
         Update Event

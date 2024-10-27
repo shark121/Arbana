@@ -28,7 +28,9 @@ export function Selector({
   });
 
   return (
-    <Select onValueChange={(e) => setCurrentItemState(e)}>
+    <Select onValueChange={(e) => {
+      console.log("categories changed", e);
+      setCurrentItemState(e)}}>
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder={`Select a ${label} `}  />
       </SelectTrigger>

@@ -109,12 +109,12 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
             </div>
           </div>
         <div className={`w-full h-[60px]  flex items-center justify-end ${!isCurrentTier ? "hidden" : "" }`}>
-            <Counter
+            {/* <Counter
               max={999}
               id={eventID}
               defaultValue={defaultValueState}
               setDefaultValue={setDefaultValueState}
-            />
+            /> */}
           </div>
           <div className=""></div>
         </div>

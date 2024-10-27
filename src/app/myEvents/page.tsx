@@ -43,7 +43,7 @@ export default function MyEvents() {
 
 
   function handleEventOnclick(event: EventType) {
-     window.location.href = `/eventInfo/${event.eventId}`;
+     window.location.href = `/myEvents/eventOptions/${event.eventId}`;
   }
 
 
@@ -52,8 +52,9 @@ export default function MyEvents() {
       <div>
         {userEvents && (
           <div>
-            {userEvents.map((el) => (
+            {userEvents.map((el,i) => (
               <button className="w-full h-[2rem]"
+              key={i}
               onClick={()=>handleEventOnclick(el)}
               >{el.name}</button>
             ))}
@@ -64,6 +65,6 @@ export default function MyEvents() {
         Create Event
       </Button>
       {/* <ScanQRCode/> */}
-    </div>
+      </div>
   );
 }

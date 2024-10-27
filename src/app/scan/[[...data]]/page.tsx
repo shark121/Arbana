@@ -1,25 +1,51 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import QrCodeScanner from "../../../../components/components/qrcodeScanner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export default function ScanQRCode() {
+export default function ScanQRCode(params: { params: { data: string[] } }) {
+  const eventID = params.params.data[0];
   const [file, setFile] = useState<File | null>(null);
-  const [cameraId, setCameraId] = useState<any | null>();
+  const [errorState, setErrorState] = useState<any>();
+  const [scannedID, setscannedID] = useState<string>("8160083558");
+  let count = 0;
 
-  const startScanner = () =>( setCameraId(QrCodeScanner()));
+  useEffect(() => {
+    console.log(errorState);
+  }, [errorState]);
+
+  useEffect(() => {
+    fetch("/api/data/read/scan", {
+      method: "POST",
+      body: JSON.stringify({ ticketID: scannedID, eventID: eventID }),
+    })
+      .then((res) => res.json())
+      .then((data) => console.log(data))
+      .catch((error) => console.log(error));
+  }, []);
 
   return (
     <div>
       <Button
-        onClick={(e) => {
-          startScanner();
+        onClick={async (e) => {
+          await QrCodeScanner()
+            .then((res) => {
+              setscannedID(res as string);
+              setErrorState("");
+              // window.location.href = `/ticket/${res}`;
+            })
+            .catch((error) => {
+              count = count + 1;
+              setErrorState(String(error) + count);
+            });
         }}
       >
         Start
       </Button>
       <div id="qr-code-reader"></div>
-      {/* <div className="bg-red-200 h-[200px] w-[200px]">{cameraId}</div> */}
+      <div className=" h-[200px] w-[200px]">{errorState}</div>
+      <div className=" h-[200px] w-[200px]">{scannedID}</div>
+      {/* {String(QrCodeScanner().then(res=><div>{String(res)}</div>))} */}
     </div>
   );
 }
