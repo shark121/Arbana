@@ -16,47 +16,6 @@ import {
 } from "@/components/ui/drawer";
 import FileterSVG from "@/images/svg/filter";
 
-const data = [
-  {
-    goal: 400,
-  },
-  {
-    goal: 300,
-  },
-  {
-    goal: 200,
-  },
-  {
-    goal: 300,
-  },
-  {
-    goal: 200,
-  },
-  {
-    goal: 278,
-  },
-  {
-    goal: 189,
-  },
-  {
-    goal: 239,
-  },
-  {
-    goal: 300,
-  },
-  {
-    goal: 200,
-  },
-  {
-    goal: 278,
-  },
-  {
-    goal: 189,
-  },
-  {
-    goal: 349,
-  },
-];
 
 export function DrawerComponent({
   contentData,
@@ -87,7 +46,7 @@ export function DrawerComponent({
           <DrawerHeader>
             <DrawerTitle>
               <div className="w-full flex items-center justify-center">
-                Filter By
+                Filter By 
               </div>
             </DrawerTitle>
           </DrawerHeader>

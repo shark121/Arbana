@@ -32,17 +32,21 @@ export default function MenuComponent({
   }, []);
 
   const userItemStyle = "h-[100px] ";
-  const regularItemStyle = "h-[60px] w-full";
-  const userIconStyle = "h-[80px] w-[80px]";
+  const regularItemStyle = "h-[60px] w-full bg-primary/10 mb-5 rounded-[5rem]";
+  const userIconStyle = "h-[80px] w-[80px] mb-5";
   const regularIconStyle = "h-[40px] w-[40px]";
+
+  const location  = window.location.href.split("/")
+  const locationName = `/${location[location.length - 1]}`
+  console.log(locationName, url)
 
   return (
     <div
       className={` p-4 ${
-        isUser ? userItemStyle : regularItemStyle
-      }  flex items-center font-bold`}
+        isUser ? userItemStyle : (locationName === url ? regularItemStyle : "")
+      }  flex items-center font-bold `}
     >
-      <div className={`${isUser ? userIconStyle : regularIconStyle}`}>
+      <div className={`${isUser ? userIconStyle : (regularIconStyle)}`}>
         {userState && isUser ? (
           <div className="relative">
             <Image

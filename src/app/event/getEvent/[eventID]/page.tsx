@@ -8,12 +8,15 @@ import ShareSVG from "@/images/svg/share";
 import { COLORSMAP } from "../../../../../data/colors";
 import { Comfortaa } from "next/font/google";
 import { Calendar } from "lucide-react";
-import DateSVG from "@/images/svg/date";
+import DateSVG from "@/images/svg/date"
+import Clock from "@/images/svg/clock";
 import MapComponent from "../../../../../components/components/map";
 import LocationSVG from "@/images/svg/location";
 import FindEventItem from "../../../../../components/ui/findTicketsComponent";
 import { DaysOfTheWeek } from "../../../../../data/days";
-import {useRouter} from "next/navigation"
+import { useRouter } from "next/navigation";
+import SheetComponent from "../../../../../components/components/sheet";
+import {ChevronLeft} from "lucide-react"
 
 const comfortaa = Comfortaa({
   weight: ["400", "700", "300", "500"],
@@ -81,15 +84,19 @@ export default function EventItem(params: { params: { eventID: string } }) {
       className={`w-full items-center  flex-col  text-black ${comfortaa.className} pb-20 bg-gray-50/10`}
     >
       <div className="w-full h-[3.5rem]  flex items-center justify-between p-4">
-        <button onClick={()=>router.back()}>
-          <BackSVG height="20px" width="20px" />
+        <button onClick={() => router.back()}
+          className="h-[2rem] w-[2rem] rounded-full bg-primary flex items-center justify-center"
+          >
+          {/* <BackSVG height="20px" width="20px" fill="#fff" /> */}
+          <ChevronLeft height="20px" width="20px" fill="none" stroke="white"/>
         </button>
         <div>
-          <ShareSVG height="20px" width="20px" fill={COLORSMAP.primaryBlue} />
+          {/* <ShareSVG height="20px" width="20px" fill={COLORSMAP.primaryBlue} /> */}
+         <SheetComponent/>
         </div>
       </div>
-      <div className="h-[20rem] w-screen  flex flex-col justify-between items-center px-2">
-        <div className="relative w-[95%] h-[15rem] rounded-2xl my-2">
+      <div className="h-[25rem] w-screen  flex flex-col justify-between items-center px-2">
+        <div className="relative w-[95%] h-[20rem] rounded-2xl my-2">
           {eventState && (
             <Image
               src={eventState?.imageUrl}
@@ -99,25 +106,41 @@ export default function EventItem(params: { params: { eventID: string } }) {
             />
           )}
         </div>
-        <div className="font-bold text-[1.2rem] px-8 text-center">
+        <div className="font-bold text-[1.4rem] px-8 text-center">
           {eventState?.name}
         </div>
         <div className="h-[2rem] flex w-full items-center justify-center gap-1">
-          <div className=" ">{<LocationSVG height="17px" width="17px" fill={COLORSMAP.primaryBlue}/>}</div>
+          <div className=" ">
+            {
+              <LocationSVG
+                height="17px"
+                width="17px"
+                fill={COLORSMAP.primaryBlue}
+              />
+            }
+          </div>
           <div>{eventState?.location}</div>
         </div>
-        {/* <div className="flex h-[2rem] items-center justify-center w-full gap-2">
-          <div className="flex items-center justify-center h-full w-[1rem]">
-            <DateSVG height="15px" width="15px" fill={COLORSMAP.primaryBlue} />
-          </div>
-          <div className="flex items-center justify-center my-2 flex-col">
-            {eventState && convertDate(eventState.startDate)[0]}
-            <div>9:00pm GMT</div>
-          </div>
-        </div> */}
       </div>
       <div>
-        <div className="h-[6rem]  flex items-center text-gray-600 px-6 gap-4 bg-white rounded-lg">
+        <div className="flex h-[5rem] items-center justify-start w-full gap-2  mx-4 my-4">
+        <div className="flex items-center justify-center w-[3rem] h-[3rem] p-4 rounded-full mx-4 bg-primary/55">
+            <DateSVG height="50px" width="50px" fill={COLORSMAP.primaryBlue} />
+          </div>
+          <div className="flex items-center justify-center font-bold my-2 flex-col">
+            {eventState && convertDate(eventState?.startDate).dayOfWeek}{" "}
+            {eventState && convertDate(eventState?.startDate).month}{" "}
+            {eventState && convertDate(eventState?.startDate).day}{", "}
+            {"2024"}            
+            <div>
+              <div className="h-[1.5rem] w-[7rem] bg-primary rounded-xl flex items-center justify-center">
+                <Clock/>
+                <div className="text-[0.5rem] flex h-full w-full">{"9:00 GMT"}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* <div className="h-[6rem]  flex items-center text-gray-600 px-6 gap-4 bg-white rounded-lg">
           <div className="h-[4rem] w-[4rem] bg-gray-100 flex items-center justify-center font-bold text-[1.5rem] rounded-lg flex-col">
             <div>{convertedDate.day}</div>
             <div className="font-normal text-[0.9rem]">
@@ -128,10 +151,10 @@ export default function EventItem(params: { params: { eventID: string } }) {
             <div>{convertedDate.dayOfWeek}</div>
             <div className="text-[0.9rem] font-normal">9:00 GMT</div>
           </div>
-        </div>
+        </div> */}
         <div className="px-6 flex flex-col item-center justify-center">
-          <div className="font-semibold text-[1.2rem]">About</div>
-          <div>{eventState?.description}</div>
+          <div className="font-semibold text-[0.9rem]">About</div>
+          <div className="text-[0.8rem]">{eventState?.description}</div>
         </div>
       </div>
       {/* {!displayTickets ? (

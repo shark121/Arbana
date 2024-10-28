@@ -24,11 +24,11 @@ export const menuItems = [
         url: "/tickets",
         icon: <TicketSVG primaryColor="#ff8f00" />,
     },
-    {
-        text: "Search",
-        url: "/search",
-        icon: <SearchSVG fill="#2dfe64" height="35px"/>,
-    },
+    // {
+    //     text: "Search",
+    //     url: "/search",
+    //     icon: <SearchSVG fill="#2dfe64" height="35px"/>,
+    // },
     {
         text: "My Events",
         url: "/myEvents",

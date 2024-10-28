@@ -12,13 +12,14 @@ import MenuSVG from "../../src/images/svg/menu";
 import MenuComponent from "../ui/menuComponent";
 import { menuItems } from "../ui/menuItems";
 
+export default function SheetComponent() {
+  
 const list = menuItems.map(({ text, icon, url }, i) => (
   <SheetClose asChild key={i}>
     <MenuComponent text={text} icon={icon} url={url} />
   </SheetClose>
 ));
 
-export default function SheetComponent() {
   return (
     <Sheet>
       <SheetTrigger asChild>

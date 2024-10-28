@@ -12,29 +12,14 @@ export default function HomeSVG({
   backgroundColor?: string;
 }) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="svg-icon"
-      style={{ width: width ?? "100%", height:height ?? "100%", verticalAlign: "middle" }}
-      fill="currentColor"
-      overflow="hidden"
-      viewBox="0 0 1024 1024"
-    >
-      <path fill="#E8EAF6" d="M896 832H128V490.667L512 128l384 362.667z"></path>
-      <path
-        fill="#C5CAE9"
-        d="M832 448L725.333 341.333V192H832zM128 832h768v106.667H128z"
-      ></path>
-      <path
-        fill="#B71C1C"
-        d="M512 91.733l-426.667 396.8L128 535.467 512 179.2l384 356.267 42.667-46.934z"
-      ></path>
-      <path fill="#D84315" d="M384 597.333h256v341.334H384z"></path>
-      <path fill="#01579B" d="M448 362.667h128v128H448z"></path>
-      <path
-        fill="#FF8A65"
-        d="M586.667 757.333c-6.4 0-10.667 4.267-10.667 10.667v42.667c0 6.4 4.267 10.666 10.667 10.666s10.666-4.266 10.666-10.666V768c0-6.4-4.266-10.667-10.666-10.667z"
-      ></path>
+    <svg xmlns="http://www.w3.org/2000/svg" fill={fill ??  "none"} viewBox="0 0 24 24">
+      <g stroke="#000" strokeWidth="2">
+        <path
+          d="M2 12.204c0-2.289 0-3.433.52-4.381.518-.949 1.467-1.537 3.364-2.715l2-1.241C9.889 2.622 10.892 2 12 2c1.108 0 2.11.622 4.116 1.867l2 1.241c1.897 1.178 2.846 1.766 3.365 2.715.519.948.519 2.092.519 4.38v1.522c0 3.9 0 5.851-1.172 7.063C19.657 22 17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.212C2 19.576 2 17.626 2 13.725v-1.521z"
+          opacity="0.5"
+        ></path>
+        <path strokeLinecap="round" d="M15 18H9"></path>
+      </g>
     </svg>
   );
 }

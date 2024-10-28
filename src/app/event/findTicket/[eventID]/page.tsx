@@ -23,9 +23,6 @@ type TicketStateType = {
   price: number;
 };
 
-// export function TicketComponent({type, key}:{type: EventType, key: number}){
-//   return
-// }
 
 export default function FindEventItem(params: { params: { eventID: string } }) {
   const [eventState, setEventState] = useState<EventType>();
