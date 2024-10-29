@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { TicketType } from "@/lib/types";
 import { User } from "firebase/auth";
 import Loading from "@/app/loading";
+import TicketsListComponents from "../../../components/components/tickets/ticketsListComponent";
+import {comfortaa} from "../../app/page";
 
 const fetchTickets = async ({ userID }: { userID: string }) => {
   const res = await fetch(`/api/data/read/bookings/${userID}/stable/s`);
@@ -41,21 +43,27 @@ export default function GetTicket() {
     return <Loading />;
   }
 
+  function handleTicketOnclick(
+  
+    ticket: TicketType
+  ) {
+
+    sessionStorage.setItem("ticket", JSON.stringify(ticket));
+    window.location.href = `/ticket/${ticket.ticketID}`;
+  }
+
   return (
-    <div className="min-h-screen w-screen">
-      <div>Tickets</div>
+    <div className={`min-h-screen w-screen ${comfortaa.className} bg-gray-50 flex items-center flex-col`}>
+      <div className="w-full h-[3rem] text-[2rem] text-gray-900">My Tickets</div>
       {tickets &&
         tickets.map((el, i) => (
-          <button
-            key={i}
-            onClick={() => {
-              sessionStorage.setItem("ticket", JSON.stringify(el));
-
-              window.location.href = `/ticket/${el.ticketID}`;
-            }}
+          <div
+            onClick={(e) =>
+              handleTicketOnclick(el)
+            }
           >
-            {el.name}
-          </button>
+            <TicketsListComponents key={el.ticketID} ticketData={el} handleTicketOnclick={handleTicketOnclick}/>
+          </div>
         ))}
     </div>
   );

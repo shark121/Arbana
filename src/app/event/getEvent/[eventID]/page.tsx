@@ -109,21 +109,17 @@ export default function EventItem(params: { params: { eventID: string } }) {
         <div className="font-bold text-[1.4rem] px-8 text-center">
           {eventState?.name}
         </div>
-        {/* <div className="h-[2rem] flex w-full items-center justify-center gap-1">
-          <div className=" ">
-            {
-              <LocationSVG
-                height="17px"
-                width="17px"
-                fill={COLORSMAP.primaryBlue}
-              />
-            }
-          </div>
-          <div>{eventState?.location}</div>
+        {/* <div className="flex">
+          {eventState &&
+            eventState.categories.map((category) => (
+              <div className="flex mx-1 bg-primary px-2 text-white rounded-sm h-[1rem] text-[0.8rem]">
+                {category}
+              </div>
+            ))}
         </div> */}
       </div>
       <div className="">
-        <div className=" mx-2 rounded-xl shadow-sm">
+        <div className=" mx-2 rounded-[2rem] shadow-sm">
           <div className="flex h-[6rem] items-center justify-start w-full gap-2  mx-2 box-border my-4 ">
             <div className="flex items-center justify-center w-[3rem] h-[3rem] rounded-full mx-4 p-[0.5rem] bg-blue-50">
               <DateSVG
@@ -148,7 +144,7 @@ export default function EventItem(params: { params: { eventID: string } }) {
               </div>
             </div>
           </div>
-          <div className="outline outline-1 outline-blue-50 w-[80%]"></div>
+          <div className="outline outline-1 outline-blue-50 w-[80%] place-self-center"></div>
           <div className="flex h-[6rem] items-center justify-start w-full gap-2  mx-4 my-4">
             <div className="flex items-center justify-center w-[3rem] h-[3rem] rounded-full mx-4 p-[0.5rem] bg-blue-50">
               <LocationSVG
@@ -158,11 +154,6 @@ export default function EventItem(params: { params: { eventID: string } }) {
               />
             </div>
             <div className="flex items-start justify-start  my-2 flex-col">
-              {/* {eventState && convertDate(eventState?.startDate).dayOfWeek}{" "}
-            {eventState && convertDate(eventState?.startDate).month}{" "}
-            {eventState && convertDate(eventState?.startDate).day}
-            {", "}
-            {"2024"} */}
               <div>{eventState?.location}</div>
               <div>
                 <div className="h-[2rem] w-[10rem]  rounded-xl flex items-center justify-between ">
@@ -173,59 +164,12 @@ export default function EventItem(params: { params: { eventID: string } }) {
               </div>
             </div>
           </div>
-          {/* <div className="h-[6rem]  flex items-center text-gray-600 px-6 gap-4 bg-white rounded-lg">
-          <div className="h-[4rem] w-[4rem] bg-gray-100 flex items-center justify-center font-bold text-[1.5rem] rounded-lg flex-col">
-          <div>{convertedDate.day}</div>
-          <div className="font-normal text-[0.9rem]">
-          {convertedDate.month}
-          </div>
-          </div>
-          <div className="h-[4rem] w-[10rem]  flex items-start justify-center p-4 font-bold text-[1.5rem] rounded-lg flex-col">
-          <div>{convertedDate.dayOfWeek}</div>
-          <div className="text-[0.9rem] font-normal">9:00 GMT</div>
-          </div>
-          </div> */}
         </div>
         <div className="px-6 flex flex-col item-center justify-center">
           <div className="font-semibold text-[0.9rem]">About</div>
           <div className="text-[0.8rem]">{eventState?.description}</div>
         </div>
       </div>
-      {/* {!displayTickets ? (
-        <div className=" w-screen px-8 my-2 ">
-          <div className="w-full text-[0.9rem] my-2 `font-bold text-left ">
-            About Event
-          </div>
-          <div className="text-[0.85rem] mb-6">{eventState?.description}</div>
-          <div className={`w-full h-[25rem] rounded-[1rem] mt-2`}>
-            <div>
-              <div className="h-[4rem] w-full flex flex-col">
-                <div className="font-bold">Location</div>
-                <div className="flex h-full w-full items-center justify-start gap-2">
-                  <LocationSVG
-                    height="15px"
-                    width="15px"
-                    fill={COLORSMAP.primaryBlue}
-                  />
-                  <div>{eventState?.location}</div>
-                </div>
-              </div>
-            </div>
-            <div className="h-[20rem] w-full relative flex flex-col ">
-              <div className="rounded-b-lg h-full w-full ">
-                <MapComponent
-                  width={"100%"}
-                  height={"100%"}
-                  defaultZoom={15}
-                  defaultCenter={{ lat: 38.875183, lng: -77.413843 }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      )
-      :  <FindEventItem params={{eventID :`${eventState?.eventId}` || ""}}/>
-      } */}
       <div className=" h-[4rem] w-screen flex items-center justify-center bg-white">
         <button
           className="h-[3rem] w-[20rem] bg-blue-600 rounded-xl text-white font-bold"

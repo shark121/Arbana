@@ -82,7 +82,7 @@ export default function Ticket({ params }: { params: { data: string[] } }) {
   }, [ticketState]);
 
   return (
-    <div className={`bg-blue-200 bg-opacity-15  ${comfortaa.className}`}>
+    <div className={`bg-blue-200 bg-opacity-15  min-h-screen min-w-screen ${comfortaa.className}`}>
       <div className="w-full h-[70px]  font-bold text-[1.4rem] flex items-center justify-center">
         Qr code
       </div>

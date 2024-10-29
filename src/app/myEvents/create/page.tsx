@@ -18,8 +18,11 @@ import { runTransaction } from "firebase/firestore";
 import TicketTierType, {
   AddNewTicket,
 } from "../../../../components/components/eventInfo/ticketTierTypeComponent";
+import { comfortaa } from "@/app/page";
 
 type RequestType = EventType & { imageFile: File | null };
+
+export const inputStyling = " bg-gray-50 rounded-3xl outline-none p-2 w-full h-[4rem] w-[20rem]";
 
 export type createRequestType = Omit<RequestType, "imageUrl">;
 
@@ -82,6 +85,15 @@ function AddTicket({
 
   return (
     <div>
+       {isAddingNewTicket ? (
+        <AddNewTicket
+          seatsState={seatsState}
+          setSeatsState={setSeatsState}
+          setIsAddingNewTicket={setIsAddingNewTicket}
+        />
+      ) : (
+        <Button onClick={() => setIsAddingNewTicket(true)}>Add New Tier</Button>
+      )}
       {seatsState.map((el, i) => {
         return (
           <TicketTierType
@@ -92,15 +104,7 @@ function AddTicket({
           />
         );
       })}
-      {isAddingNewTicket ? (
-        <AddNewTicket
-          seatsState={seatsState}
-          setSeatsState={setSeatsState}
-          setIsAddingNewTicket={setIsAddingNewTicket}
-        />
-      ) : (
-        <Button onClick={() => setIsAddingNewTicket(true)}>Add New Tier</Button>
-      )}
+     
     </div>
   );
 }
@@ -209,43 +213,50 @@ export default function CreateEvent() {
 
     await sendCreateRequest({ event }).catch((err) => console.log(err, "err"));
   }
+   
 
   return (
-    <div className="w-full min-h-full flex items-center justify-center gap-2 flex-col px-2">
-      <div className="font-bold text-[1.2rem]">Create Event</div>
+    <div className={`w-full ${comfortaa.className} min-h-full flex items-start justify-center gap-2 flex-col px-2`}>
+      <div className="font-bold text-center text-[2rem] h-[5rem] w-full items-center justify-center">Create Event</div>
       <Input
         placeholder="Event Name"
+        className={inputStyling}
         onChange={(e) => setEventNameState(e.target.value)}
       />
       <Input
         placeholder="Event Start Time"
+        // className={inputStyling}
+        aria-placeholder="Event Start Time"
+        className="font-bold"
         type="time"
         onChange={(e) => setStartTimeState(e.target.value)}
       />
       <Input
+       className={inputStyling} 
         placeholder="Event Location"
         onChange={(e) => setLocationState(e.target.value)}
       />
-      <Textarea
-        placeholder="Event Description"
-        onChange={(e) => setDescriptionState(e.target.value)}
-      />
+
       <Input
+        className={inputStyling}
         type="string"
         placeholder="YYYY-MM-DD"
         onChange={(e) => setStartDateState(e.target.value)}
       />
       <Input
+        className={inputStyling}
         type="string"
         placeholder="YYYY-MM-DD"
         onChange={(e) => setEndDateState(e.target.value)}
       />
-      <Selector
-        label="Genre"
-        items={categoriesList}
-        setCurrentItemState={setCurrentItem}
+      <Textarea
+        placeholder="Event Description"
+        className="h-[10rem] w-[20rem] bg-gray-50 rounded-3xl outline-none"
+        onChange={(e) => setDescriptionState(e.target.value)}
       />
+      
       <Input
+        className={inputStyling}
         type="file"
         accept="image/*"
         max={"1000"}
@@ -257,8 +268,14 @@ export default function CreateEvent() {
         }}
       />
       <Input
+        className={inputStyling}
         placeholder="Fallback Mail Adress"
         onChange={(e) => setFallBackMailAdressState(e.target.value)}
+      />
+      <Selector
+        label="Genre"
+        items={categoriesList}
+        setCurrentItemState={setCurrentItem}
       />
       <div className="w-full ">{chosenCategoriesList}</div>
       <div>
