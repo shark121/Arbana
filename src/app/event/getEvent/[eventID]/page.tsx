@@ -8,7 +8,7 @@ import ShareSVG from "@/images/svg/share";
 import { COLORSMAP } from "../../../../../data/colors";
 import { Comfortaa } from "next/font/google";
 import { Calendar } from "lucide-react";
-import DateSVG from "@/images/svg/date"
+import DateSVG from "@/images/svg/date";
 import Clock from "@/images/svg/clock";
 import MapComponent from "../../../../../components/components/map";
 import LocationSVG from "@/images/svg/location";
@@ -16,7 +16,7 @@ import FindEventItem from "../../../../../components/ui/findTicketsComponent";
 import { DaysOfTheWeek } from "../../../../../data/days";
 import { useRouter } from "next/navigation";
 import SheetComponent from "../../../../../components/components/sheet";
-import {ChevronLeft} from "lucide-react"
+import { ChevronLeft } from "lucide-react";
 
 const comfortaa = Comfortaa({
   weight: ["400", "700", "300", "500"],
@@ -81,18 +81,18 @@ export default function EventItem(params: { params: { eventID: string } }) {
 
   return (
     <div
-      className={`w-full items-center  flex-col  text-black ${comfortaa.className} pb-20 bg-gray-50/10`}
+      className={`${comfortaa.className} w-screen min-h-screen flex flex-col items-center justify-between `}
     >
-      <div className="w-full h-[3.5rem]  flex items-center justify-between p-4">
-        <button onClick={() => router.back()}
+      <div className="w-full h-[3.5rem]  flex items-center justify-end p-4">
+        {/* <button onClick={() => router.back()}
           className="h-[2rem] w-[2rem] rounded-full bg-primary flex items-center justify-center"
           >
-          {/* <BackSVG height="20px" width="20px" fill="#fff" /> */}
+          <BackSVG height="20px" width="20px" fill="#fff" />
           <ChevronLeft height="20px" width="20px" fill="none" stroke="white"/>
-        </button>
+        </button> */}
         <div>
           {/* <ShareSVG height="20px" width="20px" fill={COLORSMAP.primaryBlue} /> */}
-         <SheetComponent/>
+          <SheetComponent />
         </div>
       </div>
       <div className="h-[25rem] w-screen  flex flex-col justify-between items-center px-2">
@@ -109,7 +109,7 @@ export default function EventItem(params: { params: { eventID: string } }) {
         <div className="font-bold text-[1.4rem] px-8 text-center">
           {eventState?.name}
         </div>
-        <div className="h-[2rem] flex w-full items-center justify-center gap-1">
+        {/* <div className="h-[2rem] flex w-full items-center justify-center gap-1">
           <div className=" ">
             {
               <LocationSVG
@@ -120,38 +120,72 @@ export default function EventItem(params: { params: { eventID: string } }) {
             }
           </div>
           <div>{eventState?.location}</div>
-        </div>
+        </div> */}
       </div>
-      <div>
-        <div className="flex h-[5rem] items-center justify-start w-full gap-2  mx-4 my-4">
-        <div className="flex items-center justify-center w-[3rem] h-[3rem] p-4 rounded-full mx-4 bg-primary/55">
-            <DateSVG height="50px" width="50px" fill={COLORSMAP.primaryBlue} />
-          </div>
-          <div className="flex items-center justify-center font-bold my-2 flex-col">
-            {eventState && convertDate(eventState?.startDate).dayOfWeek}{" "}
-            {eventState && convertDate(eventState?.startDate).month}{" "}
-            {eventState && convertDate(eventState?.startDate).day}{", "}
-            {"2024"}            
-            <div>
-              <div className="h-[1.5rem] w-[7rem] bg-primary rounded-xl flex items-center justify-center">
-                <Clock/>
-                <div className="text-[0.5rem] flex h-full w-full">{"9:00 GMT"}</div>
+      <div className="">
+        <div className=" mx-2 rounded-xl shadow-sm">
+          <div className="flex h-[6rem] items-center justify-start w-full gap-2  mx-2 box-border my-4 ">
+            <div className="flex items-center justify-center w-[3rem] h-[3rem] rounded-full mx-4 p-[0.5rem] bg-blue-50">
+              <DateSVG
+                height="100%"
+                width="100%"
+                fill={COLORSMAP.primaryBlue}
+              />
+            </div>
+            <div className="flex items-start justify-start  my-2 flex-col">
+              {eventState && convertDate(eventState?.startDate).dayOfWeek}{" "}
+              {eventState && convertDate(eventState?.startDate).month}{" "}
+              {eventState && convertDate(eventState?.startDate).day}
+              {", "}
+              {"2024"}
+              <div>
+                <div className="h-[2rem] w-[10rem]  rounded-xl flex items-center justify-between ">
+                  {/* <Clock height="30px"  width="30px" stroke={"#fff"}/> */}
+                  <div className=" h-full w-[6rem] flex items-start justify-start  font-bold">
+                    {eventState?.time ?? "0:00 GMT"}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        {/* <div className="h-[6rem]  flex items-center text-gray-600 px-6 gap-4 bg-white rounded-lg">
-          <div className="h-[4rem] w-[4rem] bg-gray-100 flex items-center justify-center font-bold text-[1.5rem] rounded-lg flex-col">
-            <div>{convertedDate.day}</div>
-            <div className="font-normal text-[0.9rem]">
-              {convertedDate.month}
+          <div className="outline outline-1 outline-blue-50 w-[80%]"></div>
+          <div className="flex h-[6rem] items-center justify-start w-full gap-2  mx-4 my-4">
+            <div className="flex items-center justify-center w-[3rem] h-[3rem] rounded-full mx-4 p-[0.5rem] bg-blue-50">
+              <LocationSVG
+                height="70%"
+                width="70%"
+                fill={COLORSMAP.primaryBlue}
+              />
+            </div>
+            <div className="flex items-start justify-start  my-2 flex-col">
+              {/* {eventState && convertDate(eventState?.startDate).dayOfWeek}{" "}
+            {eventState && convertDate(eventState?.startDate).month}{" "}
+            {eventState && convertDate(eventState?.startDate).day}
+            {", "}
+            {"2024"} */}
+              <div>{eventState?.location}</div>
+              <div>
+                <div className="h-[2rem] w-[10rem]  rounded-xl flex items-center justify-between ">
+                  <div className=" h-full w-[6rem] flex items-start justify-start  font-bold">
+                    Province
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="h-[4rem] w-[10rem]  flex items-start justify-center p-4 font-bold text-[1.5rem] rounded-lg flex-col">
-            <div>{convertedDate.dayOfWeek}</div>
-            <div className="text-[0.9rem] font-normal">9:00 GMT</div>
+          {/* <div className="h-[6rem]  flex items-center text-gray-600 px-6 gap-4 bg-white rounded-lg">
+          <div className="h-[4rem] w-[4rem] bg-gray-100 flex items-center justify-center font-bold text-[1.5rem] rounded-lg flex-col">
+          <div>{convertedDate.day}</div>
+          <div className="font-normal text-[0.9rem]">
+          {convertedDate.month}
           </div>
-        </div> */}
+          </div>
+          <div className="h-[4rem] w-[10rem]  flex items-start justify-center p-4 font-bold text-[1.5rem] rounded-lg flex-col">
+          <div>{convertedDate.dayOfWeek}</div>
+          <div className="text-[0.9rem] font-normal">9:00 GMT</div>
+          </div>
+          </div> */}
+        </div>
         <div className="px-6 flex flex-col item-center justify-center">
           <div className="font-semibold text-[0.9rem]">About</div>
           <div className="text-[0.8rem]">{eventState?.description}</div>
@@ -192,12 +226,12 @@ export default function EventItem(params: { params: { eventID: string } }) {
       )
       :  <FindEventItem params={{eventID :`${eventState?.eventId}` || ""}}/>
       } */}
-      <div className=" h-[4rem] w-screen fixed bottom-0 left-0 right-0 flex items-center justify-center bg-white">
+      <div className=" h-[4rem] w-screen flex items-center justify-center bg-white">
         <button
           className="h-[3rem] w-[20rem] bg-blue-600 rounded-xl text-white font-bold"
           onClick={() => handleOnClick()}
         >
-          {displayTickets ? "book ticket" : "find ticket"}
+          {"find ticket"}
         </button>
       </div>
     </div>
