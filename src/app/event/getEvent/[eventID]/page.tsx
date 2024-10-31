@@ -7,7 +7,7 @@ import BackSVG from "@/images/svg/back";
 import ShareSVG from "@/images/svg/share";
 import { COLORSMAP } from "../../../../../data/colors";
 import { Comfortaa } from "next/font/google";
-import { Calendar } from "lucide-react";
+// import { Calendar } from "lucide-react";
 import DateSVG from "@/images/svg/date";
 import Clock from "@/images/svg/clock";
 import MapComponent from "../../../../../components/components/map";
@@ -16,7 +16,8 @@ import FindEventItem from "../../../../../components/ui/findTicketsComponent";
 import { DaysOfTheWeek } from "../../../../../data/days";
 import { useRouter } from "next/navigation";
 import SheetComponent from "../../../../../components/components/sheet";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, CalendarFold as Calendar } from "lucide-react";
+// import {} from "lucide-react";
 
 const comfortaa = Comfortaa({
   weight: ["400", "700", "300", "500"],
@@ -119,13 +120,24 @@ export default function EventItem(params: { params: { eventID: string } }) {
         </div> */}
       </div>
       <div className="">
-        <div className=" mx-2 rounded-[2rem] shadow-sm">
+        <div className=" mx-2 mb-4 rounded-[2rem] shadow-sm  flex flex-col items-center scale-[0.9]">
           <div className="flex h-[6rem] items-center justify-start w-full gap-2  mx-2 box-border my-4 ">
             <div className="flex items-center justify-center w-[3rem] h-[3rem] rounded-full mx-4 p-[0.5rem] bg-blue-50">
-              <DateSVG
+              {/* <DateSVG
                 height="100%"
                 width="100%"
                 fill={COLORSMAP.primaryBlue}
+              /> */}
+              {/* <LocationSVG
+                height="70%"
+                width="70%"
+                fill={COLORSMAP.primaryBlue}
+              /> */}
+              <Calendar
+                height="70%"
+                width="70%"
+                fill={COLORSMAP.primaryBlue}
+                stroke="blue"
               />
             </div>
             <div className="flex items-start justify-start  my-2 flex-col">
@@ -144,8 +156,8 @@ export default function EventItem(params: { params: { eventID: string } }) {
               </div>
             </div>
           </div>
-          <div className="outline outline-1 outline-blue-50 w-[80%] place-self-center"></div>
-          <div className="flex h-[6rem] items-center justify-start w-full gap-2  mx-4 my-4">
+          <div className="outline outline-1 outline-blue-100 rounded-full w-[90%] place-self-center"></div>
+          <div className="flex h-[6rem] items-center justify-start w-full gap-2  mx-2 my-4 ">
             <div className="flex items-center justify-center w-[3rem] h-[3rem] rounded-full mx-4 p-[0.5rem] bg-blue-50">
               <LocationSVG
                 height="70%"

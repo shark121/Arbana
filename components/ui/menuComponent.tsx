@@ -32,9 +32,9 @@ export default function MenuComponent({
   }, []);
 
   const userItemStyle = "h-[100px] ";
-  const regularItemStyle = "h-[60px] w-full bg-primary/10 mb-5 rounded-[5rem]";
+  const regularItemStyle = "h-[60px] w-full text-[]  border-b-[1px] border-primary/20";
   const userIconStyle = "h-[80px] w-[80px] mb-5";
-  const regularIconStyle = "h-[40px] w-[40px]";
+  const regularIconStyle = "h-[20px] w-[20px]";
 
   const location  = window.location.href.split("/")
   const locationName = `/${location[location.length - 1]}`
@@ -44,10 +44,10 @@ export default function MenuComponent({
     <div
       className={` p-4 ${
         isUser ? userItemStyle : (locationName === url ? regularItemStyle : "")
-      }  flex items-center font-bold `}
+      }  flex items-center `}
     >
       <div className={`${isUser ? userIconStyle : (regularIconStyle)}`}>
-        {userState && isUser ? (
+        {userState && isUser && userState.photoURL? (
           <div className="relative">
             <Image
               src={userState?.photoURL || ""}
@@ -61,7 +61,7 @@ export default function MenuComponent({
           icon
         )}
       </div>
-      <Link className=" shadow-sm ml-7 h-[20px] " href={url}>
+      <Link className=" ml-6 h-[20px] " href={url}>
         {isUser ? userState?.displayName : text}
       </Link>
     </div>

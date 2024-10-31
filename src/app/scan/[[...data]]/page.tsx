@@ -25,8 +25,9 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
   }, []);
 
   return (
-    <div>
+    <div className="">
       <Button
+      className="h-[7rem] w-[7rem] rounded-full bg-primary animate-pulse"
         onClick={async (e) => {
           await QrCodeScanner()
             .then((res) => {
@@ -45,7 +46,7 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
       <div id="qr-code-reader"></div>
       <div className=" h-[200px] w-[200px]">{errorState}</div>
       <div className=" h-[200px] w-[200px]">{scannedID}</div>
-      {/* {String(QrCodeScanner().then(res=><div>{String(res)}</div>))} */}
+      {String(QrCodeScanner().then(res=><div>{String(res)}</div>))}
     </div>
   );
 }

@@ -1,4 +1,6 @@
 "use client";
+import { ArrowLeft, Plus } from "lucide-react";
+import { COLORSMAP } from "../../../data/colors";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -8,6 +10,8 @@ import { database } from "@/firebase.config";
 import { EventType } from "@/lib/types";
 import { useEffect, useState } from "react";
 import ScanQRCode from "../scan/[[...data]]/page";
+import EventListComponent from "../../../components/components/events/eventComponent";
+import { comfortaa } from "../page";
 
 export default function MyEvents() {
   const [userID, setUserID] = useState();
@@ -40,31 +44,33 @@ export default function MyEvents() {
     console.log(userEvents, ".........................");
   }, [userEvents]);
 
-
-
-  function handleEventOnclick(event: EventType) {
-     window.location.href = `/myEvents/eventOptions/${event.eventId}`;
-  }
-
-
   return (
-    <div className="w-full h-full flex items-center justify-center flex-col">
-      <div>
-        {userEvents && (
-          <div>
-            {userEvents.map((el,i) => (
-              <button className="w-full h-[2rem]"
-              key={i}
-              onClick={()=>handleEventOnclick(el)}
-              >{el.name}</button>
-            ))}
-          </div>
-        )}
+    <div
+      className={`min-w-screen min-h-screen pt-2 flex items-center  flex-col ${comfortaa.className}`}
+    >
+      <div className="w-full flex items-center h-[3rem] p-2  justify-between">
+        <button
+        className="w-[2rem] h-[2rem]"
+        onClick={() => router.back()}
+        >
+          <ArrowLeft size={20} color={COLORSMAP.primaryBlue} />
+        </button>
+        <div className="text-[2rem]">My Events</div>
+        <div
+          className="w-[1.5rem] h-[1.5rem] bg-primary flex items-center justify-center rounded-full"
+          onClick={() => router.push("/myEvents/create")}
+        >
+          <Plus size={20} color={"white"} />
+        </div>
       </div>
-      <Button onClick={() => router.push("/myEvents/create")}>
-        Create Event
-      </Button>
+      {userEvents && (
+        <div className="w-full h-full p-1">
+          {userEvents.map((el, i) => (
+            <EventListComponent userEvent={el} />
+          ))}
+        </div>
+      )}
       {/* <ScanQRCode/> */}
-      </div>
+    </div>
   );
 }
