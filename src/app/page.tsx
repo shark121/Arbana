@@ -14,17 +14,13 @@ export const comfortaa = Comfortaa({
 });
 
 async function fetchData() {
-  console.log("fetching data");
-  const response = await getDocs(collection(database, "events"));
-  const data: EventType[] = [];
-
-  response.forEach((doc) => {
-    data.push(doc.data() as EventType);
-  });
-
-  console.log(data, "data");
-
-  return data;
+  return fetch("/api/data/read/events",{
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: "false",
+  }).then((response) => response.json());
 }
 
 export default function Home() {
@@ -34,22 +30,14 @@ export default function Home() {
   useEffect(() => {
     fetchData()
       .then((data) => {
-        setData(data);
+        // console.log(data);
+        setData(data.data);
         setIsLoading(false);
       })
       .catch((error) => {
         console.error(error);
       });
   }, []);
-
-  // fetchData().then((data) => {
-  //   setData(data);
-  //   setIsLoading(false);
-  // }
-  // ).catch((error) => {
-  //   console.error
-  // }
-  // );
 
   if (isLoading) {
     return <Loading />;

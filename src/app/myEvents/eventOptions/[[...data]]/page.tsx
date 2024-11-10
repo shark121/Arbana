@@ -10,7 +10,7 @@ import jsPDF from "jspdf";
 import QRcode from "qrcode";
 import Image from "next/image";
 
-const domain = "http://localhost:3000";
+const domain = "https://4280-100-43-16-155.ngrok-free.app";
 
 
 export default function EventOptions({
@@ -53,7 +53,7 @@ export default function EventOptions({
 
   useEffect(() => {
     if (eventState) {
-      QRcode.toDataURL(`${domain}/event/geEvent/${eventID}`).then((url) => {
+      QRcode.toDataURL(`${domain}/event/getEvent/${eventID}`).then((url) => {
         setQrCode(url);
         setIsReady(true);
       });

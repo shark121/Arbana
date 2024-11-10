@@ -13,6 +13,9 @@ import Image from "next/image";
 import {Separator} from "@/components/ui/separator";
 import {useRouter} from "next/navigation";
 import { TicketType} from "@/lib/types";
+import { ArrowLeft } from "lucide-react";
+import {COLORSMAP} from "../../../../data/colors";
+import SheetComponent from "../../../../components/components/sheet";
 
 const Providers = [
   { label: "MTN", value: "MTN" },
@@ -130,8 +133,61 @@ export default function Booking({ params }: { params: {} }) {
           );
           setHeaderText("Insufficient tickets");
           setIsOpen(true);
+          // window.location.href = `/`;
           return "error";
         }
+
+        if (text.response === "error") {
+          setText("There was an error completing your request.");
+          setHeaderText("Error");
+          setIsOpen(true);
+          return "error"
+        }
+
+        if (text.response == true){
+          const ticketFormData = new FormData();
+          ticketFormData.append("ticket", JSON.stringify(ticketState));
+  
+          await fetch(
+            `/api/payment/request/${phoneNumber}/${provider}/${price}/${quantity}`,{
+              method: "POST",
+              body: ticketFormData,
+            }
+          )
+            .then(async (response) => {
+              let text = await response.json();
+              const textresponse = text.response as string;
+              console.log(text);
+              if (textresponse === "false") {
+                setText("Payment failed, please try again later.");
+                setHeaderText("Payment failed");
+                setIsOpen(true);
+                return "error";
+              }
+  
+              console.log(ticketState)
+  
+              const ticketWithID : TicketType = { ...ticketState, transactionID: textresponse }  as TicketType;
+    
+              sessionStorage.setItem("ticket", JSON.stringify(ticketWithID));
+  
+              const verificationID = generateRandomId(10);
+              sessionStorage.setItem("verificationID", verificationID);
+  
+              window.location.href = `/ticket/${text.response}/${verificationID}`;
+            })
+            .catch((error) => {
+  
+              console.log(error);
+              setText(String(error));
+              setHeaderText("Payment failed");
+              return "error";
+            });
+
+            // window.location.href = `/`;
+        }
+
+
       })
       .catch((error) => {
         console.log(error);
@@ -141,44 +197,7 @@ export default function Booking({ params }: { params: {} }) {
         return "error";
       })
       .then(async () => {
-        const ticketFormData = new FormData();
-        ticketFormData.append("ticket", JSON.stringify(ticketState));
 
-        await fetch(
-          `/api/payment/request/${phoneNumber}/${provider}/${price}/${quantity}`,{
-            method: "POST",
-            body: ticketFormData,
-          }
-        )
-          .then(async (response) => {
-            let text = await response.json();
-            const textresponse = text.response as string;
-            console.log(text);
-            if (textresponse === "false") {
-              setText("Payment failed, please try again later.");
-              setHeaderText("Payment failed");
-              setIsOpen(true);
-              return "error";
-            }
-
-            console.log(ticketState)
-
-            const ticketWithID : TicketType = { ...ticketState, transactionID: textresponse }  as TicketType;
-  
-            sessionStorage.setItem("ticket", JSON.stringify(ticketWithID));
-
-            const verificationID = generateRandomId(10);
-            sessionStorage.setItem("verificationID", verificationID);
-
-            window.location.href = `/ticket/${text.response}/${verificationID}`;
-          })
-          .catch((error) => {
-
-            console.log(error);
-            setText(String(error));
-            setHeaderText("Payment failed");
-            return "error";
-          });
       });
 
     // const text = { response: generateRandomId(10) };
@@ -194,13 +213,14 @@ export default function Booking({ params }: { params: {} }) {
 
   return (
     <div
-      className={`w-screen bg-blue-50/15  relative overflow-y-hidden flex items-center   flex-col gap-2 ${comfortaa.className}`}
+      className={`w-screen bg-blue-50/15  relative overflow-y-hidden flex items-center   flex-col gap-2 p-2 ${comfortaa.className}`}
     >
-      <div className="h-[65px] w-full  flex items-center justify-center font-bold text-[1.2rem]">
-        <div className="absolute left-2" onClick={()=>router.back()}>
-          <BackSVG height="23px" width="23px"  />
+      <div className="h-[65px] w-full  flex items-center justify-between font-bold text-[1.2rem]">
+        <div className="" onClick={()=>router.back()}>
+          <ArrowLeft height="23px" width="23px" color={COLORSMAP.primaryBlue}  />
         </div>
         <div>Detail Order</div>
+        <SheetComponent/>
       </div>
       {ticketState && (
         <TicketComponent

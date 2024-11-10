@@ -17,7 +17,31 @@ import { DaysOfTheWeek } from "../../../../../data/days";
 import { useRouter } from "next/navigation";
 import SheetComponent from "../../../../../components/components/sheet";
 import { ChevronLeft, CalendarFold as Calendar } from "lucide-react";
+import Loading from "@/app/loading"
 // import {} from "lucide-react";
+
+async function fetchEventData(
+  eventID: string,
+  setEventState: React.Dispatch<React.SetStateAction<EventType | undefined>>
+) {
+  console.log("getting from cache");
+  await fetch(`/api/data/read/events/`, {
+    method: "POST",
+    // headers: {
+    //   "Content-Type": "text/plain",
+    // },
+    body: eventID,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      setEventState(data.data);
+      sessionStorage.setItem(eventID, JSON.stringify(data.data));
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+}
 
 const comfortaa = Comfortaa({
   weight: ["400", "700", "300", "500"],
@@ -56,17 +80,32 @@ export default function EventItem(params: { params: { eventID: string } }) {
   const [eventState, setEventState] = useState<EventType>();
   const [displayTickets, setDisplayTickets] = useState(false);
   const eventID = params.params.eventID;
+  const [loading, setLoading] = useState(true);
 
   const convertedDate = convertDate(eventState?.startDate);
 
   useEffect(() => {
     const eventData = sessionStorage.getItem(eventID);
-    eventData && setEventState(JSON.parse(eventData));
-    console.log(eventData);
+    console.log(eventID, "event ID");
+    console.log(eventData, "event Data/....");
+    console.log(typeof eventData);
+
+    if (!eventData) {
+      // setEventState(JSON.parse(eventData));
+      console.log("event not found");
+      fetchEventData(eventID, setEventState);
+    } else {
+      eventData && setEventState(JSON.parse(eventData));
+    }
+
+    // console.log(eventData);
   }, []);
 
   useEffect(() => {
     console.log(eventState);
+    if (eventState) {
+      setLoading(false);
+    }
   }, [eventState]);
 
   function handleOnClick() {
@@ -79,6 +118,10 @@ export default function EventItem(params: { params: { eventID: string } }) {
   //     <div className="h-[50rem] bg-yellow-200 w-screen"></div>
   //   </div>
   //  )
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <div

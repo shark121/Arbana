@@ -55,9 +55,9 @@ export default function ListComponent({ data }: { data: EventType[] }) {
 
     return (
       <div
-        className={`h-screen w-screen flex flex-col py-4 items-center bg-background ${comfortaa.className}  `}
+        className={`min-h-screen min-w-screen flex flex-col py-4 items-center bg-background ${comfortaa.className}  `}
       >
-        <div className="w-screen flex justify-between p-4 flex-col">
+        <div className="w-screen flex justify-between p-2 flex-col">
           <div className="h-[40px] w-full flex justify-between ">
             <Link href={""} className="relative w-[30px] h-[30px]">
               {/* <UserSVG fill="#371fef" /> */}

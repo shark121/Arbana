@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import DownloadSVG from "@/images/svg/download";
 import { comfortaa } from "../../page";
 import { EventType } from "../../../../components/ui/eventComponent";
+import SheetComponent from "../../../../components/components/sheet";
+import { taintObjectReference } from "next/dist/server/app-render/entry-base";
 
 export default function Ticket({ params }: { params: { data: string[] } }) {
   const [qrCode, setQrCode] = useState<string>();
@@ -43,34 +45,36 @@ export default function Ticket({ params }: { params: { data: string[] } }) {
     pdf.save("ticket.pdf");
   }
 
-  const userID = params.data[0];
-  const verificationID = params.data[1];
-  console.log(userID, verificationID);
+  const ticketID = params.data[1];
+  // const verificationID = params.data[1];
+  // console.log(ticketID, verificationID);
 
   useEffect(() => {
     // if (sessionStorage.getItem("verificationID") !== verificationID) {
     //   setDialogHeader("Invalid Ticket");
     //   setDialogText("The ticket you are trying to access is invalid");
     //   setDialogIsOpen(true);
-    // } 
-    
+    // }
+
     // else {
-      const ticket = sessionStorage.getItem("ticket");
-      let parsedTicket = ticket && JSON.parse(ticket);
-      setTicketState(parsedTicket);
-      console.log(parsedTicket);
-
-      let getQrCode = async () =>
-        await QRcode.toDataURL(userID, {
-          errorCorrectionLevel: "H",
-          type: "image/png",
-        });
-
-      getQrCode().then((url) => {
-        setQrCode(url);
-      });
-    
+    const ticket = sessionStorage.getItem("ticket");
+    let parsedTicket = ticket && JSON.parse(ticket);
+    setTicketState(parsedTicket);
+    console.log(parsedTicket);
   }, []);
+
+  useEffect(() => {
+    let getQrCode = async () =>
+      ticketState &&
+      (await QRcode.toDataURL(ticketState?.ticketID, {
+        errorCorrectionLevel: "H",
+        type: "image/png",
+      }));
+
+    getQrCode().then((url) => {
+      setQrCode(url);
+    });
+  }, [ticketState]);
 
   useEffect(() => {
     const eventID = ticketState?.eventID;
@@ -82,9 +86,13 @@ export default function Ticket({ params }: { params: { data: string[] } }) {
   }, [ticketState]);
 
   return (
-    <div className={`bg-blue-200 bg-opacity-15  min-h-screen min-w-screen ${comfortaa.className}`}>
-      <div className="w-full h-[70px]  font-bold text-[1.4rem] flex items-center justify-center">
-        Qr code
+    <div
+      className={`bg-blue-200 bg-opacity-15  min-h-screen min-w-screen ${comfortaa.className}`}
+    >
+      <div className="w-full h-[70px]  font-bold text-[1.4rem] flex items-center justify-between">
+        <div></div>
+        <div>QR code</div>
+        <SheetComponent />
       </div>
       <div className="flex items-center justify-center p-4 w-full h-[35rem] ">
         <div className="w-full h-full fixed -z-10">
@@ -125,7 +133,7 @@ export default function Ticket({ params }: { params: { data: string[] } }) {
             />
           )}
           <div className="w-full h-[50px]  flex items-center justify-center">
-            <div className="h-[35px] w-[35px] bg-primary rounded-full text-bold text-white flex items-center justify-center" >
+            <div className="h-[35px] w-[35px] bg-primary rounded-full text-bold text-white flex items-center justify-center">
               {ticketState?.quantity}
             </div>
           </div>

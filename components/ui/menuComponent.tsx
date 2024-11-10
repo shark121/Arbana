@@ -12,11 +12,13 @@ export default function MenuComponent({
   text,
   icon,
   color,
+  callback
 }: {
   url: string;
   text: string;
   icon: JSX.Element;
   color?: string;
+  callback?: () => void;
 }) {
   const isUser = text == "User";
   const [userState, setUserState] = useState<FirebaseUser | null>();
@@ -42,6 +44,7 @@ export default function MenuComponent({
 
   return (
     <div
+      onClick={callback}
       className={` p-4 ${
         isUser ? userItemStyle : (locationName === url ? regularItemStyle : "")
       }  flex items-center `}

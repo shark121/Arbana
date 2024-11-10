@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { storage, database } from "@/firebase.config";
-import { collection, doc, getDoc, increment, setDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  increment,
+  setDoc,
+  runTransaction,
+} from "firebase/firestore";
 import { EventType } from "../../../../../../../components/ui/eventComponent";
 
 async function updateTicketsQuantity({
@@ -12,35 +19,49 @@ async function updateTicketsQuantity({
   ticketTier: string;
   docRef: any;
 }) {
-  await getDoc(docRef).then(async (doc) => {
-    if (doc.exists()) {
-      const data = doc.data() as EventType;
-      const availableSeats = data.availableSeats;
-      let response = true;
+  let response = false;
 
-      for (let i = 0; i < availableSeats.length; i++) {
-        const currentSeat = availableSeats[i];
-        if (
-          currentSeat.tier === ticketTier &&
-          currentSeat.number >= requestedNumber
-        ) {
-          currentSeat.number -= requestedNumber;          
-          await setDoc(docRef, { availableSeats }, { merge: true });
-          break;
+  await runTransaction(database, async (transaction) => {
+    console.log("Transaction started");
+    await transaction
+      .get(docRef)
+      .then(async (doc) => {
+        if (doc.exists()) {
+          const data = doc.data() as EventType;
+          const availableSeats = data.availableSeats;
+
+          for (let i = 0; i < availableSeats.length; i++) {
+            const currentSeat = availableSeats[i];
+            if (
+              currentSeat.tier === ticketTier &&
+              currentSeat.number >= requestedNumber
+            ) {
+              currentSeat.number -= requestedNumber;
+              transaction.set(docRef, { availableSeats }, { merge: true });
+              console.log("Transaction completed");
+              response = true
+
+            }
+            if (
+              availableSeats[i].tier === ticketTier &&
+              availableSeats[i].number < requestedNumber
+            ) {
+
+              console.log("Not enough tickets");
+            }
+          }
+        } else {
+          console.log("Document does not exist");
         }
-        if (
-          availableSeats[i].tier === ticketTier &&
-          availableSeats[i].number < requestedNumber
-        ) {
-          response = false;
-          break;
-        }
-      }
-      return NextResponse.json({ response });
-    } else {
-      return NextResponse.json({ response: false });
-    }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+
   });
+
+  return response;
 }
 
 export async function GET(
@@ -53,7 +74,22 @@ export async function GET(
   const collectionRef = collection(database, "events");
   const docRef = doc(collectionRef, requestedEventID);
 
-  await updateTicketsQuantity({ requestedNumber, ticketTier, docRef });
+ const res  = await updateTicketsQuantity({
+    requestedNumber,
+    ticketTier,
+    docRef,
+  }).then((res) => {
+    console.log(res);
+    return res;
+  }
+  ).catch((error) => {
+    console.log(error);
+    return false
+  });
 
-  return NextResponse.json({ response: true });
+  
+ 
+
+  return  NextResponse.json({ response: res });
+  // return res;
 }

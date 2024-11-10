@@ -47,7 +47,7 @@ function makePayment() {
   const paymentPromise = new Promise((resolve, reject) => {
     setTimeout(() => {
       resolve(`${generateRandomId(10)}`);
-    }, 3000);
+    }, 3);
   });
 
   return paymentPromise;

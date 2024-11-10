@@ -46,7 +46,7 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
       <div id="qr-code-reader"></div>
       <div className=" h-[200px] w-[200px]">{errorState}</div>
       <div className=" h-[200px] w-[200px]">{scannedID}</div>
-      {String(QrCodeScanner().then(res=><div>{String(res)}</div>))}
+      {/* {String(QrCodeScanner().then(res=><div>{String(res)}</div>))} */}
     </div>
   );
 }

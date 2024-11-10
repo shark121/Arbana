@@ -12,10 +12,12 @@ import { useEffect, useState } from "react";
 import ScanQRCode from "../scan/[[...data]]/page";
 import EventListComponent from "../../../components/components/events/eventComponent";
 import { comfortaa } from "../page";
+import Loading from "../loading";
 
 export default function MyEvents() {
   const [userID, setUserID] = useState();
-  const [userState, setUserState] = useState<User>();
+  const [isLoading, setIsLoading] = useState(true);
+  const [userState, setUserState] = useState<User>({} as User);
   const [userEvents, setUserEvents] = useState<EventType[]>([]);
   const router = useRouter();
   const userDocsRef = collection(database, "users");
@@ -27,22 +29,36 @@ export default function MyEvents() {
 
   useEffect(() => {
     async function userCreatedEvents() {
-      await getDoc(doc(userDocsRef, userState?.uid))
-        .then((querySnapshot) => {
-          console.log(querySnapshot.data(), "data");
-          let data: EventType[] = querySnapshot.data()?.events as EventType[];
-          setUserEvents(data);
+      await fetch(`/api/data/read/user_events/`,{
+        method: "POST",
+        // headers: {
+        //   "Content-Type": "apli/plain",
+        // },
+        body: JSON.stringify({uid: userState.uid}),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+          setUserEvents(data.data);
         })
-        .catch((error) => console.log(error));
+        .catch((error) => {
+          console.error(error);
+        });
+    
+        
     }
     if (userState) {
       userCreatedEvents();
     }
+
+    setIsLoading(false);
   }, [userState]);
 
-  useEffect(() => {
-    console.log(userEvents, ".........................");
-  }, [userEvents]);
+
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <div

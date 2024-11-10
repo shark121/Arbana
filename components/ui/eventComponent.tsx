@@ -41,9 +41,9 @@ export default function EventComponent({ event }: { event: EventType }) {
   return (
     <button
       onClick={handleOnClick}
-      className="h-[7.5rem]  w-[95%] text-ellipsis text-[0.9rem] text-gray-700 border-b-[1px] flex items-start bg-white px-3  justify-start"
+      className="h-[6rem]  w-[95%] text-ellipsis text-[0.9rem] text-gray-700 border-b-[1px] flex items-start bg-white px-3  justify-start"
     >
-      <div className="relative h-[5.5rem] w-[5.5rem] rounded-2xl place-self-center">
+      <div className="relative h-[5rem] w-[5rem] mr-2 rounded-2xl ">
         <Image
           src={event.imageUrl}
           alt="event image"
@@ -51,7 +51,7 @@ export default function EventComponent({ event }: { event: EventType }) {
           className="rounded-2xl object-cover "
         />
       </div>
-      <div className="text-left p-2 flex flex-col gap-2 w-[65%] ">
+      <div className="text-left p-0 flex flex-col gap-2 w-[65%] ">
         <div className="  ">
           {event.name.length > 30
             ? event.name.slice(0, 35) + "..."

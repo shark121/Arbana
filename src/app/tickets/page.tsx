@@ -8,7 +8,7 @@ import {comfortaa} from "../../app/page";
 import SheetComponent from "../../../components/components/sheet";
 
 const fetchTickets = async ({ userID }: { userID: string }) => {
-  const res = await fetch(`/api/data/read/bookings/${userID}/stable/s`);
+  const res = await fetch(`/api/data/read/bookings/${userID}`);
   const data = await res.json();
   console.log(data);
   return data;

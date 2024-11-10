@@ -14,9 +14,9 @@ import { menuItems } from "../ui/menuItems";
 
 export default function SheetComponent() {
   
-const list = menuItems.map(({ text, icon, url }, i) => (
+const list = menuItems.map(({ text, icon, url, callback }, i) => (
   <SheetClose asChild key={i}>
-    <MenuComponent text={text} icon={icon} url={url} />
+    <MenuComponent text={text} icon={icon} url={url} callback={callback}/>
   </SheetClose>
 ));
 

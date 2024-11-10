@@ -11,6 +11,8 @@ import { convertDate } from "../../getEvent/[eventID]/page";
 import Image from "next/image";
 import { User } from "firebase/auth";
 import { generateRandomId } from "@/lib/utils";
+import SheetComponent from "../../../../../components/components/sheet";
+import { ArrowLeft } from "lucide-react";
 
 const comfortaa = Comfortaa({
   subsets: ["latin"],
@@ -157,11 +159,12 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
     <div
       className={`flex flex-col h-screen w-screen justicfy-start items-center gap-4 bg-blue-50/15 ${comfortaa.className} `}
     >
-      <div className="relative font-bold flex items-center justify-center h-[5rem] w-full text-[1.4rem] ">
-        <div className="absolute left-2" onClick={() => router.back()}>
-          {<BackSVG height="23px" width="23px" />}
+      <div className="relative font-bold flex items-center justify-between p-2 h-[5rem] w-full text-[1.4rem] ">
+        <div className="" onClick={() => router.back()}>
+        <ArrowLeft color={COLORSMAP.primaryBlue}/>
         </div>
         <div>Choose Ticket</div>
+        <SheetComponent/>
       </div>
       {TicketTypes}
       {eventState && (

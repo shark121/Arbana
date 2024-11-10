@@ -1,12 +1,15 @@
-import { type ClassValue, clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+import {createClient} from "redis";
+
+
+
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
-
-export function setCookie(data:string, values:string, days:number) {
+export function setCookie(data: string, values: string, days: number) {
   const expires = new Date();
   expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
   document.cookie = `${data}=${values}; expires=${expires.toUTCString()}; path=/`;
@@ -15,15 +18,13 @@ export function setCookie(data:string, values:string, days:number) {
 // Example usage:
 // setCookie('username', 'john_doe', 7); // Sets a cookie named 'username' with value 'john_doe' that expires in 7 days
 
-
-
 export function getCookie(name: string): string | null {
   const cookieString = document.cookie;
-  const cookies = cookieString.split('; ');
-  console.log(cookies)
+  const cookies = cookieString.split("; ");
+  console.log(cookies);
 
   for (const cookie of cookies) {
-    const [cookieName, cookieValue] = cookie.split('=');
+    const [cookieName, cookieValue] = cookie.split("=");
     if (cookieName === name) {
       // JSON.parse(cookieValue)
       return decodeURIComponent(cookieValue);
@@ -34,10 +35,20 @@ export function getCookie(name: string): string | null {
   return null; // Cookie not found
 }
 
+export function deleteCookie(name: string, path?: string, domain?: string) {
+  if (getCookie(name)) {
+    document.cookie =
+      name +
+      "=" +
+      (path ? ";path=" + path : "") +
+      (domain ? ";domain=" + domain : "") +
+      ";expires=Thu, 01 Jan 1970 00:00:01 GMT";
+  }
+}
 
 export function generateRandomId(length: number): string {
-  const characters = '0123456789';
-  let result = '';
+  const characters = "0123456789";
+  let result = "";
 
   for (let i = 0; i < length; i++) {
     const randomIndex = Math.floor(Math.random() * characters.length);
@@ -49,10 +60,7 @@ export function generateRandomId(length: number): string {
 
 // Example usage:
 const randomId = generateRandomId(10); // Generates a random ID with 10 characters
-console.log('Random ID:', randomId);
-
-
-
+console.log("Random ID:", randomId);
 
 // Example usage:
 // const username = getCookie('username');
