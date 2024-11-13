@@ -10,12 +10,26 @@ import { generateRandomId } from "@/lib/utils";
 import BackSVG from "@/images/svg/back";
 import { comfortaa } from "../../page";
 import Image from "next/image";
-import {Separator} from "@/components/ui/separator";
-import {useRouter} from "next/navigation";
-import { TicketType} from "@/lib/types";
+import { Separator } from "@/components/ui/separator";
+import { useRouter } from "next/navigation";
+import { TicketType } from "@/lib/types";
 import { ArrowLeft } from "lucide-react";
-import {COLORSMAP} from "../../../../data/colors";
+import { COLORSMAP } from "../../../../data/colors";
 import SheetComponent from "../../../../components/components/sheet";
+import { setCache, getCache, existsInCache } from "@/lib/server_utils";
+
+async function updateCache({
+  ticket,
+  quantity,
+}: {
+  ticket: TicketType;
+  quantity: number;
+}) {
+  const currentState = getCache("ticket");
+
+  if (await existsInCache("ticket")) {
+  }
+}
 
 const Providers = [
   { label: "MTN", value: "MTN" },
@@ -26,16 +40,19 @@ const Providers = [
 
 export default function Booking({ params }: { params: {} }) {
   const router = useRouter();
-  
+
   const [providerState, setProviderState] = useState<string>("MTN");
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [defaultValue, setDefaultValue] = useState<number>(1);
-  const [ticketState, setTicketState] = useState<Omit<TicketType, "transactionID"> | null>(null);
+  const [ticketState, setTicketState] = useState<Omit<
+    TicketType,
+    "transactionID"
+  > | null>(null);
   const [headerText, setHeaderText] = useState<string>("");
   const [text, setText] = useState<string>("");
   const [isOpen, setIsOpen] = useState(false);
-  
-  const tax = 3.50;
+
+  const tax = 3.5;
 
   function TicketComponent({
     imageUrl,
@@ -76,8 +93,14 @@ export default function Booking({ params }: { params: {} }) {
     );
   }
 
-  function OrderSummary({price, quantity}:{price:number, quantity : number}) {
-    const total = (price * quantity) + tax;
+  function OrderSummary({
+    price,
+    quantity,
+  }: {
+    price: number;
+    quantity: number;
+  }) {
+    const total = price * quantity + tax;
     return (
       <div className="w-full h-[18rem]  flex items-center justify-start font-bold  flex-col">
         <div className="w-full h-[50px]  flex items-center justify-start p-6 font-bold  ">
@@ -88,17 +111,17 @@ export default function Booking({ params }: { params: {} }) {
             <div className="w-full">price</div>
             <div className="">${price}</div>
           </div>
-          <Separator  orientation="horizontal" className="w-[90%] "/>
+          <Separator orientation="horizontal" className="w-[90%] " />
           <div className="h-[60px] w-full flex justify-between items-center p-4">
             <div className="w-full">quantity</div>
             <div className="">{quantity}</div>
           </div>
-          <Separator  orientation="horizontal" className="w-[90%] "/>
+          <Separator orientation="horizontal" className="w-[90%] " />
           <div className="h-[60px] w-full flex justify-between items-center p-4">
             <div className="w-full">tax</div>
             <div className="">${tax}</div>
           </div>
-          <Separator  orientation="horizontal" className="w-[90%] "/>
+          <Separator orientation="horizontal" className="w-[90%] " />
           <div className="h-[60px] w-full flex justify-between items-center p-4">
             <div className="w-full">total</div>
             <div className="">${total}</div>
@@ -111,7 +134,7 @@ export default function Booking({ params }: { params: {} }) {
   useEffect(() => {
     console.log(providerState);
     const ticket = sessionStorage.getItem("ticket") as string;
-    let parsedTicket = JSON.parse(ticket) as Omit<TicketType,"transactionID">;
+    let parsedTicket = JSON.parse(ticket) as Omit<TicketType, "transactionID">;
     setTicketState(parsedTicket);
   }, [providerState]);
 
@@ -123,7 +146,9 @@ export default function Booking({ params }: { params: {} }) {
   ) {
     price = price ?? 0;
 
-    await fetch(`/api/data/read/tickets/${quantity}/${ticketState?.tier}/${ticketState?.eventID}`)
+    await fetch(
+      `/api/data/read/tickets/${quantity}/${ticketState?.tier}/${ticketState?.eventID}`
+    )
       .then(async (response) => {
         let text = await response.json();
         console.log(text);
@@ -141,15 +166,16 @@ export default function Booking({ params }: { params: {} }) {
           setText("There was an error completing your request.");
           setHeaderText("Error");
           setIsOpen(true);
-          return "error"
+          return "error";
         }
 
-        if (text.response == true){
+        if (text.response == true) {
           const ticketFormData = new FormData();
           ticketFormData.append("ticket", JSON.stringify(ticketState));
-  
+
           await fetch(
-            `/api/payment/request/${phoneNumber}/${provider}/${price}/${quantity}`,{
+            `/api/payment/request/${phoneNumber}/${provider}/${price}/${quantity}`,
+            {
               method: "POST",
               body: ticketFormData,
             }
@@ -164,30 +190,30 @@ export default function Booking({ params }: { params: {} }) {
                 setIsOpen(true);
                 return "error";
               }
-  
-              console.log(ticketState)
-  
-              const ticketWithID : TicketType = { ...ticketState, transactionID: textresponse }  as TicketType;
-    
+
+              console.log(ticketState);
+
+              const ticketWithID: TicketType = {
+                ...ticketState,
+                transactionID: textresponse,
+              } as TicketType;
+
               sessionStorage.setItem("ticket", JSON.stringify(ticketWithID));
-  
+
               const verificationID = generateRandomId(10);
               sessionStorage.setItem("verificationID", verificationID);
-  
+
               window.location.href = `/ticket/${text.response}/${verificationID}`;
             })
             .catch((error) => {
-  
               console.log(error);
               setText(String(error));
               setHeaderText("Payment failed");
               return "error";
             });
 
-            // window.location.href = `/`;
+          // window.location.href = `/`;
         }
-
-
       })
       .catch((error) => {
         console.log(error);
@@ -196,9 +222,7 @@ export default function Booking({ params }: { params: {} }) {
         setIsOpen(true);
         return "error";
       })
-      .then(async () => {
-
-      });
+      .then(async () => {});
 
     // const text = { response: generateRandomId(10) };
 
@@ -216,11 +240,11 @@ export default function Booking({ params }: { params: {} }) {
       className={`w-screen bg-blue-50/15  relative overflow-y-hidden flex items-center   flex-col gap-2 p-2 ${comfortaa.className}`}
     >
       <div className="h-[65px] w-full  flex items-center justify-between font-bold text-[1.2rem]">
-        <div className="" onClick={()=>router.back()}>
-          <ArrowLeft height="23px" width="23px" color={COLORSMAP.primaryBlue}  />
+        <div className="" onClick={() => router.back()}>
+          <ArrowLeft height="23px" width="23px" color={COLORSMAP.primaryBlue} />
         </div>
         <div>Detail Order</div>
-        <SheetComponent/>
+        <SheetComponent />
       </div>
       {ticketState && (
         <TicketComponent
@@ -232,7 +256,9 @@ export default function Booking({ params }: { params: {} }) {
           tier={ticketState?.tier}
         />
       )}
-     { ticketState && <OrderSummary price={ticketState.price} quantity={ticketState.scans} />}
+      {ticketState && (
+        <OrderSummary price={ticketState.price} quantity={ticketState.scans} />
+      )}
 
       <div className="relative -z-10">
         <DialogComponent

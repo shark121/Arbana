@@ -19,6 +19,8 @@ import {
   connectStorageEmulator,
 } from "firebase/storage";
 
+import { setCache, getCache, existsInCache } from "@/lib/server_utils";
+
 const eventCollectionRef = collection(database, "events");
 
 async function addEvent(
@@ -31,6 +33,7 @@ async function addEvent(
 ) {
   const nameIDTrim = nameID.trim();
   console.log(nameIDTrim, fileType);
+  let eventData: any[] = [];
 
   const storageRef = ref(storage, `${nameIDTrim}.${fileType}`);
   const uploadTask = uploadBytesResumable(storageRef, buffer);
@@ -73,6 +76,13 @@ async function addEvent(
           })
             .then(() => {
               console.log("transaction done");
+
+              getCache(userID + "_events").then((data) => {
+                console.log(JSON.parse(data));
+                eventData = JSON.parse(data);
+                eventData.push(eventUploadData);
+                setCache(userID + "_events", eventData);
+              });
             })
             .catch((error) => {
               console.error("Error adding document: ", error);
@@ -81,6 +91,8 @@ async function addEvent(
         .catch((error) => NextResponse.error());
     }
   );
+
+  return eventData;
 }
 
 export async function POST(
@@ -126,14 +138,17 @@ export async function POST(
     userID
   )
     .catch((error) => console.error("Error adding document: ", error))
-    .then(async () => {
-      await getDocs(eventCollectionRef).then((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-          console.log("done");
-          console.log(doc.id, " => ", doc.data());
-        });
-      });
+    .then((eventData) => {
+      console.log(eventData, ".......");
     });
+  // .then(async () => {
+  //   await getDocs(eventCollectionRef).then((querySnapshot) => {
+  //     querySnapshot.forEach((doc) => {
+  //       console.log("done");
+  //       console.log(doc.id, " => ", doc.data());
+  //     });
+  //   });
+  // });
 
   return NextResponse.json({ response: "success" });
 }

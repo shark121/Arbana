@@ -1,8 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
-import { database } from "@/firebase.config";
-import { collection, getDocs } from "firebase/firestore";
+import { database, functions } from "@/firebase.config";
+import { collection, getDocs, loadBundle, namedQuery, Query } from "firebase/firestore";
 import { EventType } from "../../../../../../../components/ui/eventComponent";
 import { getCache, setCache, existsInCache } from "@/lib/server_utils";
+import { httpsCallable } from "firebase/functions";
+
+// import {} from "firebase/firestore/bundle";
+
+
+
+
+
+// If you are using module bundlers.
+// import firebase from "firebase/app";
+// import "firebase/firestore";
+// import "firebase/firestore/bundle" // This line enables bundle loading as a side effect.
+
+async function fetchFromBundle() {
+    const addMessage = httpsCallable(functions, 'createBundle');
+
+    return addMessage()
+      .then((result) => {
+        const data = result.data as { event: EventType[] };
+        return data.event;
+      })
+
+
+}
+
+
+
 
 async function fetchData(eventId?: string) {
   let data: EventType[] = [];
@@ -22,11 +49,13 @@ async function fetchData(eventId?: string) {
     return data;
   }
 
-  const response = await getDocs(collection(database, "events"));
+//   const response = await getDocs(collection(database, "events"));
 
-  response.forEach((doc) => {
-    data.push(doc.data() as EventType);
-  });
+//   response.forEach((doc) => {
+//     data.push(doc.data() as EventType);
+//   });
+  
+  data = await fetchFromBundle() as unknown as EventType[];
 
   await setCache("events", data);
 
@@ -44,3 +73,4 @@ export async function POST(
     data: data_response,
   });
 }
+
