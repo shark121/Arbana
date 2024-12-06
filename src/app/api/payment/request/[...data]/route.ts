@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateRandomId } from "@/lib/utils";
+import { generateRandomId, vars } from "@/lib/utils";
+import dotenv from "dotenv";
 import {
   setDoc,
   runTransaction,
@@ -13,6 +14,16 @@ import { database } from "@/firebase.config";
 import { TicketType } from "@/lib/types";
 import { EventType } from "../../../../../../components/ui/eventComponent";
 import { existsInCache, getCache, setCache } from "@/lib/server_utils";
+
+
+  
+
+// console.log(vars, "vars............");
+// dotenv.config({ path: "./.env.local" });
+
+console.log(process.env.PAYSTACK_SECRET, "PAYSTACK_SECRET............");
+
+console.log(process.env.DOMAIN, "DOMAIN............");
 
 async function updateTicketsQuantity({
   requestedNumber,
@@ -87,14 +98,36 @@ async function updateTicketsQuantity({
 //   });
 // }
 
-function makePayment() {
-  const paymentPromise = new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve(`${generateRandomId(10)}`);
-    }, 3);
+async function makePayment({amount, provider}: {amount: number, provider: string}) {
+  provider = provider.toLowerCase()
+  amount ??= 0 
+  // const paymentPromise = new Promise((resolve, reject) => {
+  //   setTimeout(() => {
+  //     resolve(`${generateRandomId(10)}`);
+  //   }, 3);
+  // });
+
+  return await fetch("https://api.paystack.co/transaction/initialize", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.PAYSTACK_SECRET}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      amount: amount,
+      email: "",
+      currency: "GHC",
+      "mobile_money": { 
+        "phone": "0551234987", 
+        "provider": provider
+      }
+    }),
+  }).then(async (response) => {
+    const data = await response.json();
+    console.log(data);
+    return String(123123131123131)
   });
 
-  return paymentPromise;
 }
 
 async function createTicketEntry(
@@ -129,7 +162,7 @@ async function createTicketEntry(
       console.log("booking data exists in cache");
 
       let currentCache = await getCache(userID + "_bookings").then((data) => {
-        console.log(JSON.parse(data));
+        // console.log(JSON.parse(data));
         return JSON.parse(data);
       });
 
@@ -148,6 +181,10 @@ export async function POST(
   context: { params: { data: string[] } }
 ) {
   const ticketFormData = await req.formData();
+  const quantity = Number(context.params.data[1]);
+  const price = Number(context.params.data[2]);
+  const amount = quantity * price;
+  const provider = context.params.data[0];
 
   const ticketData: Omit<TicketType, "transactionID"> = JSON.parse(
     ticketFormData.get("ticket") as string
@@ -163,16 +200,14 @@ export async function POST(
     docRef: eventDocRef,
   })
     .then(async (res) => {
-
       if (!res) {
         return NextResponse.json({ response: "false" });
       }
 
-
-    return await makePayment() 
+      return await makePayment({amount, provider})
         .then(async (transactionId) => {
           const transactionAsString = transactionId as string;
-         return await createTicketEntry(
+          return await createTicketEntry(
             ticketData,
             ticketData.uid,
             transactionAsString
@@ -193,7 +228,6 @@ export async function POST(
           // return NextResponse.json({ response: "false" });
         })
         .catch(async (error) => {
-
           console.error("Error making payment: ", error);
           return await updateTicketsQuantity({
             requestedNumber: -ticketData.scans,
@@ -208,8 +242,7 @@ export async function POST(
       return NextResponse.json({ response: "false" });
     });
 
-
-//  console.log(res, "res............");
+  //  console.log(res, "res............");
   //   return await makePayment()
   //     .then(async (transactionId) => {
   //       const transactionAsString = transactionId as string;

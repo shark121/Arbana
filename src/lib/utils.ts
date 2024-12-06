@@ -1,6 +1,10 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import {createClient} from "redis";
+import dotenv from "dotenv";
+
+
+export const vars = dotenv.config({path: "../.env"});  
 
 
 
@@ -69,3 +73,5 @@ console.log("Random ID:", randomId);
 // } else {
 //   console.log('No username cookie found.');
 // }
+
+

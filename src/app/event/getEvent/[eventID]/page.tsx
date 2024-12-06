@@ -140,7 +140,7 @@ export default function EventItem(params: { params: { eventID: string } }) {
         </div>
       </div>
       <div className="h-[25rem] w-screen  flex flex-col justify-between items-center px-2">
-        <div className="relative w-[95%] h-[20rem] rounded-2xl my-2">
+        <div className="relative w-[95%] sm:w-[35rem] h-[20rem] rounded-2xl my-2">
           {eventState && (
             <Image
               src={eventState?.imageUrl}
@@ -162,7 +162,7 @@ export default function EventItem(params: { params: { eventID: string } }) {
             ))}
         </div> */}
       </div>
-      <div className="">
+      <div className="min-w-[30rem]">
         <div className=" mx-2 mb-4 rounded-[2rem] shadow-sm  flex flex-col items-center scale-[0.9]">
           <div className="flex h-[6rem] items-center justify-start w-full gap-2  mx-2 box-border my-4 ">
             <div className="flex items-center justify-center w-[3rem] h-[3rem] rounded-full mx-4 p-[0.5rem] bg-blue-50">

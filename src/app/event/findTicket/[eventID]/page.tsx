@@ -25,7 +25,6 @@ type TicketStateType = {
   price: number;
 };
 
-
 export default function FindEventItem(params: { params: { eventID: string } }) {
   const [eventState, setEventState] = useState<EventType>();
   const [ticketState, setTicketState] = useState<TicketStateType>();
@@ -64,13 +63,11 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
     .slice(1)
     .join(" ");
 
-  
-    useEffect(() => {
-      setDefaultValueState(1);
-    }, [currentTier]);
+  useEffect(() => {
+    setDefaultValueState(1);
+  }, [currentTier]);
 
   const TicketTypes = eventState?.availableSeats.map((type, i) => {
-
     const isCurrentTier = type.tier === currentTier;
     return (
       <div
@@ -78,12 +75,13 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
         onClick={() => {
           setCurrentTier(type.tier);
           setCurrentPrice(type.price);
-          
         }}
-        className=" relative flex flex-col items-start  gap-4 w-[90%]  rounded-xl shadow-sm"
+        className={ `relative flex flex-col transition-all duration-300 ease-in-out delay-100  items-start  gap-4 w-[90%]  rounded-xl shadow-sm ${isCurrentTier ? "scale-105" : ""} `}
       >
         <div
-          className={`h-[3rem] w-full top-0 ${isCurrentTier ? "bg-gray-700 text-white" : "text-black"}  items-center justify-start flex rounded-t-2xl  px-4`}
+          className={`h-[3rem] w-full top-0  ${
+            isCurrentTier ? "bg-gray-700 text-white " : "text-black"
+          }  items-center justify-start flex rounded-t-2xl  px-4`}
         >
           <div className="font-bold text-[1.1rem]">{type.tier}</div>
         </div>
@@ -107,7 +105,11 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
               </div>
             </div>
           </div>
-        <div className={`w-full h-[60px]  flex items-center justify-end ${!isCurrentTier ? "hidden" : "" }`}>
+          <div
+            className={`w-full h-[60px]  flex items-center justify-end ${
+              !isCurrentTier ? "hidden" : "hidden"
+            }`}
+          >
             {/* <Counter
               max={999}
               id={eventID}
@@ -136,7 +138,6 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
         createdAt: new Date().toISOString(),
         uid: userInfoState?.uid,
         ticketID: generateRandomId(10),
-
       })
     );
     window.location.href = `/booking/${eventID}`;
@@ -161,10 +162,10 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
     >
       <div className="relative font-bold flex items-center justify-between p-2 h-[5rem] w-full text-[1.4rem] ">
         <div className="" onClick={() => router.back()}>
-        <ArrowLeft color={COLORSMAP.primaryBlue}/>
+          <ArrowLeft color={COLORSMAP.primaryBlue} />
         </div>
         <div>Choose Ticket</div>
-        <SheetComponent/>
+        <SheetComponent />
       </div>
       {TicketTypes}
       {eventState && (

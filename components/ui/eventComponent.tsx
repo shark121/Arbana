@@ -1,7 +1,8 @@
 "use client";
 import LocationSVG from "@/images/svg/location";
 import { generateRandomId } from "../../src/lib/utils";
-import Image from "next/image";
+import Image from "next/image"
+import {motion as m} from "framer-motion"
 
 export type TicketType = {
   tier: string;
@@ -39,9 +40,14 @@ export default function EventComponent({ event }: { event: EventType }) {
   const startDateToString = startDateToObject.toDateString();
 
   return (
-    <button
+    <m.button
       onClick={handleOnClick}
       className="h-[6rem]  w-[95%] text-ellipsis text-[0.9rem] text-gray-700 border-b-[1px] flex items-start bg-white px-3  justify-start"
+      // initial={{ opacity: 0, y: 100 }}
+      // // animate={{ opacity: 1 }}
+      // transition={{ duration: 0.5 }}
+      // whileInView={{ opacity: 1, y:0, repeatCount: 1 }}
+      
     >
       <div className="relative h-[5rem] w-[5rem] mr-2 rounded-2xl ">
         <Image
@@ -67,6 +73,6 @@ export default function EventComponent({ event }: { event: EventType }) {
           </div>
         </div>
       </div>
-    </button>
+    </m.button>
   );
 }

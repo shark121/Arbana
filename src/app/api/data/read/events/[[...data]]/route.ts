@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { database, functions } from "@/firebase.config";
-import { collection, getDocs, loadBundle, namedQuery, Query } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  loadBundle,
+  namedQuery,
+  Query,
+} from "firebase/firestore";
 import { EventType } from "../../../../../../../components/ui/eventComponent";
 import { getCache, setCache, existsInCache } from "@/lib/server_utils";
 import { httpsCallable } from "firebase/functions";
 
 // import {} from "firebase/firestore/bundle";
-
-
-
-
 
 // If you are using module bundlers.
 // import firebase from "firebase/app";
@@ -17,19 +19,13 @@ import { httpsCallable } from "firebase/functions";
 // import "firebase/firestore/bundle" // This line enables bundle loading as a side effect.
 
 async function fetchFromBundle() {
-    const addMessage = httpsCallable(functions, 'createBundle');
+  const fetchEventsData = httpsCallable(functions, "createBundle");
 
-    return addMessage()
-      .then((result) => {
-        const data = result.data as { event: EventType[] };
-        return data.event;
-      })
-
-
+  return fetchEventsData().then((result) => {
+    const data = result.data as { event: EventType[] };
+    return data.event;
+  });
 }
-
-
-
 
 async function fetchData(eventId?: string) {
   let data: EventType[] = [];
@@ -40,7 +36,7 @@ async function fetchData(eventId?: string) {
     data = await getCache("events").then((data) => {
       return JSON.parse(data) as EventType[];
     });
-    
+
     if (eventId) {
       const event = data.find((event) => event.eventId === Number(eventId));
       return event;
@@ -49,22 +45,20 @@ async function fetchData(eventId?: string) {
     return data;
   }
 
-//   const response = await getDocs(collection(database, "events"));
+  //   const response = await getDocs(collection(database, "events"));
 
-//   response.forEach((doc) => {
-//     data.push(doc.data() as EventType);
-//   });
-  
-  data = await fetchFromBundle() as unknown as EventType[];
+  //   response.forEach((doc) => {
+  //     data.push(doc.data() as EventType);
+  //   });
+
+  data = (await fetchFromBundle()) as unknown as EventType[];
 
   await setCache("events", data);
 
   return data;
 }
 
-export async function POST(
-  req: NextRequest
-) {
+export async function POST(req: NextRequest) {
   const eventID = await req.json();
   console.log(String(eventID), "eventID.................");
   const data_response = await fetchData(eventID);
@@ -73,4 +67,3 @@ export async function POST(
     data: data_response,
   });
 }
-
