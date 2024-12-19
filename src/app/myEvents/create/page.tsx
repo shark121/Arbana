@@ -20,7 +20,7 @@ import TicketTierType, {
 } from "../../../../components/components/eventInfo/ticketTierTypeComponent";
 import { comfortaa } from "@/app/page";
 
-type RequestType = EventType & { imageFile: File | null };
+type RequestType = EventType & { imageFile: File | null } & {province: string};
 
 export const inputStyling = " bg-gray-50 rounded-3xl outline-none p-2 w-full h-[4rem] w-[20rem]";
 
@@ -111,6 +111,7 @@ function AddTicket({
 export default function CreateEvent() {
   const [eventNameState, setEventNameState] = useState<string>("");
   const [startDateState, setStartDateState] = useState<string>("");
+  const [provinceState, setProvinceState] = useState<string>("")
   const [endDateState, setEndDateState] = useState<string>("");
   const [startTimeState, setStartTimeState] = useState<string>("00:00");
   const [locationState, setLocationState] = useState<string>("");
@@ -206,6 +207,7 @@ export default function CreateEvent() {
       createdAt: new Date().toISOString(),
       creatorMailAdress: userInfoState?.email,
       fallBackMailAdress: fallBackMailAdressState,
+      province : provinceState,
       userID: userIDAsString,
     };
 
@@ -242,6 +244,12 @@ export default function CreateEvent() {
         type="string"
         placeholder="YYYY-MM-DD"
         onChange={(e) => setStartDateState(e.target.value)}
+      />
+      <Input
+        className={inputStyling}
+        type="string"
+        placeholder="Province/State"
+        onChange={(e) => setProvinceState(e.target.value)}
       />
       <Input
         className={inputStyling}

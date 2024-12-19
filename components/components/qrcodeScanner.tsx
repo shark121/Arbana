@@ -9,8 +9,11 @@ async function getCameras() {
   }
 }
 
-export default async function QrCodeScanner() {
-  const qrCodeReader = new Html5Qrcode("qr-code-reader", true);
+function getDims(h:number,w:number){
+  return{height: h , widht:w}
+}
+
+export default async function QrCodeScanner(qrCodeReader: Html5Qrcode) {
 
   try {
     const cameraId = await getCameras();
@@ -20,7 +23,10 @@ export default async function QrCodeScanner() {
           { facingMode: "environment" },
           {
             fps: 10,
-            qrbox: 250,
+            qrbox: {height:250, width:250},
+            // aspectRatio: 1.333334
+            aspectRatio: 1
+
           },
           (decodedText) => {
             resolve(decodedText);

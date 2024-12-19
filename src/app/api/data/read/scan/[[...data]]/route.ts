@@ -4,23 +4,36 @@ import { database } from "@/firebase.config";
 
 async function verifyTicket(ticketID: string, eventID: string) {
   return await runTransaction(database, async (transaction) => {
-    const ticketRef = doc(collection(database, "bookings"), eventID);
-    const ticket = await transaction.get(ticketRef);
+    const eventBookingsRef = doc(collection(database, "bookings"), eventID);
+    const ticketBookings = await transaction.get(eventBookingsRef);
 
-    if (!ticket.exists()) {
-      return "ticket does not exist";
+
+    console.log(ticketBookings.data())
+    
+    if (!ticketBookings.exists()) {
+      console.log("deos not exist in DB")
+      return {scans : null}
     }
 
-    const ticketData = ticket.data()[ticketID];
+    const bookingsData = ticketBookings.data()
 
-    console.log(ticketData)
+    console.log(Object.keys(bookingsData))
 
-    if (ticketData?.scans === 0) {
-      return "ticket has already been scanned";
-    }
+    if(Object.keys(bookingsData).includes(ticketID )){
+      console.log(bookingsData, "bookings data")
+      const ticketData = bookingsData[ticketID]
+      console.log(ticketData, "ticket Data.......................")
 
-    transaction.set(ticketRef, { [ticketID]: { scans: 0 } }, {merge:true}, );
-    return "ticket verified";
+      const scans = ticketData.scans 
+
+      ticketData["scans"] = 0
+  
+      transaction.set(eventBookingsRef, { [ticketID]: ticketData }, {merge:true},  );
+      return {scans}
+    } 
+     
+    console.log("none true")
+    return {scans : null}
 
   });
 }
@@ -33,6 +46,8 @@ export async function POST(
   const { ticketID, eventID } = data;
   console.log(ticketID, eventID);
   const response = await verifyTicket(ticketID, eventID);
-  
-  return NextResponse.json({response});
+  const scans = response.scans 
+  console.log(response, "response............");
+
+  return NextResponse.json({scans});
 }

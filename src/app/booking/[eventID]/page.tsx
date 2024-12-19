@@ -146,93 +146,53 @@ export default function Booking({ params }: { params: {} }) {
   ) {
     price = price ?? 0;
 
+    const ticketFormData = new FormData();
+    ticketFormData.append("ticket", JSON.stringify(ticketState));
+
     await fetch(
-      `/api/data/read/tickets/${quantity}/${ticketState?.tier}/${ticketState?.eventID}`
+      `/api/payment/request/${phoneNumber}/${provider}/${price}/${quantity}`,
+      {
+        method: "POST",
+        body: ticketFormData,
+      }
     )
       .then(async (response) => {
-        let text = await response.json();
-        console.log(text);
-        if (text.response === false) {
-          setText(
-            "We cannot satisfy your order at this time, please try again later."
-          );
-          setHeaderText("Insufficient tickets");
-          setIsOpen(true);
-          // window.location.href = `/`;
-          return "error";
-        }
+        let responseObject = await response.json();
+        const textresponse = responseObject.response;
 
-        if (text.response === "error") {
-          setText("There was an error completing your request.");
-          setHeaderText("Error");
+        console.log(responseObject);
+
+        if (responseObject.type === "error") {
+          setText(responseObject.response);
+          setHeaderText("There was a problem with your request");
           setIsOpen(true);
           return "error";
         }
 
-        if (text.response == true) {
-          const ticketFormData = new FormData();
-          ticketFormData.append("ticket", JSON.stringify(ticketState));
+        console.log(responseObject.response);
 
-          await fetch(
-            `/api/payment/request/${phoneNumber}/${provider}/${price}/${quantity}`,
-            {
-              method: "POST",
-              body: ticketFormData,
-            }
-          )
-            .then(async (response) => {
-              let text = await response.json();
-              const textresponse = text.response as string;
-              console.log(text);
-              if (textresponse === "false") {
-                setText("Payment failed, please try again later.");
-                setHeaderText("Payment failed");
-                setIsOpen(true);
-                return "error";
-              }
+        const ticketWithID: TicketType = {
+          ...ticketState,
+          transactionID: textresponse,
+        } as TicketType;
 
-              console.log(ticketState);
+        sessionStorage.setItem("ticket", JSON.stringify(ticketWithID));
 
-              const ticketWithID: TicketType = {
-                ...ticketState,
-                transactionID: textresponse,
-              } as TicketType;
+        const verificationID = generateRandomId(10);
+        sessionStorage.setItem("verificationID", verificationID);
+        let parsedResponse = JSON.parse(textresponse);
 
-              sessionStorage.setItem("ticket", JSON.stringify(ticketWithID));
-
-              const verificationID = generateRandomId(10);
-              sessionStorage.setItem("verificationID", verificationID);
-
-              window.location.href = `/ticket/${text.response}/${verificationID}`;
-            })
-            .catch((error) => {
-              console.log(error);
-              setText(String(error));
-              setHeaderText("Payment failed");
-              return "error";
-            });
-
-          // window.location.href = `/`;
-        }
+        // window.location.href = `/ticket/${responseObject.response}/${verificationID}`;
+        window.location.href = parsedResponse.response.data.authorization_url
       })
       .catch((error) => {
         console.log(error);
-        setText("There was an error completing your request.");
-        setHeaderText("Error");
-        setIsOpen(true);
+        setText(String(error));
+        setHeaderText("Payment failed");
         return "error";
-      })
-      .then(async () => {});
+      });
 
-    // const text = { response: generateRandomId(10) };
-
-    // const ticketWithID = { ...ticketState, ticketID: text.response, scans :quantity };
-    // sessionStorage.setItem("ticket", JSON.stringify(ticketWithID));
-
-    // const verificationID = generateRandomId(10);
-    // sessionStorage.setItem("verificationID", verificationID);
-
-    // window.location.href = `/ticket/${text.response}/${verificationID}`;
+    // window.location.href = `/`;
   }
 
   return (

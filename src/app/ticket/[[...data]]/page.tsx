@@ -13,6 +13,7 @@ import { comfortaa } from "../../page";
 import { EventType } from "../../../../components/ui/eventComponent";
 import SheetComponent from "../../../../components/components/sheet";
 import { taintObjectReference } from "next/dist/server/app-render/entry-base";
+import { useRouter } from "next/router";
 
 export default function Ticket({ params }: { params: { data: string[] } }) {
   const [qrCode, setQrCode] = useState<string>();
@@ -31,7 +32,7 @@ export default function Ticket({ params }: { params: { data: string[] } }) {
   }>();
 
   const pdf = new jsPDF({ format: "c5" });
-
+  console.log(params.data);
   function generatePDF() {
     qrCode && pdf.addImage(qrCode, "PNG", 10, 60, 50, 50);
     pdf.setFontSize(20);
@@ -46,17 +47,9 @@ export default function Ticket({ params }: { params: { data: string[] } }) {
   }
 
   const ticketID = params.data[1];
-  // const verificationID = params.data[1];
-  // console.log(ticketID, verificationID);
 
   useEffect(() => {
-    // if (sessionStorage.getItem("verificationID") !== verificationID) {
-    //   setDialogHeader("Invalid Ticket");
-    //   setDialogText("The ticket you are trying to access is invalid");
-    //   setDialogIsOpen(true);
-    // }
-
-    // else {
+    console.log();
     const ticket = sessionStorage.getItem("ticket");
     let parsedTicket = ticket && JSON.parse(ticket);
     setTicketState(parsedTicket);
@@ -83,6 +76,7 @@ export default function Ticket({ params }: { params: { data: string[] } }) {
     const eventJson = eventState && JSON.parse(eventState);
     setEventState(eventJson);
     console.log(eventJson);
+    // generatePDF()
   }, [ticketState]);
 
   return (

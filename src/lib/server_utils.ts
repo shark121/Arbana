@@ -54,3 +54,15 @@ export const existsInCache = async (key: string) => {
 };
 
 
+export const deleteFromCache = async (key:string)=>{
+  return await redisClient.del(key)
+  .then((res) => {
+    return res;
+  })
+  .catch((err) => {
+    console.log(err);
+    return false;
+  });
+}
+
+

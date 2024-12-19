@@ -66,6 +66,8 @@ export function generateRandomId(length: number): string {
 const randomId = generateRandomId(10); // Generates a random ID with 10 characters
 console.log("Random ID:", randomId);
 
+
+
 // Example usage:
 // const username = getCookie('username');
 // if (username) {

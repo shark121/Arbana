@@ -3,11 +3,15 @@ import { database } from "@/firebase.config";
 import { collection, doc, getDoc } from "firebase/firestore";
 import { getCache, setCache, existsInCache } from "@/lib/server_utils";
 
+
+let hits = 0
+
 async function getUserTickets(userID: string) {
   const userBookings = userID + "_bookings";
   const userEvents = userID + "_events";
+  const userDocRef = doc(collection(database, "users"), userID);
 
-  if (await existsInCache(userBookings)) {
+  if ((hits > 2) && await existsInCache(userBookings) ) {
     console.log("booking data exists in cache");
     return getCache(userBookings).then((data) => {
       console.log(JSON.parse(data));
@@ -15,13 +19,13 @@ async function getUserTickets(userID: string) {
     });
   }
     
-  const userDocRef = doc(collection(database, "users"), userID);
 
   const userInfo = await getDoc(userDocRef).then(async (doc) => {
     if (doc.exists()) {
       await setCache(userBookings, doc.data().tickets);
       await setCache(userEvents, doc.data().events)
       console.log(doc.data());
+      hits++
       return doc.data().tickets;
     } else {
       return null;

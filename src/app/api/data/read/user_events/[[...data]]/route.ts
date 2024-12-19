@@ -8,7 +8,6 @@ import {
   setDoc,
   runTransaction,
 } from "firebase/firestore";
-import { EventType } from "../../../../../../../components/ui/eventComponent";
 import { getCache, setCache, existsInCache } from "@/lib/server_utils";
 
 async function getUserEvents(userID: string) {
