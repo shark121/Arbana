@@ -7,6 +7,12 @@ import { EventType } from "../ui/eventComponent";
 import { useState } from "react";
 import { DrawerComponent } from "../components/drawer";
 import { parametersList } from "../../data/parameters";
+import {SearchBox} from "react-instantsearch"
+import {InstantSearch} from "react-instantsearch"
+import {liteClient as algolia} from "algoliasearch/lite"
+
+const searchClient = algolia("W6M4AJCW2Z", "d8b19e7a00ef293456a27f59f480e776");
+
 
 export function FilterButton() {
   return (
@@ -33,9 +39,9 @@ export default function Search({
   value,
   setValue,
 }: {
-  data: EventType[];
-  value: EventType | null;
-  setValue: React.Dispatch<React.SetStateAction<EventType | null>>;
+  data?: EventType[];
+  value?: EventType | null;
+  setValue?: React.Dispatch<React.SetStateAction<EventType | null>>;
 }) {
   const [filterParameter, setFilterParameter] = useState("name");
   const [openSearchSpace, setOpenSearchSpace] = useState(false);
@@ -45,7 +51,7 @@ export default function Search({
   ));
 
   return (
-    <div className=" flex h-[3rem] w-[18rem] items-center justify-center rounded-[1rem] px-2  py-2 bg-gray-100 ring-primary z-10"
+    <div className=" flex h-[3rem] w-[23rem] items-center justify-center rounded-[1rem] px-2  py-2 bg-gray-100 ring-primary z-10"
     onClick={()=>setOpenSearchSpace(true)}
     >
       {/* <div className={`h-screen w-screen ${openSearchSpace ? "bg-white z-10 absolute top-0 bottom-0 left-0 right-0" : "bg-none" }`}></div> */}
@@ -53,14 +59,24 @@ export default function Search({
         <SearchIcon fill="gray" height="20px" width="20px" />
       </button>
       <div className="flex h-full w-[80%] items-center justify-center relative ">
-        <SearchCombobox
+        {/* <SearchCombobox
           data={data}
           selected={value}
           setSelected={setValue}
           filterParameter={filterParameter}
+        /> */}
+          <InstantSearch
+        searchClient={searchClient}
+        indexName="events_index"
+        insights
+      >
+        <SearchBox className="outline-none bg-red"
+        style={{outline:"none"}}
         />
+        {/* <RefinementList attribute="name" /> */}
+      </InstantSearch>
       </div>
-      <DrawerComponent contentData={parameterComponents} />
+      {/* <DrawerComponent contentData={parameterComponents} /> */}
     </div>
   );
 }

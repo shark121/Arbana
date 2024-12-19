@@ -125,7 +125,7 @@ export default function EventItem(params: { params: { eventID: string } }) {
 
   return (
     <div
-      className={`${comfortaa.className} w-screen min-h-screen flex flex-col items-center justify-between `}
+      className={`${comfortaa.className} w-full min-h-full flex flex-col items-center justify-between `}
     >
       <div className="w-full h-[3.5rem]  flex items-center justify-end p-4">
         {/* <button onClick={() => router.back()}
@@ -139,7 +139,7 @@ export default function EventItem(params: { params: { eventID: string } }) {
           <SheetComponent />
         </div>
       </div>
-      <div className="h-[25rem] w-screen  flex flex-col justify-between items-center px-2">
+      <div className="h-[25rem] w-full  flex flex-col justify-between items-center px-2">
         <div className="relative w-[95%] sm:w-[35rem] h-[20rem] rounded-2xl my-2">
           {eventState && (
             <Image
@@ -162,7 +162,7 @@ export default function EventItem(params: { params: { eventID: string } }) {
             ))}
         </div> */}
       </div>
-      <div className="min-w-[100%]">
+      <div className="min-w-[10rem]">
         <div className=" mx-2 mb-4 rounded-[2rem] shadow-sm  flex flex-col items-center scale-[0.9]">
           <div className="flex h-[6rem] items-center justify-start w-full gap-2  mx-2 box-border my-4 ">
             <div className="flex items-center justify-center w-[3rem] h-[3rem] rounded-full mx-4 p-[0.5rem] bg-blue-50">
@@ -199,7 +199,7 @@ export default function EventItem(params: { params: { eventID: string } }) {
               </div>
             </div>
           </div>
-          <div className="outline outline-1 outline-blue-100 rounded-full w-[90%] place-self-center"></div>
+          <div className="outline outline-1 outline-blue-100 rounded-full min-w-[90%] place-self-center"></div>
           <div className="flex h-[6rem] items-center justify-start w-full gap-2  mx-2 my-4 ">
             <div className="flex items-center justify-center w-[3rem] h-[3rem] rounded-full mx-4 p-[0.5rem] bg-blue-50">
               <LocationSVG
@@ -225,7 +225,7 @@ export default function EventItem(params: { params: { eventID: string } }) {
           <div className="text-[0.8rem]">{eventState?.description}</div>
         </div>
       </div>
-      <div className=" h-[4rem] w-screen flex items-center justify-center bg-white">
+      <div className=" h-[4rem] w-full flex items-center justify-center bg-white">
         <button
           className="h-[3rem] w-[20rem] bg-blue-600 rounded-xl text-white font-bold"
           onClick={() => handleOnClick()}

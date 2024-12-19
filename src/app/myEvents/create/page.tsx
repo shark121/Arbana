@@ -10,7 +10,7 @@ import { Select } from "@/components/ui/select";
 import { Selector } from "../../../../components/components/selector";
 import { categoriesList } from "../../../../data/categories";
 import { X } from "lucide-react";
-import z from "zod";
+import { z } from "zod";
 import { Form } from "react-hook-form";
 import { EventType } from "../../../../components/ui/eventComponent";
 import { User } from "firebase/auth";
@@ -19,10 +19,14 @@ import TicketTierType, {
   AddNewTicket,
 } from "../../../../components/components/eventInfo/ticketTierTypeComponent";
 import { comfortaa } from "@/app/page";
+import { EventSchema, AvailableSeatsSchema, TicketSchema } from "@/lib/types";
 
-type RequestType = EventType & { imageFile: File | null } & {province: string};
+type RequestType = EventType & { imageFile: File | null } & {
+  province: string;
+};
 
-export const inputStyling = " bg-gray-50 rounded-3xl outline-none p-2 w-full h-[4rem] w-[20rem]";
+export const inputStyling =
+  " bg-gray-50 rounded-3xl outline-none p-2 w-full h-[4rem] w-[20rem]";
 
 export type createRequestType = Omit<RequestType, "imageUrl">;
 
@@ -85,7 +89,7 @@ function AddTicket({
 
   return (
     <div>
-       {isAddingNewTicket ? (
+      {isAddingNewTicket ? (
         <AddNewTicket
           seatsState={seatsState}
           setSeatsState={setSeatsState}
@@ -104,14 +108,13 @@ function AddTicket({
           />
         );
       })}
-     
     </div>
   );
 }
 export default function CreateEvent() {
   const [eventNameState, setEventNameState] = useState<string>("");
   const [startDateState, setStartDateState] = useState<string>("");
-  const [provinceState, setProvinceState] = useState<string>("")
+  const [provinceState, setProvinceState] = useState<string>("");
   const [endDateState, setEndDateState] = useState<string>("");
   const [startTimeState, setStartTimeState] = useState<string>("00:00");
   const [locationState, setLocationState] = useState<string>("");
@@ -126,7 +129,7 @@ export default function CreateEvent() {
   const [imageFileState, setImageFileState] = useState<File | null>(null);
   const [createdEvent, setCreateEvent] = useState<EventType>();
   const [eventIDState, setEventIDState] = useState<number>(
-    Number(generateRandomId(20))
+    Number(generateRandomId(5))
   );
   const [userInfoState, setUserInfoState] = useState<User>();
   const [fallBackMailAdressState, setFallBackMailAdressState] =
@@ -207,7 +210,7 @@ export default function CreateEvent() {
       createdAt: new Date().toISOString(),
       creatorMailAdress: userInfoState?.email,
       fallBackMailAdress: fallBackMailAdressState,
-      province : provinceState,
+      province: provinceState,
       userID: userIDAsString,
     };
 
@@ -215,11 +218,14 @@ export default function CreateEvent() {
 
     await sendCreateRequest({ event }).catch((err) => console.log(err, "err"));
   }
-   
 
   return (
-    <div className={`w-full ${comfortaa.className} min-h-full flex items-start justify-center gap-2 flex-col px-2`}>
-      <div className="font-bold text-center text-[2rem] h-[5rem] w-full items-center justify-center">Create Event</div>
+    <div
+      className={`w-full ${comfortaa.className} min-h-full flex items-start justify-center gap-2 flex-col px-2`}
+    >
+      <div className="font-bold text-center text-[2rem] h-[5rem] w-full items-center justify-center">
+        Create Event
+      </div>
       <Input
         placeholder="Event Name"
         className={inputStyling}
@@ -227,14 +233,13 @@ export default function CreateEvent() {
       />
       <Input
         placeholder="Event Start Time"
-        // className={inputStyling}
         aria-placeholder="Event Start Time"
         className="font-bold"
         type="time"
         onChange={(e) => setStartTimeState(e.target.value)}
       />
       <Input
-       className={inputStyling} 
+        className={inputStyling}
         placeholder="Event Location"
         onChange={(e) => setLocationState(e.target.value)}
       />
@@ -262,7 +267,7 @@ export default function CreateEvent() {
         className="h-[10rem] w-[20rem] bg-gray-50 rounded-3xl outline-none"
         onChange={(e) => setDescriptionState(e.target.value)}
       />
-      
+
       <Input
         className={inputStyling}
         type="file"

@@ -1,46 +1,103 @@
 "use client";
 import { getCookie } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import EventComponent, { EventType } from "../../components/ui/eventComponent";
 import ListComponent from "../../components/ui/listComponent";
 import { Comfortaa } from "next/font/google";
 import { getDocs, collection } from "firebase/firestore";
 import { database } from "@/firebase.config";
 import Loading from "./loading";
-import { liteClient as algoliasearch } from 'algoliasearch/lite';
+import { liteClient as algoliasearch } from "algoliasearch/lite";
 import {
   InstantSearch,
   SearchBox,
+  useInstantSearch,
+  useSearchBox,
+  UseSearchBoxProps,
   Hits,
   Highlight,
   RefinementList,
   Pagination,
   Configure,
-} from 'react-instantsearch';
-import { configDotenv } from "dotenv";
-import path from "path"
+} from "react-instantsearch";
+import Search from "../../components/ui/searchBar";
+import AlgoSearch from "../../components/components/algosearch";
 
-// configDotenv({path:"../.env", debug:true})
+const searchClient = algoliasearch(
+  "W6M4AJCW2Z",
+  "d8b19e7a00ef293456a27f59f480e776"
+);
 
-// configDotenv({ path: path.resolve(__dirname, "./env") ,  debug : true,  });
+function CustomSearchBox(props: UseSearchBoxProps) {
+  const { query, refine } = useSearchBox(props);
+  const { status } = useInstantSearch();
+  const [inputValue, setInputValue] = useState(query);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-console.log(process.env.DOMAIN)
+  const isSearchStalled = status === "stalled";
 
-const searchClient = algoliasearch('SMBZHKSMJI', 'dce58c7cd0e034fa1e098908f9f61c8c');
+  function setQuery(newQuery: string) {
+    setInputValue(newQuery);
 
-function Hit({ hit }:{hit: any}) {
-  console.log(hit);
+    refine(newQuery);
+  }
+
   return (
-    <article>
-      <img src={hit.image} alt={hit.name} />
-      <h1>{hit.title}</h1>
-      {/* <p>{hit}</p>
-      <h1>{hit.name}</h1>
-      <p>${hit.price}</p> */}
-    </article>
+    <div>
+      <form
+        action=""
+        role="search"
+        noValidate
+        onSubmit={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+
+          if (inputRef.current) {
+            inputRef.current.blur();
+          }
+        }}
+        onReset={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+
+          setQuery("");
+
+          if (inputRef.current) {
+            inputRef.current.focus();
+          }
+        }}
+      >
+        <input
+          ref={inputRef}
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          placeholder="Search for products"
+          spellCheck={false}
+          maxLength={512}
+          type="search"
+          value={inputValue}
+          onChange={(event) => {
+            setQuery(event.currentTarget.value);
+          }}
+          autoFocus
+        />
+        <button type="submit">Submit</button>
+        <button
+          type="reset"
+          hidden={inputValue.length === 0 || isSearchStalled}
+        >
+          Reset
+        </button>
+        <span hidden={!isSearchStalled}>Searching…</span>
+      </form>
+    </div>
   );
 }
 
+function Hit({ hit }: { hit: any }) {
+  return EventComponent({ event: hit });
+}
 
 export const comfortaa = Comfortaa({
   weight: ["400", "700", "300", "500", "600"],
@@ -48,7 +105,7 @@ export const comfortaa = Comfortaa({
 });
 
 async function fetchData() {
-  return fetch("/api/data/read/events",{
+  return fetch("/api/data/read/events", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -60,39 +117,54 @@ async function fetchData() {
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState<EventType[]>();
+  const [value, setValue] = useState<EventType | null>(null);
+  const [statusChanged, setStatusChanged] = useState(false);
 
   useEffect(() => {
-    fetchData()
-      .then((data) => {
-        // console.log(data);
-        setData(data.data);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }, []);
+    console.log(statusChanged);
+  }, [statusChanged]);
 
-  if (isLoading) {
-    return <Loading />;
-  }
+  // useEffect(() => {
+  //   fetchData()
+  //     .then((data) => {
+  //       // console.log(data);
+  //       setData(data.data);
+  //       setIsLoading(false);
+  //     })
+  //     .catch((error) => {
+  //       console.error(error);
+  //     });
+  // }, []);
 
-  console.log(process.env.NEXT_PUBLIC_DOMAIN)
+  // if (isLoading) {
+  //   return <Loading />;
+  // }
 
-  return <div>{data && <ListComponent data={data} />}</div>
-
-
-   
-
-// ...
+  console.log(process.env.NEXT_PUBLIC_DOMAIN);
 
   return (
-    <InstantSearch searchClient={searchClient} indexName="movies_index" insights>
-      <Configure hitsPerPage={40} />
-      <SearchBox />
-      <RefinementList attribute="brand" />
-      <Hits hitComponent={Hit} />
-      <Pagination />
-    </InstantSearch>
+    <div className="flex flex-col items-center justify-center h-full w-full">
+      <InstantSearch
+        searchClient={searchClient}
+        indexName="events_index"
+      ></InstantSearch>
+
+      <InstantSearch
+        searchClient={searchClient}
+        indexName="events_index"
+        insights
+      >
+        <AlgoSearch
+          setStatusChanged={setStatusChanged}
+          statusState={statusChanged}
+        />
+
+        <Configure hitsPerPage={40} />
+        <RefinementList attribute="name" />
+        <Hits hitComponent={Hit} className="w-full h-full" />
+      </InstantSearch>
+    </div>
   );
+
+  // return <div>{data && <ListComponent data={data} />}</div>
 }

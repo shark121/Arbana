@@ -12,6 +12,50 @@ import SearchBar from "./searchBar";
 import MenuSVG from "@/images/svg/menu";
 import { COLORSMAP } from "../../data/colors";
 import SheetComponent from "../components/sheet";
+import { SearchBoxProps } from "react-instantsearch";
+import { liteClient as algoliasearch } from "algoliasearch/lite";
+import {
+  InstantSearch,
+  SearchBox,
+  Hits,
+  Highlight,
+  RefinementList,
+  Pagination,
+  Configure,
+} from "react-instantsearch";
+
+const searchClient = algoliasearch(
+  "W6M4AJCW2Z",
+  "d8b19e7a00ef293456a27f59f480e776"
+);
+
+function Hit({ hit }: { hit: any }) {
+  return <EventComponent event={hit} />;
+}
+
+function warapper({
+ 
+}
+) {
+  return (
+    <div>
+      <InstantSearch
+        searchClient={searchClient}
+        indexName="events_index"
+        insights
+      >
+        {/* <SearchBox
+          queryHook={queryHook}
+          searchAsYouType={searchAsYouType}
+          ignoreCompositionEvents={ignoreCompositionEvents}
+          translations={translations}
+          {...props}
+        /> */}
+      </InstantSearch>
+      
+    </div>
+  );
+}
 
 const comfortaa = Comfortaa({
   weight: ["400", "700", "300", "500"],
@@ -41,41 +85,60 @@ export default function ListComponent({ data }: { data: EventType[] }) {
         </div>
       );
 
-    let list = data.map((event, i) => <EventComponent event={event} key={i} />);
-    const filteredData = data.filter((event) =>
-      event.categories.includes(currentCategory)
-    );
+    // let list = data.map((event, i) => <EventComponent event={event} key={i} />);
+    // const filteredData = data.filter((event) =>
+    //   event.categories.includes(currentCategory)
+    // );
 
-    if (currentCategory !== "All") {
-      data = filteredData;
-      list = filteredData.map((event, i) => (
-        <EventComponent event={event} key={i} />
-      ));
-    }
+    // if (currentCategory !== "All") {
+    //   data = filteredData;
+    //   list = filteredData.map((event, i) => (
+    //     <EventComponent event={event} key={i} />
+    //   ));
+    // }
+
+    <InstantSearch
+      searchClient={searchClient}
+      indexName="events_index"
+      insights
+    >
+      <Configure hitsPerPage={40} />
+      <SearchBox />
+      <RefinementList attribute="name" />
+      <Hits hitComponent={Hit} />
+    </InstantSearch>
 
     return (
       <div
         className={`min-h-screen min-w-screen flex flex-col py-4 items-center bg-background ${comfortaa.className}  `}
       >
-        <div className="w-screen flex justify-between p-2 flex-col">
+        {/* <div className="w-screen flex justify-between p-2 flex-col">
           <div className="h-[40px] w-full flex justify-between ">
-            <Link href={""} className="relative w-[30px] h-[30px]">
-              {/* <UserSVG fill="#371fef" /> */}
-            </Link>
+            <Link href={""} className="relative w-[30px] h-[30px]"></Link>
             <SheetComponent />
           </div>
           <div className="relative h-[4rem] flex items-center justify-center ">
             {<SearchBar data={data} value={value} setValue={setValue} />}
           </div>
-        </div>
-        <div>
+        </div> */}
+
+        {/* <div>
           <Categories
             currentCategory={currentCategory}
             setCurrentCategory={setCurrentCategory}
           />
-        </div>
-        <div className="flex flex-wrap gap-4 items-center justify-center mt-4">
-          {list}
+        </div> */}
+        <div className="flex flex-wrap gap-4 items-center justify-center mt-4 h-full w-full">
+          <InstantSearch
+            searchClient={searchClient}
+            indexName="events_index"
+            insights
+          >
+            <Configure hitsPerPage={40} />
+            <SearchBox/>
+            <RefinementList attribute="name" />
+            <Hits hitComponent={Hit} />
+          </InstantSearch>
         </div>
       </div>
     );
