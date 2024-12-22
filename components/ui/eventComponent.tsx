@@ -3,30 +3,33 @@ import LocationSVG from "@/images/svg/location";
 import { generateRandomId } from "../../src/lib/utils";
 import Image from "next/image"
 import {motion as m} from "framer-motion"
-
+import {EventSchemaType} from "@/lib/types"
 export type TicketType = {
   tier: string;
   number: number;
   price: number;
 };
 
-export type EventType = {
-  eventId: number;
-  name: string;
-  startDate: string;
-  endDate: string;
-  time : string;
-  location: string;
-  description: string;
-  availableSeats: TicketType[];
-  level?: string;
-  categories: string[];
-  imageUrl: string; 
-  creatorMailAdress?:string | null |undefined
-  createdAt?: string;
-  fallBackMailAdress?: string;  
-  userID: string;
-};
+
+type EventType = EventSchemaType & {imageFile : any}
+// export type EventType = {
+//   eventId: number;
+//   name: string;
+//   startDate: string;
+//   endDate: string;
+//   time : string;
+//   location: string;
+//   description: string;
+//   availableSeats: TicketType[];
+//   level?: string;
+//   categories: string[];
+//   imageUrl: string; 
+//   creatorMailAdress?:string | null |undefined
+//   createdAt?: string;
+//   fallBackMailAdress?: string;  
+//   userID: string;
+//   imageFile : any
+// };
 
 export default function EventComponent({ event }: { event: EventType }) {
   function handleOnClick() {

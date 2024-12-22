@@ -15,30 +15,38 @@ export default function AlertDialogComp({
   displayText,
   heading,
   description,
-  callback
+  callback,
 }: {
   displayText: string;
   heading: string;
   description: string;
-  callback: (params:any)=> void;
+  callback: () => void;
 }) {
+  console.log("clicked");
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="outline" className="bg-red-500 text-white font-bold">{displayText}</Button>
+        <Button variant="outline" className="bg-red-500 text-white font-bold">
+          {displayText}
+        </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{heading}</AlertDialogTitle>
-          <AlertDialogDescription>
-          {description}
-          </AlertDialogDescription>
+          <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-          onClick={callback}
-          >Continue</AlertDialogAction>
+          <AlertDialogAction>
+            <Button
+              // variant=""
+              className="bg-red-500 text-white font-bold w-full h-full"
+              onClick={callback}
+            >
+              Delete
+            </Button>
+            {/* Continue */}
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

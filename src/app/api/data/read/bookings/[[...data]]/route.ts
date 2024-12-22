@@ -14,7 +14,7 @@ async function getUserTickets(userID: string) {
   if ((hits > 2) && await existsInCache(userBookings) ) {
     console.log("booking data exists in cache");
     return getCache(userBookings).then((data) => {
-      console.log(JSON.parse(data));
+      // console.log(JSON.parse(data));
       return JSON.parse(data);
     });
   }
@@ -24,7 +24,7 @@ async function getUserTickets(userID: string) {
     if (doc.exists()) {
       await setCache(userBookings, doc.data().tickets);
       await setCache(userEvents, doc.data().events)
-      console.log(doc.data());
+      // console.log(doc.data());
       hits++
       return doc.data().tickets;
     } else {

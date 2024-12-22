@@ -79,7 +79,7 @@ export async function GET(
     ticketTier,
     docRef,
   }).then((res) => {
-    console.log(res);
+    // console.log(res);
     return res;
   }
   ).catch((error) => {

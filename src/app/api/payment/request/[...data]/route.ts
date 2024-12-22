@@ -3,7 +3,7 @@ import { generateRandomId, vars } from "@/lib/utils";
 import dotenv, { config } from "dotenv";
 import { doc, collection } from "firebase/firestore";
 import { database } from "@/firebase.config";
-import { TicketType } from "@/lib/types";
+import { TicketSchemaType } from "@/lib/types";
 import { EventType } from "../../../../../../components/ui/eventComponent";
 import { startPaymentProcess } from "../../route.utils";
 
@@ -19,7 +19,7 @@ export async function POST(
 
   console.log(price, "price .......")
 
-  const ticketData: Omit<TicketType, "transactionID"> = JSON.parse(
+  const ticketData: Omit<TicketSchemaType, "transactionID"> = JSON.parse(
     ticketFormData.get("ticket") as string
   );
 

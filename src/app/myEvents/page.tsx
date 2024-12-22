@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { getDoc, collection, doc } from "firebase/firestore";
 import { User } from "firebase/auth";
 import { database } from "@/firebase.config";
-import { EventType } from "@/lib/types";
+import { EventSchemaType as EventType} from "@/lib/types";
 import { useEffect, useState } from "react";
 import ScanQRCode from "../scan/[[...data]]/page";
 import EventListComponent from "../../../components/components/events/eventComponent";

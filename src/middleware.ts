@@ -1,20 +1,30 @@
 import { NextResponse } from "next/server";
-import type { NextRequest, NextFetchEvent,} from "next/server";
+import type { NextRequest, NextFetchEvent } from "next/server";
 
-export function middleware(
-  request: NextRequest,
-  event: NextFetchEvent,
-) {
-  if (request.url.startsWith(process.env.NEXT_PUBLIC_DOMAIN + "/ticket")) {
+export function middleware(request: NextRequest, event: NextFetchEvent) {
+  const { url } = request;
+  const { pathname, origin } = new URL(url);
+
+  if (
+    request.nextUrl.pathname.startsWith("/myEvents") ||
+    request.nextUrl.pathname.startsWith("/tickets")
+  ) {
+    if (!request.cookies.get("user")) return NextResponse.redirect(origin + "/home");
+  }
+
+  if (request.nextUrl.pathname.startsWith("/ticket")) {
     const ticketIdandeventId = request.url.slice(
       request.url.indexOf("/ticket") + "/ticket".length + 1,
       request.url.indexOf("?")
     );
-   
-    const [ticketId,eventId] = ticketIdandeventId.split("@") 
 
-    if ((request.url.indexOf("trxref") == -1) || (request.url.indexOf("reference") == -1))
-        return
+    const [ticketId, eventId] = ticketIdandeventId.split("@");
+
+    if (
+      request.url.indexOf("trxref") == -1 ||
+      request.url.indexOf("reference") == -1
+    )
+      return;
 
     const trxref = request.url.slice(
       request.url.indexOf("trxref=") + 1 + "trxref=".length,
@@ -34,8 +44,9 @@ export function middleware(
       })
     );
 
-    return NextResponse.redirect(process.env.NEXT_PUBLIC_DOMAIN + `/ticket/${ticketId}`
-    //   new URL( process.env.NEXT_PUBLIC_DOMAIN + `/ticket/${ticketId}`)
+    return NextResponse.redirect(
+      process.env.NEXT_PUBLIC_DOMAIN + `/ticket/${ticketId}`
+      //   new URL( process.env.NEXT_PUBLIC_DOMAIN + `/ticket/${ticketId}`)
     );
   }
 }

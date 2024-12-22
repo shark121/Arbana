@@ -12,7 +12,7 @@ import { comfortaa } from "../../page";
 import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
-import { TicketType } from "@/lib/types";
+import { TicketSchemaType } from "@/lib/types";
 import { ArrowLeft } from "lucide-react";
 import { COLORSMAP } from "../../../../data/colors";
 import SheetComponent from "../../../../components/components/sheet";
@@ -22,7 +22,7 @@ async function updateCache({
   ticket,
   quantity,
 }: {
-  ticket: TicketType;
+  ticket: TicketSchemaType;
   quantity: number;
 }) {
   const currentState = getCache("ticket");
@@ -45,7 +45,7 @@ export default function Booking({ params }: { params: {} }) {
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [defaultValue, setDefaultValue] = useState<number>(1);
   const [ticketState, setTicketState] = useState<Omit<
-    TicketType,
+    TicketSchemaType,
     "transactionID"
   > | null>(null);
   const [headerText, setHeaderText] = useState<string>("");
@@ -134,7 +134,7 @@ export default function Booking({ params }: { params: {} }) {
   useEffect(() => {
     console.log(providerState);
     const ticket = sessionStorage.getItem("ticket") as string;
-    let parsedTicket = JSON.parse(ticket) as Omit<TicketType, "transactionID">;
+    let parsedTicket = JSON.parse(ticket) as Omit<TicketSchemaType, "transactionID">;
     setTicketState(parsedTicket);
   }, [providerState]);
 
@@ -171,10 +171,10 @@ export default function Booking({ params }: { params: {} }) {
 
         console.log(responseObject.response);
 
-        const ticketWithID: TicketType = {
+        const ticketWithID: TicketSchemaType = {
           ...ticketState,
           transactionID: textresponse,
-        } as TicketType;
+        } as TicketSchemaType;
 
         sessionStorage.setItem("ticket", JSON.stringify(ticketWithID));
 

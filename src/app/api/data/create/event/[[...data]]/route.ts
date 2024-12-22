@@ -36,7 +36,12 @@ async function addEvent(
   let eventData: any[] = [];
 
   const storageRef = ref(storage, `${nameIDTrim}.${fileType}`);
-  const uploadTask = uploadBytesResumable(storageRef, buffer);
+  
+  const uploadTask = uploadBytesResumable(storageRef, buffer as unknown as Blob);
+
+  //buffer as Blob may couse problems later , did it to avoid type error
+  
+
   uploadTask.on(
     "state_changed",
     (snapshot) => {
@@ -100,6 +105,10 @@ export async function POST(
   context: { params: { data: string[] } }
 ) {
   const collectedData = await req.formData();
+
+  
+  console.log(collectedData, "collectedData");
+
 
   const imageFile = collectedData.get("imageFile") as File;
 

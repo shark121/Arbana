@@ -1,5 +1,5 @@
 import { database } from "@/firebase.config";
-import { TicketType } from "@/lib/types";
+import { TicketSchemaType } from "@/lib/types";
 import {
   doc,
   collection,
@@ -76,7 +76,7 @@ export async function makePayment({
 }: {
   amount: number;
   provider: string;
-  ticketData?: Omit<TicketType, "transactionID">;
+  ticketData?: Omit<TicketSchemaType, "transactionID">;
 }): Promise<{ response: any | null; error: string | null }> {
   provider = provider.toLowerCase();
   amount ??= 0;
@@ -89,7 +89,7 @@ export async function makePayment({
     },
     body: JSON.stringify({
       amount: amount,
-      email: "example@email.com",
+      email: process.env.NEXT_PUBLIC_COMPANY_EMAIL,
       currency: "GHS",
       mobile_money: {
         provider: "mtn,vodafone",
@@ -110,7 +110,7 @@ export async function makePayment({
 }
 
 export async function createTicketEntry(
-  ticketData: Omit<TicketType, "transactionID">,
+  ticketData: Omit<TicketSchemaType, "transactionID">,
   userID: string,
   transactionID: string
 ): Promise<{ data: number; error: string | null }> {
@@ -170,7 +170,7 @@ export async function startPaymentProcess({
 }: {
   amount: number;
   provider: string;
-  ticketData: Omit<TicketType, "transactionID">;
+  ticketData: Omit<TicketSchemaType, "transactionID">;
 }): Promise<{ response: string | null; error: string | null }> {
 
   return await updateTicketsQuantity({

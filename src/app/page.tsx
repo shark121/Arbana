@@ -1,11 +1,9 @@
 "use client";
 import { getCookie } from "@/lib/utils";
 import { useEffect, useState, useRef } from "react";
-import EventComponent, { EventType } from "../../components/ui/eventComponent";
-import ListComponent from "../../components/ui/listComponent";
+import EventComponent from "../../components/ui/eventComponent";
 import { Comfortaa } from "next/font/google";
-import { getDocs, collection } from "firebase/firestore";
-import { database } from "@/firebase.config";
+import { EventSchemaType as EventType } from "@/lib/types";
 import Loading from "./loading";
 import { liteClient as algoliasearch } from "algoliasearch/lite";
 import {
@@ -124,22 +122,6 @@ export default function Home() {
     console.log(statusChanged);
   }, [statusChanged]);
 
-  // useEffect(() => {
-  //   fetchData()
-  //     .then((data) => {
-  //       // console.log(data);
-  //       setData(data.data);
-  //       setIsLoading(false);
-  //     })
-  //     .catch((error) => {
-  //       console.error(error);
-  //     });
-  // }, []);
-
-  // if (isLoading) {
-  //   return <Loading />;
-  // }
-
   console.log(process.env.NEXT_PUBLIC_DOMAIN);
 
   return (
@@ -165,6 +147,4 @@ export default function Home() {
       </InstantSearch>
     </div>
   );
-
-  // return <div>{data && <ListComponent data={data} />}</div>
 }

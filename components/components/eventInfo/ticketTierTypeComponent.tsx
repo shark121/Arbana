@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TicketType } from "../../ui/eventComponent";
+import {AvailableSeatsType} from "@/lib/types"
+import { z } from "zod";
+
 
 export const inputStyling = " bg-gray-50 rounded-2xl outline-none p-2 w-full h-[3rem] m-2";
 
@@ -13,8 +16,8 @@ export default function TicketTierType({
   RemoveTicketType,
   AddTicketType,
 }: {
-  seat: TicketType;
-  RemoveTicketType: ({ seat }: { seat: TicketType }) => void;
+  seat: AvailableSeatsType;
+  RemoveTicketType: ({ seat }: { seat: AvailableSeatsType }) => void;
   AddTicketType: (
     ticketTier: string,
     tierPrice: number,
@@ -48,7 +51,7 @@ export default function TicketTierType({
       />
       <Input
         placeholder="Ticket Quantity"
-        defaultValue={seat.number}
+        defaultValue={seat.quantity || seat.number}
         required={true}
         type="number"
         onChange={(e) => setTierQuantity(Number(e.target.value))}

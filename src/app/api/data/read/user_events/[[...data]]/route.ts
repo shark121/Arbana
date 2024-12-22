@@ -39,9 +39,9 @@ async function getUserEvents(userID: string) {
 
 export async function POST(req: NextRequest) {
   const userID = await req.json();
-  console.log(userID, "userID.................");
+  // console.log(userID, "userID.................");
   const userEvents = await getUserEvents(userID.uid);
-  console.log(userEvents,".............");
+  // console.log(userEvents,".............");
 
   return NextResponse.json({
     data: userEvents,

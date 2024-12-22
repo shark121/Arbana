@@ -1,29 +1,38 @@
 "use client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CalendarForm from "../../../../components/components/calendar";
 import { TicketType } from "../../../../components/ui/eventComponent";
-import { generateRandomId } from "../../../lib/utils";
+import { generateRandomId, getCookie } from "../../../lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { Selector } from "../../../../components/components/selector";
 import { categoriesList } from "../../../../data/categories";
 import { X } from "lucide-react";
 import { z } from "zod";
-import { Form } from "react-hook-form";
-import { EventType } from "../../../../components/ui/eventComponent";
+// import { EventType } from "../../../../components/ui/eventComponent";
 import { User } from "firebase/auth";
 import { runTransaction } from "firebase/firestore";
 import TicketTierType, {
   AddNewTicket,
 } from "../../../../components/components/eventInfo/ticketTierTypeComponent";
 import { comfortaa } from "@/app/page";
-import { EventSchema, AvailableSeatsSchema, TicketSchema } from "@/lib/types";
+import { EventSchemaType as EventType } from "@/lib/types";
+import EventForm from "../../../../components/components/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
-type RequestType = EventType & { imageFile: File | null } & {
-  province: string;
-};
+type RequestType = EventType 
 
 export const inputStyling =
   " bg-gray-50 rounded-3xl outline-none p-2 w-full h-[4rem] w-[20rem]";
@@ -35,6 +44,8 @@ async function sendCreateRequest({ event }: { event: createRequestType }) {
   const requestFormData = new FormData();
   imageFile && requestFormData.append("imageFile", imageFile);
   requestFormData.append("rest", JSON.stringify(rest));
+
+  console.log(event, "requestFormData");
 
   await fetch("/api/data/create/event/", {
     method: "POST",
@@ -112,13 +123,13 @@ function AddTicket({
   );
 }
 export default function CreateEvent() {
-  const [eventNameState, setEventNameState] = useState<string>("");
-  const [startDateState, setStartDateState] = useState<string>("");
-  const [provinceState, setProvinceState] = useState<string>("");
-  const [endDateState, setEndDateState] = useState<string>("");
-  const [startTimeState, setStartTimeState] = useState<string>("00:00");
-  const [locationState, setLocationState] = useState<string>("");
-  const [descriptionState, setDescriptionState] = useState("");
+  // const [eventNameState, setEventNameState] = useState<string>("");
+  // const [startDateState, setStartDateState] = useState<string>("");
+  // const [provinceState, setProvinceState] = useState<string>("");
+  // const [endDateState, setEndDateState] = useState<string>("");
+  // const [startTimeState, setStartTimeState] = useState<string>("00:00");
+  // const [locationState, setLocationState] = useState<string>("");
+  // const [descriptionState, setDescriptionState] = useState("");
   const [availableSeatsState, setAvailableSeatsState] = useState<TicketType[]>(
     []
   );
@@ -127,18 +138,20 @@ export default function CreateEvent() {
   const [chosenCategoriesList, setChosenCategoriesList] =
     useState<JSX.Element[]>();
   const [imageFileState, setImageFileState] = useState<File | null>(null);
-  const [createdEvent, setCreateEvent] = useState<EventType>();
+  // const [createdEvent, setCreateEvent] = useState<EventType>();
   const [eventIDState, setEventIDState] = useState<number>(
     Number(generateRandomId(5))
   );
   const [userInfoState, setUserInfoState] = useState<User>();
   const [fallBackMailAdressState, setFallBackMailAdressState] =
     useState<string>("");
-
   const [seatsState, setSeatsState] = useState<TicketType[]>([]);
+  const eventNameRef = useRef(null);
 
   useEffect(() => {
-    const userInfo = JSON.parse(sessionStorage.getItem("user") as string);
+    const userInfo = JSON.parse(getCookie("user") as string);
+
+    // console.log(userInfo, "userInfo................");
     setUserInfoState(userInfo);
   }, []);
 
@@ -185,113 +198,190 @@ export default function CreateEvent() {
     );
   }
 
-  async function handleCreateEvent() {
+  // async function handleCreateEvent() {
+  //   const fileteredCategories = categoriesState.filter(
+  //     (category) => category !== ""
+  //   );
+
+  //   const userIDAsString = userInfoState?.uid as string;
+
+  //   console.log(userIDAsString, "user ID");
+
+  //   console.log(fileteredCategories);
+
+  //   const event: Omit<RequestType, "imageUrl"> = {
+  //     name: eventNameState,
+  //     startDate: startDateState,
+  //     endDate: endDateState,
+  //     location: locationState,
+  //     description: descriptionState,
+  //     categories: fileteredCategories,
+  //     availableSeats: seatsState,
+  //     eventId: eventIDState,
+  //     time: startTimeState,
+  //     imageFile: imageFileState,
+  //     createdAt: new Date().toISOString(),
+  //     creatorMailAdress: userInfoState?.email,
+  //     fallBackMailAdress: fallBackMailAdressState,
+  //     province: provinceState,
+  //     userID: userIDAsString,
+  //   };
+
+  //   console.log(event, "event");
+
+  //   const date = z.string().date();
+
+  //   eventNameRef && console.log(eventNameRef.current);
+
+  //   // await sendCreateRequest({ event }).catch((err) => console.log(err, "err"));
+  // }
+
+  // image is set to any because of the file type
+  // validation is done manually
+
+  const FormValidEventSchema = z.object({
+    name: z.string(),
+    startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"),
+    endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"),
+    province: z.string(),
+    mobile: z.string().regex(/^\+?\d{10,14}$/, "Invalid mobile number"),
+    imageFile: z.any(),
+    // imageFile :
+    description: z.string(),
+    location: z.string(),
+    time: z.string(),
+  });
+
+  const form = useForm<z.infer<typeof FormValidEventSchema>>({
+    resolver: zodResolver(FormValidEventSchema),
+    defaultValues: {
+      name: "",
+      startDate: "",
+      endDate: "",
+      province: "",
+      mobile: "",
+      // imageFile: "",
+      description: "",
+      time: "",
+    },
+  });
+
+  type ExtraParams = z.infer<typeof FormValidEventSchema> & {
+    imageFile?: File;
+    categories: string[];
+    eventId: number;
+    availableSeats: TicketType[];
+    userID: string;
+    createdAt: string;
+  };
+
+  const onSubmit = async (
+    event: z.infer<Omit<typeof FormValidEventSchema, "imageFile">>
+  ) => {
     const fileteredCategories = categoriesState.filter(
       (category) => category !== ""
     );
 
-    const userIDAsString = userInfoState?.uid as string;
-
-    console.log(userIDAsString, "user ID");
-
-    console.log(fileteredCategories);
-
-    const event: Omit<RequestType, "imageUrl"> = {
-      name: eventNameState,
-      startDate: startDateState,
-      endDate: endDateState,
-      location: locationState,
-      description: descriptionState,
-      categories: fileteredCategories,
-      availableSeats: seatsState,
-      eventId: eventIDState,
-      time: startTimeState,
-      imageFile: imageFileState,
-      createdAt: new Date().toISOString(),
-      creatorMailAdress: userInfoState?.email,
-      fallBackMailAdress: fallBackMailAdressState,
-      province: provinceState,
-      userID: userIDAsString,
-    };
+    console.log(imageFileState, "imageFileState");
+    // console.log(event.imageFile.target.files[0], "event.imageFile.target.files");
 
     console.log(event, "event");
+    const FormValidEventSchemaParseSuccess =
+      FormValidEventSchema.safeParse(event).success;
 
-    await sendCreateRequest({ event }).catch((err) => console.log(err, "err"));
-  }
+    console.log(
+      FormValidEventSchemaParseSuccess,
+      "FormValidEventSchemaParseSuccess"
+    );
+
+    console.log(imageFileState, "imageFileState");
+
+    const eventWithExtraParams: ExtraParams = {
+      ...event,
+      categories: fileteredCategories,
+      availableSeats: seatsState,
+      userID: userInfoState?.uid!,
+      createdAt: new Date().toISOString(),
+      eventId: eventIDState,
+    };
+
+    console.log(eventWithExtraParams, "eventWithExtraParams");
+
+    if (!FormValidEventSchemaParseSuccess) {
+      window.alert("Please fill in all the required fields");
+      return;
+    }
+
+    if (!eventWithExtraParams.userID) {
+      window.alert("Please login to create an event");
+      return;
+    }
+
+    if (categoriesState.length === 0) {
+      window.alert("Please select a category");
+      return;
+    }
+
+    if (seatsState.length === 0) {
+      window.alert("Please add a ticket tier");
+      return;
+    }
+
+    // console.log("Form Data:", event);
+
+    // console.log("Collected Data:", collectedData);
+
+    sendCreateRequest({ event: eventWithExtraParams }).catch((err) =>
+      console.log(err, "err")
+    );
+  };
 
   return (
-    <div
-      className={`w-full ${comfortaa.className} min-h-full flex items-start justify-center gap-2 flex-col px-2`}
-    >
-      <div className="font-bold text-center text-[2rem] h-[5rem] w-full items-center justify-center">
-        Create Event
-      </div>
-      <Input
-        placeholder="Event Name"
-        className={inputStyling}
-        onChange={(e) => setEventNameState(e.target.value)}
-      />
-      <Input
-        placeholder="Event Start Time"
-        aria-placeholder="Event Start Time"
-        className="font-bold"
-        type="time"
-        onChange={(e) => setStartTimeState(e.target.value)}
-      />
-      <Input
-        className={inputStyling}
-        placeholder="Event Location"
-        onChange={(e) => setLocationState(e.target.value)}
-      />
-
-      <Input
-        className={inputStyling}
-        type="string"
-        placeholder="YYYY-MM-DD"
-        onChange={(e) => setStartDateState(e.target.value)}
-      />
-      <Input
-        className={inputStyling}
-        type="string"
-        placeholder="Province/State"
-        onChange={(e) => setProvinceState(e.target.value)}
-      />
-      <Input
-        className={inputStyling}
-        type="string"
-        placeholder="YYYY-MM-DD"
-        onChange={(e) => setEndDateState(e.target.value)}
-      />
-      <Textarea
-        placeholder="Event Description"
-        className="h-[10rem] w-[20rem] bg-gray-50 rounded-3xl outline-none"
-        onChange={(e) => setDescriptionState(e.target.value)}
-      />
-
-      <Input
-        className={inputStyling}
-        type="file"
-        accept="image/*"
-        max={"1000"}
-        placeholder="Image URL"
-        onChange={(e) => {
-          console.log(e.target.files);
-          e.target.files &&
-            setImageFileState(e.target.files?.[0] as unknown as File);
-        }}
-      />
-      <Input
-        className={inputStyling}
-        placeholder="Fallback Mail Adress"
-        onChange={(e) => setFallBackMailAdressState(e.target.value)}
-      />
-      <Selector
-        label="Genre"
-        items={categoriesList}
-        setCurrentItemState={setCurrentItem}
-      />
-      <div className="w-full ">{chosenCategoriesList}</div>
-      <div>
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-8"
+        id="createEventForm"
+      >
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Username</FormLabel>
+              <FormControl>
+                <Input placeholder="Event Name" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="startDate"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Start Date</FormLabel>
+              <FormControl>
+                <Input placeholder="YYYY-MM-DD" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />{" "}
+        <FormField
+          control={form.control}
+          name="endDate"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>End Date</FormLabel>
+              <FormControl>
+                <Input placeholder="YYYY-MM-DD" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         {
           <AddTicket
             setAvailableSeatsState={setAvailableSeatsState}
@@ -300,10 +390,108 @@ export default function CreateEvent() {
             setSeatsState={setSeatsState}
           />
         }
-      </div>
-      <Button onClick={async () => await handleCreateEvent()}>
-        Create Event
-      </Button>
-    </div>
+        <Selector
+          label="Genre"
+          items={categoriesList}
+          setCurrentItemState={setCurrentItem}
+        />
+        <div className="w-full ">{chosenCategoriesList}</div>
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Textarea placeholder="Description" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="location"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Location</FormLabel>
+              <FormControl>
+                <Input placeholder="Location" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="time"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Time</FormLabel>
+              <FormControl>
+                <Input placeholder="Time" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="province"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Province</FormLabel>
+              <FormControl>
+                <Input placeholder="province" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />{" "}
+        <FormField
+          control={form.control}
+          name="mobile"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Mobile</FormLabel>
+              <FormControl>
+                <Input placeholder="+233" {...field} />
+              </FormControl>
+              <FormDescription>
+                This number will be used for payment disbursements and contact
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />{" "}
+        <FormField
+          control={form.control}
+          name="imageFile"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>imageFile</FormLabel>
+              <FormControl>
+                <Input
+                  className={inputStyling}
+                  type="file"
+                  accept="image/*"
+                  max={"10000"}
+                  placeholder="Image"
+                  //commented because the added fields only accept strings
+                  // {...field}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    file && setImageFileState(file as unknown as File);
+                    form.setValue("imageFile", file);
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit">Submit</Button>
+      </form>
+    </Form>
   );
 }

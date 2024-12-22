@@ -1,4 +1,4 @@
-import { TicketType } from "@/lib/types";
+import { TicketSchemaType } from "@/lib/types";
 import Image from "next/image";
 import QRcodeSVG from "@/images/svg/qrcode";
 import { COLORSMAP } from "../../../data/colors";
@@ -12,11 +12,15 @@ import AlertDialogComp  from "../popover";
 export default function TicketsListComponent({
   ticketData,
   handleTicketOnclick,
-  handleDelete
+  handleDelete,
+  setTickets,
+  tickets
 }: {
-  ticketData: TicketType;
-  handleTicketOnclick: (ticket: TicketType) => void;
-  handleDelete :(ticket: TicketType) => void;
+  ticketData: TicketSchemaType;
+  handleTicketOnclick: (ticket: TicketSchemaType) => void;
+  handleDelete :(ticket: TicketSchemaType) => void;
+  setTickets: React.Dispatch<React.SetStateAction<TicketSchemaType[]>>;
+  tickets: TicketSchemaType[];
 }) {
 
  
@@ -34,7 +38,7 @@ export default function TicketsListComponent({
         </div>
         <div className="w-[60%] h-[3.5rem]">
           <div className="text-[0.7rem] text-gray-600">
-            {ticketData.startDate}
+            {String(ticketData.startDate)}
           </div>
           <div className="text-[1rem]">{ticketData.name}</div>
         </div>
