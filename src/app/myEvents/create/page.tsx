@@ -2,7 +2,6 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect, useRef, useState } from "react";
-import CalendarForm from "../../../../components/components/calendar";
 import { TicketType } from "../../../../components/ui/eventComponent";
 import { generateRandomId, getCookie } from "../../../lib/utils";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,15 +10,12 @@ import { Selector } from "../../../../components/components/selector";
 import { categoriesList } from "../../../../data/categories";
 import { X } from "lucide-react";
 import { z } from "zod";
-// import { EventType } from "../../../../components/ui/eventComponent";
 import { User } from "firebase/auth";
-import { runTransaction } from "firebase/firestore";
 import TicketTierType, {
   AddNewTicket,
 } from "../../../../components/components/eventInfo/ticketTierTypeComponent";
 import { comfortaa } from "@/app/page";
-import { EventSchemaType as EventType } from "@/lib/types";
-import EventForm from "../../../../components/components/form";
+import { EventSchemaType, EventSchemaType as EventType } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
@@ -32,7 +28,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-type RequestType = EventType 
+type RequestType = EventType;
 
 export const inputStyling =
   " bg-gray-50 rounded-3xl outline-none p-2 w-full h-[4rem] w-[20rem]";
@@ -123,13 +119,6 @@ function AddTicket({
   );
 }
 export default function CreateEvent() {
-  // const [eventNameState, setEventNameState] = useState<string>("");
-  // const [startDateState, setStartDateState] = useState<string>("");
-  // const [provinceState, setProvinceState] = useState<string>("");
-  // const [endDateState, setEndDateState] = useState<string>("");
-  // const [startTimeState, setStartTimeState] = useState<string>("00:00");
-  // const [locationState, setLocationState] = useState<string>("");
-  // const [descriptionState, setDescriptionState] = useState("");
   const [availableSeatsState, setAvailableSeatsState] = useState<TicketType[]>(
     []
   );
@@ -138,7 +127,6 @@ export default function CreateEvent() {
   const [chosenCategoriesList, setChosenCategoriesList] =
     useState<JSX.Element[]>();
   const [imageFileState, setImageFileState] = useState<File | null>(null);
-  // const [createdEvent, setCreateEvent] = useState<EventType>();
   const [eventIDState, setEventIDState] = useState<number>(
     Number(generateRandomId(5))
   );
@@ -296,13 +284,21 @@ export default function CreateEvent() {
 
     console.log(imageFileState, "imageFileState");
 
-    const eventWithExtraParams: ExtraParams = {
+    const eventWithExtraParams: EventSchemaType = {
       ...event,
       categories: fileteredCategories,
       availableSeats: seatsState,
       userID: userInfoState?.uid!,
       createdAt: new Date().toISOString(),
       eventId: eventIDState,
+      imageUrl: "",
+      creator : {
+        name : userInfoState?.displayName!,
+        email : userInfoState?.email!,
+        verified : userInfoState?.emailVerified!,
+        uid : userInfoState?.uid!,
+      }
+      
     };
 
     console.log(eventWithExtraParams, "eventWithExtraParams");

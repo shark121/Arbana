@@ -43,7 +43,7 @@ function handleOnClick() {
 
 export default function GoogleAuth() {
   return (
-      <button className="h-[2rem] w-[15rem] flex items-center justify-center gap-4 rounded-lg ring-2 relative my-3" onClick={handleOnClick}>
+      <button className="h-10 w-[15rem] flex items-center justify-center gap-4 rounded relative my-3 bg-gray-100" onClick={handleOnClick}>
         Continue with google
         <Image src={GoogleSVG} height={20}  alt="google logo" />
       </button>

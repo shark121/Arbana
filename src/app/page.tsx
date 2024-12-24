@@ -20,6 +20,9 @@ import {
 } from "react-instantsearch";
 import Search from "../../components/ui/searchBar";
 import AlgoSearch from "../../components/components/algosearch";
+import Verified from "@/images/svg/verified";
+import SheetComponent from "../../components/components/sheet";
+// import EventComponent from "../../components/components/events/eventComponent"
 
 const searchClient = algoliasearch(
   "W6M4AJCW2Z",
@@ -27,75 +30,62 @@ const searchClient = algoliasearch(
 );
 
 function CustomSearchBox(props: UseSearchBoxProps) {
-  const { query, refine } = useSearchBox(props);
-  const { status } = useInstantSearch();
-  const [inputValue, setInputValue] = useState(query);
-  const inputRef = useRef<HTMLInputElement>(null);
+  let divs = [];
+  let colors: string[] = ["blue", "yellow", "gray", "red"];
+  let select: string[] = [];
 
-  const isSearchStalled = status === "stalled";
-
-  function setQuery(newQuery: string) {
-    setInputValue(newQuery);
-
-    refine(newQuery);
+  for (let i = 0; i < 100; i++) {
+    select.push(colors[Math.floor(Math.random() * colors.length)]);
   }
 
+  // for (let i: number = 0; i < 20; i++) {
+  //   divs.push(<div className={`h-20 w-full bg-red- my-4`}></div>);
+  // }
+
+  const event = {
+    eventId: 1,
+    name: "AfroPiano Concert ",
+    startDate: "2022-01-01",
+    endDate: "2022-01-01",
+    time: "12:00",
+    location: "Oforikrom, Ashanti AfroPiano Concert",
+    description: "description",
+    availableSeats: [],
+    level: "level",
+    categories: ["categories"],
+    imageUrl:
+      "https://s3.amazonaws.com/thumbnails.venngage.com/template/cce90b70-55d5-492c-9e8d-0264f5b62734.png",
+    creatorMailAdress: "creatorMailAdress",
+    createdAt: "2022-01-01",
+    fallBackMailAdress: "fallBackMailAdress",
+    userID: "userID",
+    imageFile: "imageFile",
+    mobile: "+233 123 456 789",
+  };
+
+  for (let i: number = 0; i < 100; i++) {
+    divs.push(<EventComponent event={event} />);
+  }
   return (
-    <div>
-      <form
-        action=""
-        role="search"
-        noValidate
-        onSubmit={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-
-          if (inputRef.current) {
-            inputRef.current.blur();
-          }
-        }}
-        onReset={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-
-          setQuery("");
-
-          if (inputRef.current) {
-            inputRef.current.focus();
-          }
-        }}
-      >
-        <input
-          ref={inputRef}
-          autoComplete="off"
-          autoCorrect="off"
-          autoCapitalize="off"
-          placeholder="Search for products"
-          spellCheck={false}
-          maxLength={512}
-          type="search"
-          value={inputValue}
-          onChange={(event) => {
-            setQuery(event.currentTarget.value);
-          }}
-          autoFocus
-        />
-        <button type="submit">Submit</button>
-        <button
-          type="reset"
-          hidden={inputValue.length === 0 || isSearchStalled}
-        >
-          Reset
-        </button>
-        <span hidden={!isSearchStalled}>Searching…</span>
-      </form>
+    <div className="relative w-screen h-screen flex items-center justify-center flex-col">
+      <div className="backdrop-blur-md bg-gray-100 -translate-x-1/2 sticky z-20 h-[60px] w-[15rem] rounded-full top-8 inset-x-[50%] flex items-center justify-between p-4">
+        <input className="bg-inherit outline-none h-full w-[90%] text-gray-600"></input>
+        <Verified height="30px" width="30px" bgfill="#ED191D" />
+      </div>
+      {/* <div className="p-6 bg-white/55 sticky z-30 backdrop-blur-lg rounded-lg shadow-lg w-96">
+        {" "}
+      </div> */}
+      {...divs}
+      {/* <div className="z-10 w-[calc(100vw-48px)] rounded-28 bg-[hsla(0,0%,93%,0.72)] backdrop-blur-xl"></div> */}
+      
     </div>
   );
 }
 
 function Hit({ hit }: { hit: any }) {
-  return EventComponent({ event: hit });
-}
+  return EventComponent({ event: hit })
+};
+
 
 export const comfortaa = Comfortaa({
   weight: ["400", "700", "300", "500", "600"],
@@ -125,7 +115,7 @@ export default function Home() {
   console.log(process.env.NEXT_PUBLIC_DOMAIN);
 
   return (
-    <div className="flex flex-col items-center justify-center h-full w-full">
+    <div className="flex flex-col relative items-center bg-white justify-center h-full w-full">
       <InstantSearch
         searchClient={searchClient}
         indexName="events_index"
@@ -145,6 +135,7 @@ export default function Home() {
         <RefinementList attribute="name" />
         <Hits hitComponent={Hit} className="w-full h-full" />
       </InstantSearch>
+      {/* <CustomSearchBox /> */}
     </div>
   );
 }

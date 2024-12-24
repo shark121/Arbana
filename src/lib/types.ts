@@ -78,12 +78,12 @@ export type EventSchemaType = z.infer<typeof EventSchema>;
 
 const TicketSchema = z.object({
   name: z.string().min(1, "Ticket name is required"),
-  startDate: z.date().refine(
-    (date) => date >= new Date(),
+  startDate: z.string().refine(
+    (date) => new Date(date) >= new Date(),
     { message: "Start date must be a future date" }
   ),
-  endDate: z.date().refine(
-    (date) => date >= new Date(),
+  endDate: z.string().refine(
+    (date) => new Date(date) >= new Date(),
     { message: "End date must be a future date" }
   ),
   eventID: z.string().min(1, "Event ID is required"),
@@ -92,10 +92,10 @@ const TicketSchema = z.object({
   imageUrl: z.string().url("Must be a valid URL"),
   scans: z.number().min(0, "Scans must be a non-negative number"),
   uid: z.string().min(1, "User ID is required"),
-  createdAt: z.date().default(new Date()),
+  createdAt: z.string().default(new Date().toISOString()),
   transactionID: z.string().min(1, "Transaction ID is required"),
   ticketID: z.string().min(1, "Ticket ID is required"),
-  purchaseDate: z.date().describe("The date when the ticket was purchased"),
+  purchaseDate: z.string().optional().describe("The date when the ticket was purchased"),
   seatNumber: z.string().optional().describe("The seat number assigned to the ticket"),
   status: z.enum(['active', 'used', 'cancelled']).describe("The current status of the ticket"),
   buyerID: z.string().describe("The unique identifier of the ticket buyer"),
@@ -160,8 +160,8 @@ export const EventSchema = z
     mobile: z
       .string()
       .refine((mobile) => mobile.startsWith("+233") && mobile.length == 13),
-    creator: CreatorSchema.optional(),
-  })
+    creator: CreatorSchema,
+  }).strict();
 //   .refine((data) => new Date(data.startDate) < new Date(data.endDate), {
 //     message: "Start date must be before end date",
 //     path: ["endDate"],

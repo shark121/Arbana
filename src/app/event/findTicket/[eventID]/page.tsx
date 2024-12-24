@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import { EventType } from "../../../../../components/ui/eventComponent";
+// import { EventType } from "../../../../../components/ui/eventComponent";
+import { EventSchemaType as EventType } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import Counter from "../../../../../components/components/counter";
 import BackSVG from "@/images/svg/back";
@@ -13,6 +14,7 @@ import { User } from "firebase/auth";
 import { generateRandomId } from "@/lib/utils";
 import SheetComponent from "../../../../../components/components/sheet";
 import { ArrowLeft } from "lucide-react";
+import Verified from "@/images/svg/verified";
 
 const comfortaa = Comfortaa({
   subsets: ["latin"],
@@ -76,29 +78,42 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
           setCurrentTier(type.tier);
           setCurrentPrice(type.price);
         }}
-        className={ `relative flex flex-col transition-all duration-300 ease-in-out delay-100  items-start  gap-4 w-[90%]  rounded-xl shadow-sm ${isCurrentTier ? "scale-105" : ""} `}
+        className={`relative flex flex-col transition-all duration-300 ease-in-out delay-100 px-4 items-start  gap-4 w-[90%]  rounded-xl shadow-sm ${
+          isCurrentTier ? "scale-105" : ""
+        } `}
       >
         <div
-          className={`h-[3rem] w-full top-0  ${
-            isCurrentTier ? "bg-gray-700 text-white " : "text-black"
-          }  items-center justify-start flex rounded-t-2xl  px-4`}
+          className={`h-[3rem] w-full top items-center justify-start flex rounded-t-2xl`}
         >
-          <div className="font-bold text-[1.1rem]">{type.tier}</div>
+          <div className="font-bold text-[1.1rem] flex justify-between items-center w-full">
+            <div>{type.tier}</div>
+            <div>
+              {" "}
+              {isCurrentTier ? (
+                <Verified height="30px" width="30px" bgfill="red" />
+              ) : (
+                <></>
+              )}
+            </div>
+          </div>
         </div>
         <div className="w-full">
-          <div className="h-[7rem] p4 flex relative w-full">
-            <div className="relative h-[6rem] w-[6rem] mx-1">
+          <div className="h-[4rem] p4 flex relative w-full">
+            {/* <div className="relative h-[6rem] w-[6rem] mx-1">
               <Image
                 fill
                 alt="ticket image"
                 src={eventState.imageUrl}
                 className="rounded"
               />
-            </div>
-            <div className="p-x w-[60%] flex  flex-col justify-start items-start">
-              <div className="font-bold ">{eventState.name}</div>
-              <div className="text-[0.8rem] text-gray-500 flex w-full ">
-                <div>{`${convertedStartDate}   -   ${convertedEndDate}`}</div>
+            </div> */}
+            <div className="p-x w-[80%] flex  flex-col justify-start items-start">
+              {/* <div className="font-bold ">{eventState.name}</div> */}
+              <div className="text-[0.8rem] text-gray-500 font-thin flex flex-col w-full ">
+                <div>{`${convertedStartDate}   •   ${convertedEndDate}`}</div>
+                <div>{eventState?.location}</div>
+
+                {/* <div>{eventState.time}</div> */}
               </div>
               <div className="font-bold  absolute right-2 bottom-2">
                 ${type.price}
@@ -143,26 +158,13 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
     window.location.href = `/booking/${eventID}`;
   }
 
-  // let presentState = eventState?.availableSeats.find(seat => seat.tier === valueState?.name);
-  //   console.log(presentState)
-  // presentState && console.log(Object.keys(presentState))
-  // let fields = presentState && Object.keys(presentState).map((element: string, i: number) => {
-  //   return (
-  //     <div key={i}>
-  //       <h1>{presentState[element]}</h1>
-  //     </div>
-  //   )
-  // })
-
-  // console.log(fields)
-
   return (
     <div
       className={`flex flex-col h-screen w-screen justicfy-start items-center gap-4 bg-blue-50/15 ${comfortaa.className} `}
     >
       <div className="relative font-bold flex items-center justify-between p-2 h-[5rem] w-full text-[1.4rem] ">
         <div className="" onClick={() => router.back()}>
-          <ArrowLeft color={COLORSMAP.primaryBlue} />
+          <ArrowLeft color={COLORSMAP.black} />
         </div>
         <div>Choose Ticket</div>
         <SheetComponent />

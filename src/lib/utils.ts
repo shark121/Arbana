@@ -68,6 +68,7 @@ console.log("Random ID:", randomId);
 
 
 
+
 // Example usage:
 // const username = getCookie('username');
 // if (username) {

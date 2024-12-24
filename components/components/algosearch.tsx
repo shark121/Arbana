@@ -4,6 +4,8 @@ import {
   useSearchBox,
   UseSearchBoxProps,
 } from "react-instantsearch";
+import Verified from "@/images/svg/verified";
+import SheetComponent  from "../../components/components/sheet"
 
 import { useEffect } from "react";
 
@@ -37,58 +39,67 @@ export default function AlgoSearch(
   }
 
   return (
-    <div className="flex h-[3rem] w-[15rem] items-center justify-center rounded-[2rem] m-[1rem] px-2  py-2 bg-gray-100 ring-primary ">
-      <form
-        action=""
-        role="search"
-        noValidate
-        onSubmit={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
+    <div className="flex items-center z-10 h-[6.5rem] justify-between sticky top-5 w-full">
+      <div></div>
+      <div className="relative w-[250px] sm:w-[500px] h-[50px] sm:h-[60px] p-2 rounded-full bg-gray-100 flex items-center justify-center  ">
+        <form
+          action=""
+          role="search"
+          noValidate
+          className="flex items-center justify-center w-[90%] h-full"
+          onSubmit={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
 
-          if (inputRef.current) {
-            inputRef.current.blur();
-          }
-          document.body.style.zoom = "100%"
+            if (inputRef.current) {
+              inputRef.current.blur();
+            }
+            document.body.style.zoom = "100%";
 
-        //   window.resizeTo(window.screen.availWidth , window.screen.availHeight)
-        }}
-        onReset={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-
-          setQuery("");
-
-          if (inputRef.current) {
-            inputRef.current.focus();
-          }
-        }}
-      >
-        <input
-          className="outline-none bg-inherit "
-          ref={inputRef}
-          autoComplete="off"
-          autoCorrect="off"
-          autoCapitalize="off"
-          placeholder="Search for products"
-          spellCheck={false}
-          maxLength={512}
-          type="search"
-          value={inputValue}
-          onChange={(event) => {
-            setQuery(event.currentTarget.value);
+            //   window.resizeTo(window.screen.availWidth , window.screen.availHeight)
           }}
-          autoFocus
-        />
-        {/* <button type="submit">Submit</button> */}
-        {/* <button
-          type="reset"
-          hidden={inputValue.length === 0 || isSearchStalled}
+          onReset={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            setQuery("");
+
+            if (inputRef.current) {
+              inputRef.current.focus();
+            }
+          }}
         >
-          Reset
-        </button> */}
-      </form>
-      {/* <span hidden={!isSearchStalled}>Searching…</span> */}
+          <input
+            className="bg-inherit outline-none h-full w-full  text-gray-600"
+            ref={inputRef}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            placeholder=""
+            spellCheck={false}
+            maxLength={512}
+            type="search"
+            value={inputValue}
+            onChange={(event) => {
+              setQuery(event.currentTarget.value);
+            }}
+            autoFocus
+          />
+          <button type="submit" className="absolute right-3">
+            <Verified height="30px" width="30px" bgfill="#ED191D" />
+          </button>
+        </form>
+      </div>
+      <SheetComponent />
     </div>
   );
 }
+
+
+{/* <span hidden={!isSearchStalled}>Searching…</span> */}
+{/* <button
+type="reset"
+hidden={inputValue.length === 0 || isSearchStalled}
+>
+Reset
+</button> */}

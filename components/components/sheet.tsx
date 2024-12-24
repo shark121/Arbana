@@ -13,25 +13,35 @@ import MenuComponent from "../ui/menuComponent";
 import { menuItems } from "../ui/menuItems";
 
 export default function SheetComponent() {
-  
-const list = menuItems.map(({ text, icon, url, callback }, i) => (
-  <SheetClose asChild key={i}>
-    <MenuComponent text={text} icon={icon} url={url} callback={callback}/>
-  </SheetClose>
-));
+  const list = menuItems.map(({ text, icon, url, callback }, i) => (
+    <SheetClose asChild key={i}>
+      <MenuComponent text={text} icon={icon} url={url} callback={callback} />
+    </SheetClose>
+  ));
 
   return (
     <Sheet>
       <SheetTrigger asChild>
         <div className="cursor-pointer flex flex-col gap-7">
-          <MenuSVG width="30px" height="30px" fill={COLORSMAP.primaryBlue} />
+          <MenuSVG width="30px" height="30px" fill={COLORSMAP.red} />
         </div>
       </SheetTrigger>
       <SheetContent side={"left"}>
-        <div  className="hidden">
+        <div className="hidden">
           <SheetTitle></SheetTitle>
         </div>
-        <div className="flex flex-col w-full h-full gap-2">{list}</div>
+        <div className="flex flex-col w-full h-full gap-2">
+          {menuItems.map(({ text, icon, url, callback }, i) => (
+            // <SheetClose asChild key={i}>
+              <MenuComponent
+                text={text}
+                icon={icon}
+                url={url}
+                callback={callback}
+              />
+            // </SheetClose>
+          ))}
+        </div>
       </SheetContent>
     </Sheet>
   );

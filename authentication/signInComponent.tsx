@@ -6,6 +6,8 @@ import { Button } from "../src/components/ui/button";
 import { Input } from "../src/components/ui/input";
 import GoogleAuth from "./googleAuth";
 import { setCookie } from "@/lib/utils";
+import Image from "next/image";
+import Logo from "@/images/svg/logo"
 
 export async function emailAndPasswordSignIn(email: string, password: string) {
   await signInWithEmailAndPassword(auth, email, password)
@@ -44,7 +46,9 @@ export default function SignInComponent() {
 
   return (
     <main className=" flex flex-col items-center justify-center text-black">
-      <div>Logo</div>
+      <div>
+        <Logo/>
+      </div>
       <div className="w-[20rem]  flex flex-col items-center justify-center gap-4">
         <Input
           type="text"
@@ -60,9 +64,21 @@ export default function SignInComponent() {
           onChange={(e) => setPassword(() => e.target.value)}
           className="text-black"
         />
-        <Button onClick={(e) => handleOnclick(e)}>Submit</Button>
+        <button
+          className="w-full h-14 bg-black/90 rounded-lg text-white"
+          onClick={(e) => handleOnclick(e)}
+        >
+          Submit
+        </button>
+        <div className=" w-full flex items-center justify-between  text-gray-400">
+          <div className="w-[40%] h-[1px] outline-[5px] bg-black"></div>
+          <div>or</div>
+          <div className="w-[40%] h-[1px] outline-[5px] bg-black"></div>
+
+          {/* <div className="w-[40%] h-10 outline-[5px] bg-black"></div> */}
+        </div>
         <div>
-        <GoogleAuth/>
+          <GoogleAuth />
         </div>
       </div>
     </main>

@@ -14,6 +14,7 @@ import { EventType } from "../../../../components/ui/eventComponent";
 import SheetComponent from "../../../../components/components/sheet";
 import { taintObjectReference } from "next/dist/server/app-render/entry-base";
 import { useRouter } from "next/router";
+import Verified from "@/images/svg/verified";
 
 export default function Ticket({ params }: { params: { data: string[] } }) {
   const [qrCode, setQrCode] = useState<string>();
@@ -81,13 +82,13 @@ export default function Ticket({ params }: { params: { data: string[] } }) {
 
   return (
     <div
-      className={`bg-blue-200 bg-opacity-15  min-h-screen min-w-screen ${comfortaa.className}`}
+      className={`bg-gray-50 #bg-opacity-15  min-h-screen min-w-screen ${comfortaa.className}`}
     >
-      <div className="w-full h-[70px]  font-bold text-[1.4rem] flex items-center justify-between">
+      {/* <div className="w-full h-[70px]  font-bold text-[1.4rem] flex items-center justify-between">
         <div></div>
         <div>QR code</div>
         <SheetComponent />
-      </div>
+      </div> */}
       <div className="flex items-center justify-center p-4 w-full h-[35rem] ">
         <div className="w-full h-full fixed -z-10">
           <DialogComponent
@@ -97,9 +98,9 @@ export default function Ticket({ params }: { params: { data: string[] } }) {
             headerText={dialogHeader}
           />
         </div>
-        <div className="h-[450px] w-[350px] flex-col rounded-[2rem] bg-white shadow-sm flex items-center justify-start p-4">
+        <div className="h-[450px] w-[350px] flex-col rounded-lg bg-white shadow-sm flex items-center justify-start p-4">
           <div className="h-[120px]  w-full  rounded-t-[2rem] flex items-center px-[0.2rem] rounded-lg">
-            <div className="w-[70px] h-[70px] relative flex justify-between py-1">
+            {/* <div className="w-[70px] h-[70px] relative flex justify-between py-1">
               {eventState && (
                 <Image
                   src={eventState?.imageUrl}
@@ -108,12 +109,17 @@ export default function Ticket({ params }: { params: { data: string[] } }) {
                   className="rounded-lg"
                 />
               )}
-            </div>
+            </div> */}
             <div className="w-[70%] h-full py-6 flex flex-col justify-between px-2">
-              <div className="font-bold">{eventState?.name}</div>
+              <div className="font-bold text-gray-700">{ticketState?.name}</div>
+              {/* <div className="font-bold">Some Event Name</div> */}
+
               {/* <div className="font-thin text-gray-300">{ticketState?.quantity}</div> */}
               <div className="font-thin text-gray-300">
                 {ticketState?.ticketID}
+              </div>
+              <div className="font-thin text-gray-300">
+                {ticketState?.tier ?? "VIP"}
               </div>
             </div>
           </div>
@@ -127,16 +133,14 @@ export default function Ticket({ params }: { params: { data: string[] } }) {
             />
           )}
           <div className="w-full h-[50px]  flex items-center justify-center">
-            <div className="h-[35px] w-[35px] bg-primary rounded-full text-bold text-white flex items-center justify-center">
-              {ticketState?.quantity}
-            </div>
+            <Verified height="40px" width="40px" bgfill="red" />
           </div>
         </div>
       </div>
       <div className=" w-full px-4 h-[80px] flex items-center justify-center">
         <button
           onClick={() => generatePDF()}
-          className="bg-primary p-4 h-[50px] flex  rounded-lg gap-4"
+          className="bg-black p-4 h-[50px] flex  rounded-lg gap-4"
         >
           <div className="font-bold text-white ">Download</div>
           <DownloadSVG height="20px" width="20px" fill="white" />
