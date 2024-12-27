@@ -2,7 +2,7 @@ import { TicketSchemaType } from "@/lib/types";
 import Image from "next/image";
 import QRcodeSVG from "@/images/svg/qrcode";
 import { COLORSMAP } from "../../../data/colors";
-import AlertDialogComp from "../popover";
+import AlertDialogComp from "../deleteAlertPopover";
 import Verified from "@/images/svg/verified";
 import DeleteIcon from "@/images/svg/delete";
 // import { AlertDialog, AlertDialog } from "@radix-ui/react-alert-dialog";
@@ -42,10 +42,16 @@ export default function TicketsListComponent({
         </div>
       </div>
       <div
-        onClick={() => handleDelete(ticketData)}
+        // onClick={() => handleDelete(ticketData)}
         className="h-[60px] w-[60px] flex items-center justify-center"
       >
-        <DeleteIcon height="40px" width={"40px"} />
+        <AlertDialogComp
+          displayText={""}
+          heading="Delete Ticket ?"
+          description="Deleted tickets cannot be refetched. Proceed?"
+          // TriggerComponent={<DeleteIcon height="40px" width={"40px"} />}
+          callback={() => handleDelete(ticketData)}
+        />
       </div>
     </div>
   );

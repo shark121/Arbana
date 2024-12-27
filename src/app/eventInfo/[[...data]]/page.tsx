@@ -6,7 +6,6 @@ import ScanQRCode from "../../scan/[[...data]]/page";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { TicketType } from "../../../../components/ui/eventComponent";
 import { generateRandomId, getCookie } from "../../../lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
@@ -14,15 +13,21 @@ import { Selector } from "../../../../components/components/selector";
 import { categoriesList } from "../../../../data/categories";
 import { X } from "lucide-react";
 import z from "zod";
-// import { EventType } from "../../../../components/ui/eventComponent";
 import { User } from "firebase/auth";
 import TicketPopOver from "../../../../components/components/ticketPopOver";
 import TicketTierType, {
   AddNewTicket,
 } from "../../../../components/components/eventInfo/ticketTierTypeComponent";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { EventSchema, EventSchemaType, AvailableSeatsSchema, AvailableSeatsType } from "@/lib/types";
+import {
+  EventSchema,
+  EventSchemaType,
+  AvailableSeatsSchema,
+  AvailableSeatsType,
+} from "@/lib/types";
+
 import { useForm } from "react-hook-form";
+
 import {
   Form,
   FormControl,
@@ -32,6 +37,26 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Vibrant } from "node-vibrant/browser";
+import Verified from "@/images/svg/verified";
+
+async function generatePallete(imageFile: File) {
+  const imageUrl = URL.createObjectURL(imageFile);
+
+  const image = new Image();
+  image.src = imageUrl;
+
+  return await Vibrant.from(image)
+    .getPalette()
+    .then((palette: any) => {
+      console.log(palette, "palette");
+      return palette;
+    })
+    .catch((err: any) => {
+      console.log(String(err), "err");
+      return null;
+    });
+}
 
 async function sendUpdateRequest({ event }: { event: EventSchemaType }) {
   const { imageFile, ...rest } = event;
@@ -50,7 +75,6 @@ async function sendUpdateRequest({ event }: { event: EventSchemaType }) {
 
 type RequestType = EventSchemaType & { imageFile: File | null };
 
-
 function AddTicket({
   setAvailableSeatsState,
   availableSeatsState,
@@ -59,7 +83,9 @@ function AddTicket({
 }: {
   seatsState: AvailableSeatsType[];
   setSeatsState: React.Dispatch<React.SetStateAction<AvailableSeatsType[]>>;
-  setAvailableSeatsState: React.Dispatch<React.SetStateAction<AvailableSeatsType[]>>;
+  setAvailableSeatsState: React.Dispatch<
+    React.SetStateAction<AvailableSeatsType[]>
+  >;
   availableSeatsState: AvailableSeatsType[];
 }) {
   const [isAddingNewTicket, setIsAddingNewTicket] = useState<boolean>(false);
@@ -68,7 +94,7 @@ function AddTicket({
     availableSeatsState &&
       setSeatsState((seatsState) => [
         ...seatsState,
-        ...(availableSeatsState as TicketType[]),
+        ...(availableSeatsState as AvailableSeatsType[]),
       ]);
   }, [availableSeatsState]);
 
@@ -89,7 +115,7 @@ function AddTicket({
 
     setSeatsState((seatsState) => [
       ...seatsState,
-      { tier: ticketTier, number: tierQuantity, price: tierPrice },
+      { tier: ticketTier, quantity: tierQuantity, price: tierPrice },
     ]);
   }
 
@@ -132,9 +158,9 @@ export default function EventInfo(params: {
     );
   }, []);
 
-  const [availableSeatsState, setAvailableSeatsState] = useState<AvailableSeatsType[]>(
-    []
-  );
+  const [availableSeatsState, setAvailableSeatsState] = useState<
+    AvailableSeatsType[]
+  >([]);
   const [currentItem, setCurrentItem] = useState<string>("");
   const [seatsState, setSeatsState] = useState<AvailableSeatsType[]>([]);
   const [categoriesState, setCategoriesState] = useState<string[]>([]);
@@ -147,7 +173,7 @@ export default function EventInfo(params: {
   const [userInfoState, setUserInfoState] = useState<User>();
 
   useEffect(() => {
-    const userInfo = JSON.parse(getCookie("user") as string);
+    const userInfo = JSON.parse(sessionStorage.getItem("user") as string);
     setUserInfoState(userInfo);
   }, []);
 
@@ -171,7 +197,6 @@ export default function EventInfo(params: {
   useEffect(() => {
     console.log(categoriesState, "categories state");
   }, [categoriesState]);
-
 
   const FormValidEventSchema = EventSchema.omit({
     createdAt: true,
@@ -200,21 +225,21 @@ export default function EventInfo(params: {
   useEffect(() => {
     console.log(eventState, "event state");
     setAvailableSeatsState(
-      eventState?.availableSeats as unknown as TicketType[]
+      eventState?.availableSeats as unknown as AvailableSeatsType[]
     );
     setEventIDState(eventState?.eventId as number);
     // setFallBackMailAdressState(eventState?.fallBackMailAdress as string);
     setCategoriesState(eventState?.categories as string[]);
-
-    form.setValue("name", eventState?.name as string);
-    form.setValue("startDate", eventState?.startDate as string);
-    form.setValue("endDate", eventState?.endDate as string);
-    form.setValue("province", eventState?.province as string);
-    form.setValue("mobile", eventState?.mobile as string);
-    form.setValue("description", eventState?.description as string);
-    form.setValue("location", eventState?.location as string);
-    form.setValue("time", eventState?.time as string);
-    form.setValue("imageUrl", eventState?.imageUrl as string);
+F
+    // form.setValue("name", eventState?.name as string);
+    // form.setValue("startDate", eventState?.startDate as string);
+    // form.setValue("endDate", eventState?.endDate as string);
+    // form.setValue("province", eventState?.province as string);
+    // form.setValue("mobile", eventState?.mobile as string);
+    // form.setValue("description", eventState?.description as string);
+    // form.setValue("location", eventState?.location as string);
+    // form.setValue("time", eventState?.time as string);
+    // form.setValue("imageUrl", eventState?.imageUrl as string);
   }, [eventState]);
 
   function CategoriesComponent({ currentItem }: { currentItem: string }) {
@@ -271,14 +296,6 @@ export default function EventInfo(params: {
   //   await sendUpdateRequest({ event }).catch((err) => console.log(err, "err"));
   // }
 
-  type ExtraParams = z.infer<typeof FormValidEventSchema> & {
-    imageFile?: File;
-    categories: string[];
-    eventId: number;
-    availableSeats: typeof AvailableSeatsSchema[];
-    userID: string;
-    createdAt: string;
-  };
 
   const onSubmit = async (
     event: z.infer<Omit<typeof FormValidEventSchema, "imageFile">>
@@ -301,7 +318,7 @@ export default function EventInfo(params: {
 
     console.log(imageFileState, "imageFileState");
 
-    const eventWithExtraParams: ExtraParams = {
+    const eventWithExtraParams: EventSchemaType = {
       ...event,
       categories: fileteredCategories,
       availableSeats: seatsState,
@@ -334,17 +351,27 @@ export default function EventInfo(params: {
 
     // console.log("Form Data:", event);
 
+    if(imageFileState) {
+      const palette = await generatePallete(imageFileState);
+      event["imagePallete"] = palette;
+      console.log(palette, "palette");
+    }
+
+
     sendUpdateRequest({ event: eventWithExtraParams }).catch((err) =>
       console.log(err, "err")
     );
   };
 
+
+  const onSubmittest = ()=>console.log("onSubmit")
+
   return (
     eventState && (
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-8"
+          onSubmit={form.handleSubmit(onSubmittest)}
+          className="space-y-8 p-4"
           id="createEventForm"
         >
           <FormField
@@ -494,7 +521,9 @@ export default function EventInfo(params: {
               </FormItem>
             )}
           />
-          <Button type="submit">Submit</Button>
+          <Button type="submit" variant={"outline"} className="flex gap-4">Submit
+            <Verified height="20px" width="20px" bgfill="#ED191D" />
+          </Button>
         </form>
       </Form>
     )

@@ -4,6 +4,7 @@ import {createClient} from "redis";
 import dotenv from "dotenv";
 
 
+
 export const vars = dotenv.config({path: "../.env"});  
 
 
@@ -67,7 +68,16 @@ const randomId = generateRandomId(10); // Generates a random ID with 10 characte
 console.log("Random ID:", randomId);
 
 
-
+export function rgbToHex(r:number, g:number, b:number) {
+  // Ensure the values are between 0 and 255
+  r = Math.min(255, Math.max(0, Math.round(r)));
+  g = Math.min(255, Math.max(0, Math.round(g)));
+  b = Math.min(255, Math.max(0, Math.round(b)));
+  
+  // Convert to hex and pad with zeros if needed
+  const hex = ((r << 16) | (g << 8) | b).toString(16);
+  return "#" + "0".repeat(6 - hex.length) + hex;
+}
 
 // Example usage:
 // const username = getCookie('username');
@@ -75,6 +85,33 @@ console.log("Random ID:", randomId);
 //   console.log(`Welcome back, ${username}!`);
 // } else {
 //   console.log('No username cookie found.');
+// }
+
+
+
+// export function getColorPallete(i)
+
+// const file = event.target.files[0];
+// if (file) {
+//     const objectURL = URL.createObjectURL(file);
+//     setImagePreview(objectURL);
+
+//     // Extract palette when image is loaded
+//     const img = new Image();
+//     img.src = objectURL;
+//     img.crossOrigin = 'Anonymous'; // For CORS issues with external images
+
+//     img.onload = async () => {
+//         try {
+//             const vibrantPalette = await Vibrant.from(img).getPalette();
+//             const colors = Object.values(vibrantPalette).map(swatch => swatch?.getHex());
+//             setPalette(colors);
+//         } catch (error) {
+//             console.error('Error extracting palette:', error);
+//         } finally {
+//             URL.revokeObjectURL(objectURL); // Clean up memory
+//         }
+//     };
 // }
 
 

@@ -197,7 +197,7 @@ export default function Booking({ params }: { params: {} }) {
 
   return (
     <div
-      className={`w-screen bg-blue-50/15  relative overflow-y-hidden flex items-center   flex-col gap-2 p-2 ${comfortaa.className}`}
+      className={`w-full bg-blue-50/15  relative overflow-y-hidden flex items-center   flex-col gap-2 p-2 ${comfortaa.className}`}
     >
       <div className="h-[65px] w-full  flex items-center justify-between font-bold text-[1.2rem]">
         <div className="" onClick={() => router.back()}>
@@ -241,6 +241,7 @@ export default function Booking({ params }: { params: {} }) {
         setValueState={setProviderState}
       /> */}
       <Button
+      className="w-[9rem]"
         onClick={async () =>
           await handleOnClick(
             ticketState?.scans || 0,
@@ -250,7 +251,7 @@ export default function Booking({ params }: { params: {} }) {
           )
         }
       >
-        Pay {ticketState && ticketState?.price * defaultValue}
+      Checkout
       </Button>
     </div>
   );

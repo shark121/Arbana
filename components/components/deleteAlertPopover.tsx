@@ -10,6 +10,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import DeleteIcon from "@/images/svg/delete";
 
 export default function AlertDialogComp({
   displayText,
@@ -26,8 +27,8 @@ export default function AlertDialogComp({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="outline" className="bg-red-500 text-white font-bold">
-          {displayText}
+        <Button variant="outline" className=" text-white font-bold">
+        <DeleteIcon height="30px" width="30px" fill="red" />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>

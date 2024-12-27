@@ -4,7 +4,6 @@ import dotenv, { config } from "dotenv";
 import { doc, collection } from "firebase/firestore";
 import { database } from "@/firebase.config";
 import { TicketSchemaType } from "@/lib/types";
-import { EventType } from "../../../../../../components/ui/eventComponent";
 import { startPaymentProcess } from "../../route.utils";
 
 export async function POST(

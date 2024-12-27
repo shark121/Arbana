@@ -10,7 +10,7 @@ import { jsPDF } from "jspdf";
 import { Button } from "@/components/ui/button";
 import DownloadSVG from "@/images/svg/download";
 import { comfortaa } from "../../page";
-import { EventType } from "../../../../components/ui/eventComponent";
+import {EventSchemaType as EventType} from "@/lib/types";
 import SheetComponent from "../../../../components/components/sheet";
 import { taintObjectReference } from "next/dist/server/app-render/entry-base";
 import { useRouter } from "next/router";

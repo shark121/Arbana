@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { getDoc, collection, doc } from "firebase/firestore";
 import { User } from "firebase/auth";
 import { database } from "@/firebase.config";
-import { EventSchemaType as EventType} from "@/lib/types";
+import { EventSchemaType as EventType } from "@/lib/types";
 import { useEffect, useState } from "react";
 import ScanQRCode from "../scan/[[...data]]/page";
 import EventListComponent from "../../../components/components/events/eventComponent";
@@ -29,12 +29,12 @@ export default function MyEvents() {
 
   useEffect(() => {
     async function userCreatedEvents() {
-      await fetch(`/api/data/read/user_events/`,{
+      await fetch(`/api/data/read/user_events/`, {
         method: "POST",
         // headers: {
         //   "Content-Type": "apli/plain",
         // },
-        body: JSON.stringify({uid: userState.uid}),
+        body: JSON.stringify({ uid: userState.uid }),
       })
         .then((response) => response.json())
         .then((data) => {
@@ -44,8 +44,6 @@ export default function MyEvents() {
         .catch((error) => {
           console.error(error);
         });
-    
-        
     }
     if (userState) {
       userCreatedEvents();
@@ -53,8 +51,6 @@ export default function MyEvents() {
 
     setIsLoading(false);
   }, [userState]);
-
-
 
   if (isLoading) {
     return <Loading />;
@@ -65,19 +61,17 @@ export default function MyEvents() {
       className={`min-w-screen min-h-screen pt-2 flex items-center  flex-col ${comfortaa.className}`}
     >
       <div className="w-full flex items-center h-[3rem] p-2  justify-between">
-        <button
-        className="w-[2rem] h-[2rem]"
-        onClick={() => router.back()}
-        >
+        <button className="w-[2rem] h-[2rem]" onClick={() => router.back()}>
           <ArrowLeft size={20} color={COLORSMAP.primaryBlue} />
         </button>
         <div className="text-[2rem]">My Events</div>
-        <div
-          className="w-[1.5rem] h-[1.5rem] bg-primary flex items-center justify-center rounded-full"
+        <Button
+          className="w-[6rem] h-[2.5rem] bg-primary flex items-center justify-center p-1 gap-1"
           onClick={() => router.push("/myEvents/create")}
         >
+          <div className="text-white">Create</div>
           <Plus size={20} color={"white"} />
-        </div>
+        </Button>
       </div>
       {userEvents && (
         <div className="w-full h-full p-1">

@@ -7,18 +7,13 @@ import BackSVG from "@/images/svg/back";
 import ShareSVG from "@/images/svg/share";
 import { COLORSMAP } from "../../../../../data/colors";
 import { Comfortaa } from "next/font/google";
-// import { Calendar } from "lucide-react";
-import DateSVG from "@/images/svg/date";
-import Clock from "@/images/svg/clock";
-import MapComponent from "../../../../../components/components/map";
-import LocationSVG from "@/images/svg/location";
-import FindEventItem from "../../../../../components/ui/findTicketsComponent";
+
 import { DaysOfTheWeek } from "../../../../../data/days";
 import { useRouter } from "next/navigation";
-import SheetComponent from "../../../../../components/components/sheet";
-import { ChevronLeft, CalendarFold as Calendar } from "lucide-react";
 import Loading from "@/app/loading";
-// import {} from "lucide-react";
+import { rgbToHex } from "@/lib/utils";
+import SheetComponent from "../../../../../components/components/sheet";
+import { ArrowBigLeft, ArrowLeft, Calendar, CalendarCheck } from "lucide-react";
 
 async function fetchEventData(
   eventID: string,
@@ -27,9 +22,6 @@ async function fetchEventData(
   console.log("getting from cache");
   await fetch(`/api/data/read/events/`, {
     method: "POST",
-    // headers: {
-    //   "Content-Type": "text/plain",
-    // },
     body: eventID,
   })
     .then((response) => response.json())
@@ -75,14 +67,25 @@ export function convertDate(date: string | undefined): DateMapType {
   return dateMap;
 }
 
+function createRGBString(
+  palleteArray: [number, number, number],
+  setPalletState: React.Dispatch<React.SetStateAction<string>>
+) {
+  console.log(palleteArray);
+  const hexValue = rgbToHex(...palleteArray);
+  // const res = "bg-[" + hexValue + "]";
+  console.log(hexValue);
+  setPalletState(hexValue);
+}
+
 export default function EventItem(params: { params: { eventID: string } }) {
   const router = useRouter();
   const [eventState, setEventState] = useState<EventType>();
-  const [displayTickets, setDisplayTickets] = useState(false);
+  const [palletState, setPalletState] = useState<string>("#ffffff");
+  const [shouldShowAll, setShouldShowAll] = useState<boolean>(false);
+  const [longerThanLimit, setLongerThanLimit] = useState<boolean>(false);
   const eventID = params.params.eventID;
   const [loading, setLoading] = useState(true);
-
-  const convertedDate = convertDate(eventState?.startDate);
 
   useEffect(() => {
     const eventData = sessionStorage.getItem(eventID);
@@ -91,129 +94,148 @@ export default function EventItem(params: { params: { eventID: string } }) {
     console.log(typeof eventData);
 
     if (!eventData) {
-      // setEventState(JSON.parse(eventData));
       console.log("event not found");
       fetchEventData(eventID, setEventState);
     } else {
       eventData && setEventState(JSON.parse(eventData));
     }
-
-    // console.log(eventData);
   }, []);
 
   useEffect(() => {
-    console.log(eventState);
     if (eventState) {
+      createRGBString(eventState.imagePallete.Vibrant.rgb, setPalletState);
       setLoading(false);
+    }
+
+    if (eventState) {
+      if (eventState.description.length > 100) {
+        setLongerThanLimit(true);
+      }
     }
   }, [eventState]);
 
   function handleOnClick() {
     window.location.href = `/event/findTicket/${eventID}/`;
-    // setDisplayTickets(!displayTickets);
   }
 
   if (loading) {
     return <Loading />;
   }
 
+  // background: linear-gradient(to right, #ff7e5f, #feb47b);
   return (
-    eventState && <div
-      className={`${comfortaa.className} w-full min-h-full flex flex-col items-center justify-between 
-      `}
-    >
-      <Image
-        src={eventState?.imageUrl}
-        fill
-        alt="event image"
-        className="rounded-2xl"
-      />
-      <div className="w-full h-[3.5rem]  flex items-center justify-end p-4">
-        <div>
-          {/* <ShareSVG height="20px" width="20px" fill={COLORSMAP.primaryBlue} /> */}
-          <SheetComponent />
-        </div>
-      </div>
-      <div className="h-[23rem] w-full relative flex flex-col justify-between items-center px-2 ">
-        <div className="relative h-[21rem] w-[21rem] rounded-2xl my-1 ">
-          {eventState && (
-            <Image
-              src={eventState?.imageUrl}
-              fill
-              alt="event image"
-              className="rounded-2xl"
+    eventState && (
+      <div className="bg-gray-100 min-h-screen flex justify-center items-center p-4">
+        <div className="bg-white rounded-lg shadow-md w-full max-w-md md:max-w-lg lg:max-w-xl">
+          {/* Image Section */}
+          <div className="relative w-full aspect-square">
+            <img
+              src={eventState.imageUrl}
+              alt="Festival Image"
+              className="rounded-t-lg object-cover w-full aspect-square"
             />
-          )}
-        </div>
-        <div className="w-[100px] h-[30px] flex items-center justify-center absolute bottom-4 rounded-full bg-black text-white">
-          {/* {new Date(eventState.startDate).toDateString().slice()} */}
-          May 2021
-        </div>
-      </div>
-      <div className="font-bold w-full flex h-[2rem] text-start  text-[1.8rem] px-8">
-        {eventState?.name}
-      </div>
-      <div className="w-full bg-red-300"></div>
-      <div className="min-w-[10rem]">
-        <div className=" mx-2 mb-4 rounded-[2rem] shadow-sm  flex flex-col items-center scale-[0.9]">
-          <div className="flex h-[6rem] items-center justify-start w-full gap-2  mx-2 box-border my-4 ">
-            <div className="flex items-center justify-center w-[3rem] h-[3rem] rounded-full mx-4 p-[0.5rem] bg-blue-50">
-              <Calendar
-                height="70%"
-                width="70%"
-                fill={COLORSMAP.primaryBlue}
-                stroke="blue"
-              />
-            </div>
-            <div className="flex items-start justify-start  my-2 flex-col">
-              {eventState && convertDate(eventState?.startDate).dayOfWeek}{" "}
-              {eventState && convertDate(eventState?.startDate).month}{" "}
-              {eventState && convertDate(eventState?.startDate).day}
-              {", "}
-              {"2024"}
-              <div>
-                <div className="h-[2rem] w-[10rem]  rounded-xl flex items-center justify-between ">
-                  <div className=" h-full w-[6rem] flex items-start justify-start  font-bold">
-                    {eventState?.time ?? "0:00 GMT"}
-                  </div>
+          </div>
+          <div className="p-4 md:p-6">
+            <h1 className="text-xl md:text-2xl font-bold">{eventState.name}</h1>
+
+            {/* Rating and Date */}
+            <div className="mt-4 flex flex-col md:flex-row md:items-center md:justify-between">
+              <div className="flex items-center space-x-2">
+                <div className="bg-gray-100 w-10 h-10 rounded-full flex items-center justify-center">
+                  <CalendarCheck
+                    fill="none"
+                    color="gray"
+                    stroke="gray"
+                    strokeWidth={"1px"}
+                  />
+                  {/* <p className="text-sm font-semibold">4.5</p> */}
                 </div>
+                <p className="text-sm md:text-base text-gray-500">
+                  {convertDate(eventState.startDate)["day"]}{" "}
+                  {convertDate(eventState.startDate)["month"]},{" "}
+                  {convertDate(eventState.startDate)["year"]}
+                  {/* 14 December, 2019 */}
+                  <br />
+                  <span className="text-xs text-gray-400">
+                    {convertDate(eventState.startDate)["dayOfWeek"]}
+                    {",    "}
+                    {eventState.time}
+
+                    {/* Tuesday, 4pm - 9pm */}
+                  </span>
+                </p>
               </div>
             </div>
-          </div>
-          <div className="outline outline-1 outline-blue-100 rounded-full min-w-[90%] place-self-center"></div>
-          <div className="flex h-[6rem] items-center justify-start w-full gap-2  mx-2 my-4 ">
-            <div className="flex items-center justify-center w-[3rem] h-[3rem] rounded-full mx-4 p-[0.5rem] bg-blue-50">
-              <LocationSVG
-                height="70%"
-                width="70%"
-                fill={COLORSMAP.primaryBlue}
-              />
-            </div>
-            <div className="flex items-start justify-start  my-2 flex-col">
-              <div>{eventState?.location}</div>
+
+            {/* Location */}
+            <div className="mt-4 flex items-center space-x-2">
+              <div className="bg-gray-100 w-10 h-10 rounded-full flex items-center justify-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="gray"
+                  className="w-6 h-6 "
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 21.75c4.97-3.248 8.25-7.135 8.25-11.25A8.25 8.25 0 1 0 3.75 10.5c0 4.115 3.28 8.002 8.25 11.25z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 14.25a3.75 3.75 0 1 0 0-7.5 3.75 3.75 0 0 0 0 7.5z"
+                  />
+                </svg>
+              </div>
               <div>
-                <div className="h-[2rem] w-[10rem]  rounded-xl flex items-center justify-between ">
-                  <div className=" h-full w-[6rem] flex items-start justify-start  font-bold">
-                    Province
-                  </div>
-                </div>
+                <p className="text-sm md:text-base font-semibold">
+                  {eventState.location}
+                  {/* Gala Night Convention */}
+                </p>
+                <p className="text-xs md:text-sm text-gray-500">
+                  {/* 2855 South Orange Ave, Florida */}
+                  {eventState.location} {",  "} {eventState.province}
+                </p>
               </div>
             </div>
+
+            {/* Description */}
+            <p className="mt-4 text-sm md:text-base text-gray-600 ">
+              {!shouldShowAll
+                ? eventState.description.slice(0, 100)
+                : eventState.description}
+
+              {longerThanLimit && (
+                <span
+                  className="text-red-600 cursor-pointer"
+                  onClick={() => setShouldShowAll(!shouldShowAll)}
+                >
+                  {shouldShowAll ? "    less" : "...  more"}
+                </span>
+              )}
+            </p>
+          </div>
+          <div className="text-sm md:text-base font-semibold w-full h-[5rem] p-4">
+            <div>Genres</div>
+            {eventState.categories.map((el) => (
+              <Button variant={"outline"}>{el}</Button>
+            ))}
+          </div>
+
+          {/* Buy Ticket Button */}
+          <div className="p-4 md:p-6">
+            <Button
+              className="w-full bg-primary text-white py-3 font-semibold text-sm md:text-base flex items-center justify-center"
+              onClick={handleOnClick}
+            >
+              Buy Ticket
+            </Button>
           </div>
         </div>
-        <div className="px-6 flex flex-col item-center justify-center">
-          <div className="font-semibold text-[0.9rem]">About</div>
-          <div className="text-[0.8rem]">{eventState?.description}</div>
-        </div>
       </div>
-      <div className=" h-[4rem] w-full flex items-center justify-center bg-white">
-        <button
-          className="h-[3rem] w-[20rem] bg-blue-600 rounded-xl text-white font-bold"
-          onClick={() => handleOnClick()}
-        >
-          {"find ticket"}
-        </button>
-      </div>
-    </div>
+    )
   );
 }

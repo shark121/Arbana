@@ -51,7 +51,7 @@ export default function TicketTierType({
       />
       <Input
         placeholder="Ticket Quantity"
-        defaultValue={seat.quantity || seat.number}
+        defaultValue={seat.quantity}
         required={true}
         type="number"
         onChange={(e) => setTierQuantity(Number(e.target.value))}
@@ -83,8 +83,8 @@ export function AddNewTicket({
   setSeatsState,
   setIsAddingNewTicket,
 }: {
-  seatsState: TicketType[];
-  setSeatsState: React.Dispatch<React.SetStateAction<TicketType[]>>;
+  seatsState: AvailableSeatsType[];
+  setSeatsState: React.Dispatch<React.SetStateAction<AvailableSeatsType[]>>;
   setIsAddingNewTicket: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const [ticketTier, setTicketTier] = useState<string>("");
@@ -120,7 +120,7 @@ export function AddNewTicket({
         onClick={() => {
           setSeatsState((seatsState) => [
             ...seatsState,
-            { tier: ticketTier, price: tierPrice, number: tierQuantity },
+            { tier: ticketTier, price: tierPrice, quantity: tierQuantity },
           ]);
 
           setIsAddingNewTicket(false);

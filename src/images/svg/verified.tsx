@@ -11,6 +11,9 @@ export default function Verified({
   checkfill?: string;
   bgfill?: string;
 }) {
+
+ 
+
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

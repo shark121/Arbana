@@ -2,7 +2,6 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect, useRef, useState } from "react";
-import { TicketType } from "../../../../components/ui/eventComponent";
 import { generateRandomId, getCookie } from "../../../lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
@@ -15,7 +14,7 @@ import TicketTierType, {
   AddNewTicket,
 } from "../../../../components/components/eventInfo/ticketTierTypeComponent";
 import { comfortaa } from "@/app/page";
-import { EventSchemaType, EventSchemaType as EventType } from "@/lib/types";
+import { EventSchemaType, EventSchemaType as EventType, AvailableSeatsType } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
@@ -27,6 +26,26 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Vibrant } from "node-vibrant/browser";
+import {rgbToHex} from "@/lib/utils"
+
+
+async function genertePallete(imageFile: File) {
+  const imageUrl = URL.createObjectURL(imageFile);
+
+  const image = new Image();
+  image.src = imageUrl;
+
+  return await Vibrant.from(image).getPalette().then((palette:any) => {
+    console.log(palette, "palette");
+     return palette
+  }).catch((err:any) => {
+    console.log(String(err), "err")
+    return null
+  });
+
+}
+
 
 type RequestType = EventType;
 
@@ -58,10 +77,10 @@ function AddTicket({
   seatsState,
   setSeatsState,
 }: {
-  seatsState: TicketType[];
-  setSeatsState: React.Dispatch<React.SetStateAction<TicketType[]>>;
-  setAvailableSeatsState: React.Dispatch<React.SetStateAction<TicketType[]>>;
-  availableSeatsState: TicketType[];
+  seatsState: AvailableSeatsType[];
+  setSeatsState: React.Dispatch<React.SetStateAction<AvailableSeatsType[]>>;
+  setAvailableSeatsState: React.Dispatch<React.SetStateAction<AvailableSeatsType[]>>;
+  availableSeatsState: AvailableSeatsType[];
 }) {
   const [isAddingNewTicket, setIsAddingNewTicket] = useState<boolean>(false);
 
@@ -69,11 +88,11 @@ function AddTicket({
     availableSeatsState &&
       setSeatsState((seatsState) => [
         ...seatsState,
-        ...(availableSeatsState as TicketType[]),
+        ...(availableSeatsState as AvailableSeatsType[]),
       ]);
   }, [availableSeatsState]);
 
-  function RemoveTicketType({ seat }: { seat: TicketType }) {
+  function RemoveTicketType({ seat }: { seat: AvailableSeatsType }) {
     setSeatsState((seatsState) =>
       seatsState.filter((el) => el.tier !== seat.tier)
     );
@@ -90,7 +109,7 @@ function AddTicket({
 
     setSeatsState((seatsState) => [
       ...seatsState,
-      { tier: ticketTier, number: tierQuantity, price: tierPrice },
+      { tier: ticketTier, quantity: tierQuantity, price: tierPrice },
     ]);
   }
 
@@ -119,7 +138,7 @@ function AddTicket({
   );
 }
 export default function CreateEvent() {
-  const [availableSeatsState, setAvailableSeatsState] = useState<TicketType[]>(
+  const [availableSeatsState, setAvailableSeatsState] = useState<AvailableSeatsType[]>(
     []
   );
   const [currentItem, setCurrentItem] = useState<string>("");
@@ -133,11 +152,11 @@ export default function CreateEvent() {
   const [userInfoState, setUserInfoState] = useState<User>();
   const [fallBackMailAdressState, setFallBackMailAdressState] =
     useState<string>("");
-  const [seatsState, setSeatsState] = useState<TicketType[]>([]);
+  const [seatsState, setSeatsState] = useState<AvailableSeatsType[]>([]);
   const eventNameRef = useRef(null);
 
   useEffect(() => {
-    const userInfo = JSON.parse(getCookie("user") as string);
+    const userInfo = JSON.parse(sessionStorage.getItem("user") as string);
 
     // console.log(userInfo, "userInfo................");
     setUserInfoState(userInfo);
@@ -254,14 +273,7 @@ export default function CreateEvent() {
     },
   });
 
-  type ExtraParams = z.infer<typeof FormValidEventSchema> & {
-    imageFile?: File;
-    categories: string[];
-    eventId: number;
-    availableSeats: TicketType[];
-    userID: string;
-    createdAt: string;
-  };
+
 
   const onSubmit = async (
     event: z.infer<Omit<typeof FormValidEventSchema, "imageFile">>
@@ -282,6 +294,9 @@ export default function CreateEvent() {
       "FormValidEventSchemaParseSuccess"
     );
 
+
+    const imagePallete = await genertePallete(imageFileState as File);
+
     console.log(imageFileState, "imageFileState");
 
     const eventWithExtraParams: EventSchemaType = {
@@ -292,13 +307,13 @@ export default function CreateEvent() {
       createdAt: new Date().toISOString(),
       eventId: eventIDState,
       imageUrl: "",
-      creator : {
-        name : userInfoState?.displayName!,
-        email : userInfoState?.email!,
-        verified : userInfoState?.emailVerified!,
-        uid : userInfoState?.uid!,
-      }
-      
+      creator: {
+        name: userInfoState?.displayName!,
+        email: userInfoState?.email!,
+        verified: userInfoState?.emailVerified!,
+        uid: userInfoState?.uid!,
+      },
+      imagePallete
     };
 
     console.log(eventWithExtraParams, "eventWithExtraParams");
@@ -336,7 +351,7 @@ export default function CreateEvent() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8"
+        className="space-y-8 p-4"
         id="createEventForm"
       >
         <FormField
@@ -344,7 +359,7 @@ export default function CreateEvent() {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>Event Name</FormLabel>
               <FormControl>
                 <Input placeholder="Event Name" {...field} />
               </FormControl>
@@ -425,7 +440,7 @@ export default function CreateEvent() {
             <FormItem>
               <FormLabel>Time</FormLabel>
               <FormControl>
-                <Input placeholder="Time" {...field} />
+                <Input placeholder="Time" type="time" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -465,7 +480,7 @@ export default function CreateEvent() {
           name="imageFile"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>imageFile</FormLabel>
+              <FormLabel>ImageFile</FormLabel>
               <FormControl>
                 <Input
                   className={inputStyling}

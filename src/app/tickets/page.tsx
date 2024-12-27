@@ -156,7 +156,7 @@ export default function GetTicket() {
       <div className="w-full h-full flex flex-wrap gap-4 items-center justify-center">
         {tickets &&
           tickets.map((el, i) => (
-            <div onClick={(e) => handleTicketOnclick(el)}>
+            <div>
               <TicketsListComponents
                 handleDelete={handleDelete}
                 key={el.ticketID}

@@ -1,4 +1,5 @@
 import { min } from "date-fns";
+import { Vibrant } from "node-vibrant/browser";
 import { use } from "react";
 import { z } from "zod";
 
@@ -78,27 +79,39 @@ export type EventSchemaType = z.infer<typeof EventSchema>;
 
 const TicketSchema = z.object({
   name: z.string().min(1, "Ticket name is required"),
-  startDate: z.string().refine(
-    (date) => new Date(date) >= new Date(),
-    { message: "Start date must be a future date" }
-  ),
-  endDate: z.string().refine(
-    (date) => new Date(date) >= new Date(),
-    { message: "End date must be a future date" }
-  ),
+  startDate: z
+    .string()
+    .refine((date) => new Date(date) >= new Date(), {
+      message: "Start date must be a future date",
+    }),
+  endDate: z
+    .string()
+    .refine((date) => new Date(date) >= new Date(), {
+      message: "End date must be a future date",
+    }),
   eventID: z.string().min(1, "Event ID is required"),
   tier: z.string().min(1, "Tier is required"),
   price: z.number().min(0, "Price must be a positive number"),
   imageUrl: z.string().url("Must be a valid URL"),
   scans: z.number().min(0, "Scans must be a non-negative number"),
-  uid: z.string().min(1, "User ID is required"),
+  uid: z
+    .string()
+    .min(1, "User ID is required")
+    .describe("The unique identifier of the ticket buyer"),
   createdAt: z.string().default(new Date().toISOString()),
   transactionID: z.string().min(1, "Transaction ID is required"),
   ticketID: z.string().min(1, "Ticket ID is required"),
-  purchaseDate: z.string().optional().describe("The date when the ticket was purchased"),
-  seatNumber: z.string().optional().describe("The seat number assigned to the ticket"),
-  status: z.enum(['active', 'used', 'cancelled']).describe("The current status of the ticket"),
-  buyerID: z.string().describe("The unique identifier of the ticket buyer"),
+  purchaseDate: z
+    .string()
+    .optional()
+    .describe("The date when the ticket was purchased"),
+  seatNumber: z
+    .string()
+    .optional()
+    .describe("The seat number assigned to the ticket"),
+  // status: z
+  //   .enum(["active", "used", "cancelled"])
+  //   .describe("The current status of the ticket"),
 });
 
 export type TicketSchemaType = z.infer<typeof TicketSchema>;
@@ -106,9 +119,14 @@ export type TicketSchemaType = z.infer<typeof TicketSchema>;
 export const AvailableSeatsSchema = z.object({
   tier: z.string(),
   price: z.number(),
-  quantity: z.number().optional(),
-  number: z.number().optional(),
+  quantity: z.number(),
 });
+
+export const PaleteSchema = z.object({
+  Vibrant: z.object({ rgb: z.tuple([z.number(), z.number(), z.number()]) }),
+});
+
+export type PaleteSchemaType = z.infer<typeof PaleteSchema>;
 
 export const EventSchema = z
   .object({
@@ -155,13 +173,15 @@ export const EventSchema = z
     imageUrl: z.string().url(),
     // fallBackMailAdress: z.string().email(),
     userID: z.string(),
-    province: z.string().optional(),
+    province: z.string(),
+    imagePallete: PaleteSchema,
     // image: z.string().nonempty(),
     mobile: z
       .string()
       .refine((mobile) => mobile.startsWith("+233") && mobile.length == 13),
     creator: CreatorSchema,
-  }).strict();
+  })
+  .strict();
 //   .refine((data) => new Date(data.startDate) < new Date(data.endDate), {
 //     message: "Start date must be before end date",
 //     path: ["endDate"],
@@ -171,6 +191,5 @@ export const EventSchema = z
 //  .refine(data => data.imageFile || data.imageUrl, {
 //     message: "An image is required",
 //   });
-
 
 export type AvailableSeatsType = z.infer<typeof AvailableSeatsSchema>;

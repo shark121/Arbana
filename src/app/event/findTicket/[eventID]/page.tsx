@@ -1,7 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
 // import { EventType } from "../../../../../components/ui/eventComponent";
-import { EventSchemaType as EventType } from "@/lib/types";
+import {
+  EventSchemaType,
+  EventSchemaType as EventType,
+  TicketSchemaType,
+} from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import Counter from "../../../../../components/components/counter";
 import BackSVG from "@/images/svg/back";
@@ -28,7 +32,7 @@ type TicketStateType = {
 };
 
 export default function FindEventItem(params: { params: { eventID: string } }) {
-  const [eventState, setEventState] = useState<EventType>();
+  const [eventState, setEventState] = useState<EventSchemaType>();
   const [ticketState, setTicketState] = useState<TicketStateType>();
   const [defaultValueState, setDefaultValueState] = useState(1);
   const [currentTier, setCurrentTier] = useState<string>("");
@@ -139,22 +143,23 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
   });
 
   function handleOnClick(eventID: string, tier: string, price: number) {
-    sessionStorage.setItem(
-      "ticket",
-      JSON.stringify({
-        name: eventState?.name,
-        startDate: eventState?.startDate,
-        endDate: eventState?.endDate,
-        imageUrl: eventState?.imageUrl,
-        eventID,
-        tier,
-        price,
-        scans: defaultValueState,
-        createdAt: new Date().toISOString(),
-        uid: userInfoState?.uid,
-        ticketID: generateRandomId(10),
-      })
-    );
+
+
+    const ticeketData: Omit<TicketSchemaType, "transactionID">  = {
+      name: eventState!.name,
+      startDate: eventState!.startDate,
+      endDate: eventState!.endDate,
+      imageUrl: eventState!.imageUrl,
+      eventID,
+      tier,
+      price,
+      scans: defaultValueState,
+      createdAt: new Date().toISOString(),
+      uid: userInfoState?.uid || generateRandomId(6),
+      ticketID: generateRandomId(10),
+    };
+
+    sessionStorage.setItem("ticket", JSON.stringify(ticeketData));
     window.location.href = `/booking/${eventID}`;
   }
 
@@ -172,7 +177,9 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
       {TicketTypes}
       {eventState && (
         <Button
-          onClick={() => handleOnClick(eventID, currentTier, currentPrice)}
+          onClick={() =>
+            eventState && handleOnClick(eventID, currentTier, currentPrice)
+          }
         >
           Purchase
         </Button>

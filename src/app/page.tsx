@@ -22,7 +22,7 @@ import Search from "../../components/ui/searchBar";
 import AlgoSearch from "../../components/components/algosearch";
 import Verified from "@/images/svg/verified";
 import SheetComponent from "../../components/components/sheet";
-// import EventComponent from "../../components/components/events/eventComponent"
+import { useScroll } from "framer-motion";
 
 const searchClient = algoliasearch(
   "W6M4AJCW2Z",
@@ -42,7 +42,7 @@ function CustomSearchBox(props: UseSearchBoxProps) {
   //   divs.push(<div className={`h-20 w-full bg-red- my-4`}></div>);
   // }
 
-  const event = {
+  const event: EventType = {
     eventId: 1,
     name: "AfroPiano Concert ",
     startDate: "2022-01-01",
@@ -51,16 +51,22 @@ function CustomSearchBox(props: UseSearchBoxProps) {
     location: "Oforikrom, Ashanti AfroPiano Concert",
     description: "description",
     availableSeats: [],
-    level: "level",
     categories: ["categories"],
     imageUrl:
       "https://s3.amazonaws.com/thumbnails.venngage.com/template/cce90b70-55d5-492c-9e8d-0264f5b62734.png",
-    creatorMailAdress: "creatorMailAdress",
+
     createdAt: "2022-01-01",
-    fallBackMailAdress: "fallBackMailAdress",
     userID: "userID",
     imageFile: "imageFile",
     mobile: "+233 123 456 789",
+    creator: {
+      name: "creator",
+      email: "email",
+      verified: true, 
+      uid: "uid",     
+    },
+    province: "province",
+    
   };
 
   for (let i: number = 0; i < 100; i++) {
@@ -77,15 +83,13 @@ function CustomSearchBox(props: UseSearchBoxProps) {
       </div> */}
       {...divs}
       {/* <div className="z-10 w-[calc(100vw-48px)] rounded-28 bg-[hsla(0,0%,93%,0.72)] backdrop-blur-xl"></div> */}
-      
     </div>
   );
 }
 
 function Hit({ hit }: { hit: any }) {
-  return EventComponent({ event: hit })
-};
-
+  return EventComponent({ event: hit });
+}
 
 export const comfortaa = Comfortaa({
   weight: ["400", "700", "300", "500", "600"],
@@ -107,10 +111,7 @@ export default function Home() {
   const [data, setData] = useState<EventType[]>();
   const [value, setValue] = useState<EventType | null>(null);
   const [statusChanged, setStatusChanged] = useState(false);
-
-  useEffect(() => {
-    console.log(statusChanged);
-  }, [statusChanged]);
+  const { scrollYProgress, scrollY } = useScroll();
 
   console.log(process.env.NEXT_PUBLIC_DOMAIN);
 

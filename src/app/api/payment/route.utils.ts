@@ -7,7 +7,7 @@ import {
   arrayUnion,
 } from "firebase/firestore";
 import { NextRequest, NextResponse } from "next/server";
-import { EventType } from "../../../../components/ui/eventComponent";
+import {EventSchemaType as EventType} from "@/lib/types";
 import { existsInCache, getCache, setCache } from "@/lib/server_utils";
 import { error } from "console";
 
@@ -39,16 +39,16 @@ export async function updateTicketsQuantity({
               const currentSeat = availableSeats[i];
               if (
                 currentSeat.tier === ticketTier &&
-                currentSeat.number >= requestedNumber
+                currentSeat.quantity >= requestedNumber
               ) {
-                currentSeat.number -= requestedNumber;
+                currentSeat.quantity -= requestedNumber;
                 transaction.set(docRef, { availableSeats }, { merge: true });
                 console.log("Transaction completed");
                 response = true;
               }
               if (
                 availableSeats[i].tier === ticketTier &&
-                availableSeats[i].number < requestedNumber
+                availableSeats[i].quantity < requestedNumber
               ) {
                 console.log("Not enough tickets");
                 return { error: "Not enough tickets", data: null };
@@ -95,7 +95,7 @@ export async function makePayment({
         provider: "mtn,vodafone",
       },
       callback_url:
-        process.env.NEXT_PUBLIC_DOMAIN + `/ticket/${ticketData?.ticketID}@${ticketData?.eventID}`,
+        process.env.NEXT_PUBLIC_DOMAIN + `/ticket/${ticketData?.ticketID}@${ticketData?.eventID}@${ticketData?.uid}`,
     }),
   })
     .then(async (response) => {
@@ -136,23 +136,11 @@ export async function createTicketEntry(
 
     transaction.set(
       doc(collection(database, "bookings"), ticketEntry.eventID),
-      { [ticketEntry.ticketID]: ticketEntry }
+      { [ticketEntry.ticketID]: ticketEntry },
+      { merge: true }
     );
 
-    if (await existsInCache(userID + "_bookings")) {
-      console.log("booking data exists in cache");
-
-      let currentCache = await getCache(userID + "_bookings").then((data) =>
-        JSON.parse(data)
-      );
-
-      currentCache.push(ticketEntry);
-
-      await setCache(userID + "_bookings", currentCache);
-    } else {
-      console.log("booking data does not exist in cache");
-      await setCache(userID + "_bookings", [ticketEntry]);
-    }
+   
   })
     .catch((error) => {
       console.error(error, "error in ticket entry");

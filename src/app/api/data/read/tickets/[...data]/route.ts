@@ -8,7 +8,7 @@ import {
   setDoc,
   runTransaction,
 } from "firebase/firestore";
-import { EventType } from "../../../../../../../components/ui/eventComponent";
+import {EventSchemaType as EventType} from "@/lib/types"
 
 async function updateTicketsQuantity({
   requestedNumber,
@@ -34,9 +34,9 @@ async function updateTicketsQuantity({
             const currentSeat = availableSeats[i];
             if (
               currentSeat.tier === ticketTier &&
-              currentSeat.number >= requestedNumber
+              currentSeat.quantity >= requestedNumber
             ) {
-              currentSeat.number -= requestedNumber;
+              currentSeat.quantity -= requestedNumber;
               transaction.set(docRef, { availableSeats }, { merge: true });
               console.log("Transaction completed");
               response = true
@@ -44,7 +44,7 @@ async function updateTicketsQuantity({
             }
             if (
               availableSeats[i].tier === ticketTier &&
-              availableSeats[i].number < requestedNumber
+              availableSeats[i].quantity < requestedNumber
             ) {
 
               console.log("Not enough tickets");

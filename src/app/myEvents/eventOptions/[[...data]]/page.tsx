@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { comfortaa } from "@/app/page";
-import { EventType } from "@/lib/types";
+import { EventSchemaType  as EventType} from "@/lib/types";
 import { Button } from "../../../../components/ui/button";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Edit, Download } from "lucide-react";
@@ -70,12 +70,13 @@ export default function EventOptions({
           <ArrowLeft size={20} color={COLORSMAP.primaryBlue} />
         </button>
         {eventState && <div className="text-[1rem] text-wrap">{}</div>}
-        <div
+        <Button
           onClick={() => (window.location.href = `/eventInfo/${eventID}`)}
-          className="w-[1.5rem] h-[1.5rem] flex items-center justify-center"
+          className="w-[6.5rem] h-[2.5rem] flex items-center justify-center rounded-lg p-1 gap-1 bg-primary"
         >
-          <Edit size={20} color={COLORSMAP.primaryBlue} />
-        </div>
+          <div className="text-white">Update</div>
+          <Edit size={20} color={"#ffffff"} />
+        </Button>
       </div>
       {eventState && (
         <div>
@@ -125,7 +126,7 @@ export default function EventOptions({
                     <div className="text-gray-500 text-[0.7rem]">
                       {"Quantity"}
                     </div>
-                    <div>{el.number!}</div>
+                    <div>{el.quantity}</div>
                   </div>
                 </div>
               </div>

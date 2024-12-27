@@ -5,7 +5,8 @@ import {
   UseSearchBoxProps,
 } from "react-instantsearch";
 import Verified from "@/images/svg/verified";
-import SheetComponent  from "../../components/components/sheet"
+import SheetComponent from "../../components/components/sheet";
+import { motion as m, useScroll, useMotionValue } from "framer-motion";
 
 import { useEffect } from "react";
 
@@ -26,6 +27,18 @@ export default function AlgoSearch(
   const [inputValue, setInputValue] = useState(query);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const { scrollY } = useScroll();
+  const [isScrollingUp, setIsScrollingUp] = useState(true);
+  const lastScrollY = useMotionValue(0);
+
+  useEffect(() => {
+    return scrollY.on("change", (latest) => {
+      const direction = latest < lastScrollY.get();
+      setIsScrollingUp(direction);
+      lastScrollY.set(latest);
+    });
+  }, []);
+
   const isSearchStalled = status === "stalled";
 
   useEffect(() => {
@@ -39,7 +52,13 @@ export default function AlgoSearch(
   }
 
   return (
-    <div className="flex items-center z-10 h-[6.5rem] justify-between sticky top-5 w-full">
+    <m.div
+      animate={{
+        translateY: !isScrollingUp ? -100 : 0,
+        transition: { delay: 0.5, duration: 0.2 },
+      }}
+      className="flex items-center z-10 h-[6.5rem] justify-between sticky top-5 w-full"
+    >
       <div></div>
       <div className="relative w-[250px] sm:w-[500px] h-[50px] sm:h-[60px] p-2 rounded-full bg-gray-100 flex items-center justify-center  ">
         <form
@@ -86,20 +105,23 @@ export default function AlgoSearch(
             autoFocus
           />
           <button type="submit" className="absolute right-3">
-            <Verified height="30px" width="30px" bgfill="#ED191D" />
+            <Verified height="30px" width="30px" bgfill="#ED191D"/>
           </button>
         </form>
       </div>
       <SheetComponent />
-    </div>
+    </m.div>
   );
 }
 
-
-{/* <span hidden={!isSearchStalled}>Searching…</span> */}
-{/* <button
+{
+  /* <span hidden={!isSearchStalled}>Searching…</span> */
+}
+{
+  /* <button
 type="reset"
 hidden={inputValue.length === 0 || isSearchStalled}
 >
 Reset
-</button> */}
+</button> */
+}

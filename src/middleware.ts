@@ -18,7 +18,7 @@ export function middleware(request: NextRequest, event: NextFetchEvent) {
       request.url.indexOf("?")
     );
 
-    const [ticketId, eventId] = ticketIdandeventId.split("@");
+    const [ticketId, eventId, userId] = ticketIdandeventId.split("@");
 
     if (
       request.url.indexOf("trxref") == -1 ||
@@ -39,7 +39,7 @@ export function middleware(request: NextRequest, event: NextFetchEvent) {
 
     event.waitUntil(
       fetch(process.env.NEXT_PUBLIC_DOMAIN + "/api/payment/response/data/", {
-        body: JSON.stringify({ trxref, reference, ticketId, eventId }),
+        body: JSON.stringify({ trxref, reference, ticketId, eventId, userId }),
         method: "POST",
       })
     );
