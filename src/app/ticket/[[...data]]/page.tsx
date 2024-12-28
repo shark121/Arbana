@@ -15,12 +15,14 @@ import SheetComponent from "../../../../components/components/sheet";
 import { taintObjectReference } from "next/dist/server/app-render/entry-base";
 import { useRouter } from "next/router";
 import Verified from "@/images/svg/verified";
+import Loading from "@/app/loading";
 
 export default function Ticket({ params }: { params: { data: string[] } }) {
   const [qrCode, setQrCode] = useState<string>();
   const [dialogIsOpen, setDialogIsOpen] = useState<boolean>(false);
   const [dialogText, setDialogText] = useState<string>("");
   const [dialogHeader, setDialogHeader] = useState<string>("");
+  const [isLoading, setIsLoading ] = useState<boolean>(true)
   const [eventState, setEventState] = useState<EventType>(); //
   const [ticketState, setTicketState] = useState<{
     name: string;
@@ -68,6 +70,8 @@ export default function Ticket({ params }: { params: { data: string[] } }) {
     getQrCode().then((url) => {
       setQrCode(url);
     });
+    setIsLoading(false)
+
   }, [ticketState]);
 
   useEffect(() => {
@@ -77,8 +81,10 @@ export default function Ticket({ params }: { params: { data: string[] } }) {
     const eventJson = eventState && JSON.parse(eventState);
     setEventState(eventJson);
     console.log(eventJson);
-    // generatePDF()
+     // generatePDF()
   }, [ticketState]);
+
+  if(isLoading) return <Loading/>
 
   return (
     <div

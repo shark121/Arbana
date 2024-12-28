@@ -14,12 +14,12 @@ export default function EventListComponent({
 }): JSX.Element {
   return (
     <div
-      className="w-full h-[2.5rem] hover:bg-gray-200  border-b-[1px] border-gray-100 text-gray-700 text-[0.8rem] flex items-center cursor-pointer justify-between"
+      className="w-full h-[2.5rem] hover:bg-gray-200  border-b-[1px] border-gray-100 text-gray-700 text-[0.85rem] flex items-center cursor-pointer justify-between"
       key={userEvent.eventId}
       onClick={() => handleEventOnclick(userEvent)}
     >
       <div>{userEvent.name}</div>
-      <ChevronRight size={20} color={COLORSMAP.primaryBlue} />
+      <ChevronRight size={20} color={"red"} />
     </div>
   );
 }

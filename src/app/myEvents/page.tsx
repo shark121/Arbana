@@ -1,5 +1,5 @@
 "use client";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, ChevronLeft } from "lucide-react";
 import { COLORSMAP } from "../../../data/colors";
 import React from "react";
 import { Button } from "@/components/ui/button";
@@ -62,7 +62,7 @@ export default function MyEvents() {
     >
       <div className="w-full flex items-center h-[3rem] p-2  justify-between">
         <button className="w-[2rem] h-[2rem]" onClick={() => router.back()}>
-          <ArrowLeft size={20} color={COLORSMAP.primaryBlue} />
+          <ChevronLeft size={25} color={"red"} />
         </button>
         <div className="text-[2rem]">My Events</div>
         <Button

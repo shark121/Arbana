@@ -8,6 +8,7 @@ import { auth } from "../src/firebase.config";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { setCookie } from "@/lib/utils";
+import Logo from "@/images/svg/logo";
 
 
 
@@ -54,7 +55,8 @@ export default function SignUpComponent() {
 
   return (
     <main className="w-screen  flex flex-col items-center justify-center">
-      <div>Logo</div>
+      {/* <div>Logo</div> */}
+      <Logo/>
       <div className="w-[20rem]  flex flex-col items-center justify-center gap-4">
         <Input
           type="email"

@@ -44,7 +44,7 @@ export async function POST(
 ) {
   const data = await req.json();
   const { ticketID, eventID } = data;
-  console.log(ticketID, eventID);
+  console.log(ticketID, eventID, "ticket ID event ID");
   const response = await verifyTicket(ticketID, eventID);
   const scans = response.scans 
   console.log(response, "response............");

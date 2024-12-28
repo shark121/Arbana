@@ -88,8 +88,12 @@ function CustomSearchBox(props: UseSearchBoxProps) {
 }
 
 function Hit({ hit }: { hit: any }) {
-  return EventComponent({ event: hit });
+  return <div className="w-screen h-full">
+    {EventComponent({ event: hit })}
+  </div>
+    
 }
+
 
 export const comfortaa = Comfortaa({
   weight: ["400", "700", "300", "500", "600"],

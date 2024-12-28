@@ -204,6 +204,8 @@ export default function EventInfo(params: {
     categories: true,
     availableSeats: true,
     eventId: true,
+    imagePallete: true,
+    creator: true,
   });
 
   const form = useForm<z.infer<typeof FormValidEventSchema>>({
@@ -228,18 +230,17 @@ export default function EventInfo(params: {
       eventState?.availableSeats as unknown as AvailableSeatsType[]
     );
     setEventIDState(eventState?.eventId as number);
-    // setFallBackMailAdressState(eventState?.fallBackMailAdress as string);
     setCategoriesState(eventState?.categories as string[]);
-F
-    // form.setValue("name", eventState?.name as string);
-    // form.setValue("startDate", eventState?.startDate as string);
-    // form.setValue("endDate", eventState?.endDate as string);
-    // form.setValue("province", eventState?.province as string);
-    // form.setValue("mobile", eventState?.mobile as string);
-    // form.setValue("description", eventState?.description as string);
-    // form.setValue("location", eventState?.location as string);
-    // form.setValue("time", eventState?.time as string);
-    // form.setValue("imageUrl", eventState?.imageUrl as string);
+
+    form.setValue("name", eventState?.name as string);
+    form.setValue("startDate", eventState?.startDate as string);
+    form.setValue("endDate", eventState?.endDate as string);
+    form.setValue("province", eventState?.province as string);
+    form.setValue("mobile", eventState?.mobile as string);
+    form.setValue("description", eventState?.description as string);
+    form.setValue("location", eventState?.location as string);
+    form.setValue("time", eventState?.time as string);
+    form.setValue("imageUrl", eventState?.imageUrl as string);
   }, [eventState]);
 
   function CategoriesComponent({ currentItem }: { currentItem: string }) {
@@ -296,7 +297,6 @@ F
   //   await sendUpdateRequest({ event }).catch((err) => console.log(err, "err"));
   // }
 
-
   const onSubmit = async (
     event: z.infer<Omit<typeof FormValidEventSchema, "imageFile">>
   ) => {
@@ -351,26 +351,28 @@ F
 
     // console.log("Form Data:", event);
 
-    if(imageFileState) {
+    if (imageFileState) {
       const palette = await generatePallete(imageFileState);
       event["imagePallete"] = palette;
       console.log(palette, "palette");
     }
-
 
     sendUpdateRequest({ event: eventWithExtraParams }).catch((err) =>
       console.log(err, "err")
     );
   };
 
+  function onSubmittest() {
+    console.log("onSubmit");
+  }
 
-  const onSubmittest = ()=>console.log("onSubmit")
+  
 
   return (
     eventState && (
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmittest)}
+          onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-8 p-4"
           id="createEventForm"
         >
@@ -521,7 +523,8 @@ F
               </FormItem>
             )}
           />
-          <Button type="submit" variant={"outline"} className="flex gap-4">Submit
+          <Button type="submit" variant={"outline"} className="flex gap-4">
+            Submit
             <Verified height="20px" width="20px" bgfill="#ED191D" />
           </Button>
         </form>

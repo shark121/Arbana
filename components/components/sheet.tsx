@@ -12,7 +12,7 @@ import MenuSVG from "../../src/images/svg/menu";
 import MenuComponent from "../ui/menuComponent";
 import { menuItems } from "../ui/menuItems";
 
-export default function SheetComponent() {
+export default function SheetComponent({ fill }: { fill?: string }) {
   const list = menuItems.map(({ text, icon, url, callback }, i) => (
     <SheetClose asChild key={i}>
       <MenuComponent text={text} icon={icon} url={url} callback={callback} />
@@ -23,7 +23,7 @@ export default function SheetComponent() {
     <Sheet>
       <SheetTrigger asChild>
         <div className="cursor-pointer flex flex-col gap-7">
-          <MenuSVG width="30px" height="30px" fill={COLORSMAP.red} />
+          <MenuSVG width="30px" height="30px" fill={fill} />
         </div>
       </SheetTrigger>
       <SheetContent side={"left"}>
@@ -33,12 +33,12 @@ export default function SheetComponent() {
         <div className="flex flex-col w-full h-full gap-2">
           {menuItems.map(({ text, icon, url, callback }, i) => (
             // <SheetClose asChild key={i}>
-              <MenuComponent
-                text={text}
-                icon={icon}
-                url={url}
-                callback={callback}
-              />
+            <MenuComponent
+              text={text}
+              icon={icon}
+              url={url}
+              callback={callback}
+            />
             // </SheetClose>
           ))}
         </div>

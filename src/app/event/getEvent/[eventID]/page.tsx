@@ -13,7 +13,13 @@ import { useRouter } from "next/navigation";
 import Loading from "@/app/loading";
 import { rgbToHex } from "@/lib/utils";
 import SheetComponent from "../../../../../components/components/sheet";
-import { ArrowBigLeft, ArrowLeft, Calendar, CalendarCheck } from "lucide-react";
+import {
+  ArrowBigLeft,
+  ArrowLeft,
+  Calendar,
+  CalendarCheck,
+  ChevronLeft,
+} from "lucide-react";
 
 async function fetchEventData(
   eventID: string,
@@ -125,7 +131,11 @@ export default function EventItem(params: { params: { eventID: string } }) {
   // background: linear-gradient(to right, #ff7e5f, #feb47b);
   return (
     eventState && (
-      <div className="bg-gray-100 min-h-screen flex justify-center items-center p-4">
+      <div className="bg-gray-100 min-h-screen flex flex-col justify-center items-center p-4">
+        <div className="w-full h-[3rem] flex items-center justify-between">
+          <ChevronLeft color={palletState} height={"30px"} width={"30px"} />
+          <SheetComponent fill={palletState} />
+        </div>
         <div className="bg-white rounded-lg shadow-md w-full max-w-md md:max-w-lg lg:max-w-xl">
           {/* Image Section */}
           <div className="relative w-full aspect-square">

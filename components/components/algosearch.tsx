@@ -54,13 +54,13 @@ export default function AlgoSearch(
   return (
     <m.div
       animate={{
-        translateY: !isScrollingUp ? -100 : 0,
+        // translateY: !isScrollingUp ? -100 : 0,
         transition: { delay: 0.5, duration: 0.2 },
       }}
-      className="flex items-center z-10 h-[6.5rem] justify-between sticky top-5 w-full"
+      className="flex items-center z-10 h-[4rem] justify-between sticky top-2 w-full"
     >
       <div></div>
-      <div className="relative w-[250px] sm:w-[500px] h-[50px] sm:h-[60px] p-2 rounded-full bg-gray-100 flex items-center justify-center  ">
+      <div className="relative w-[250px] sm:w-[500px] h-[50px] sm:h-[60px] py-1 px-3 rounded-full bg-gray-100 flex items-center justify-center  ">
         <form
           action=""
           role="search"
@@ -105,7 +105,7 @@ export default function AlgoSearch(
             autoFocus
           />
           <button type="submit" className="absolute right-3">
-            <Verified height="30px" width="30px" bgfill="#ED191D"/>
+            <Verified height="30px" width="30px" bgfill="#ED191D" />
           </button>
         </form>
       </div>

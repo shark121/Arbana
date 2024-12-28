@@ -17,8 +17,9 @@ import Image from "next/image";
 import { User } from "firebase/auth";
 import { generateRandomId } from "@/lib/utils";
 import SheetComponent from "../../../../../components/components/sheet";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronLeft } from "lucide-react";
 import Verified from "@/images/svg/verified";
+import Loading from "@/app/loading";
 
 const comfortaa = Comfortaa({
   subsets: ["latin"],
@@ -38,6 +39,7 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
   const [currentTier, setCurrentTier] = useState<string>("");
   const [currentPrice, setCurrentPrice] = useState<number>(1);
   const [userInfoState, setUserInfoState] = useState<User>();
+  const [isLoading, setIsLoading] = useState<boolean>(true)
   const router = useRouter();
   const eventID = params.params.eventID;
 
@@ -60,7 +62,11 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
     setValueState({ name: eventState?.availableSeats[0].tier ?? "" });
     setCurrentTier(eventState?.availableSeats[0].tier ?? "");
     setCurrentPrice(eventState?.availableSeats[0].price ?? 1);
+    setIsLoading(false)
   }, [eventState]);
+
+
+  
 
   const convertedStartDate = Object.values(convertDate(eventState?.startDate))
     .slice(1)
@@ -115,7 +121,7 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
               {/* <div className="font-bold ">{eventState.name}</div> */}
               <div className="text-[0.8rem] text-gray-500 font-thin flex flex-col w-full ">
                 <div>{`${convertedStartDate}   •   ${convertedEndDate}`}</div>
-                <div>{eventState?.location}</div>
+                <div className="text-[0.8rem]">{eventState?.location}</div>
 
                 {/* <div>{eventState.time}</div> */}
               </div>
@@ -161,7 +167,9 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
 
     sessionStorage.setItem("ticket", JSON.stringify(ticeketData));
     window.location.href = `/booking/${eventID}`;
-  }
+  } 
+
+  if(isLoading) return <Loading/>
 
   return (
     <div
@@ -169,7 +177,7 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
     >
       <div className="relative font-bold flex items-center justify-between p-2 h-[5rem] w-full text-[1.4rem] ">
         <div className="" onClick={() => router.back()}>
-          <ArrowLeft color={COLORSMAP.black} />
+          <ChevronLeft color={"red"} />
         </div>
         <div>Choose Ticket</div>
         <SheetComponent />

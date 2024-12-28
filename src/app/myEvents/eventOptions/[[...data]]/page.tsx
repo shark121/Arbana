@@ -4,7 +4,7 @@ import { comfortaa } from "@/app/page";
 import { EventSchemaType  as EventType} from "@/lib/types";
 import { Button } from "../../../../components/ui/button";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Edit, Download } from "lucide-react";
+import { ArrowLeft, Edit, Download, ChevronLeft } from "lucide-react";
 import { COLORSMAP } from "../../../../../data/colors";
 import jsPDF from "jspdf";
 import QRcode from "qrcode";
@@ -66,8 +66,10 @@ export default function EventOptions({
   return (
     <div className={`${comfortaa.className} min-w-screen min-h-screen p-2`}>
       <div className="h-[3rem] w-full flex justify-between items-center mb-4">
-        <button onClick={() => router.back()}>
-          <ArrowLeft size={20} color={COLORSMAP.primaryBlue} />
+        <button 
+        className="w-[40px]"
+        onClick={() => router.back()}>
+          <ChevronLeft size={20} color={"red"} />
         </button>
         {eventState && <div className="text-[1rem] text-wrap">{}</div>}
         <Button

@@ -13,10 +13,11 @@ import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
 import { TicketSchemaType } from "@/lib/types";
-import { ArrowLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { COLORSMAP } from "../../../../data/colors";
 import SheetComponent from "../../../../components/components/sheet";
 import { setCache, getCache, existsInCache } from "@/lib/server_utils";
+import Loading from "@/app/loading";
 
 async function updateCache({
   ticket,
@@ -42,6 +43,7 @@ export default function Booking({ params }: { params: {} }) {
   const router = useRouter();
 
   const [providerState, setProviderState] = useState<string>("MTN");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [defaultValue, setDefaultValue] = useState<number>(1);
   const [ticketState, setTicketState] = useState<Omit<
@@ -134,9 +136,16 @@ export default function Booking({ params }: { params: {} }) {
   useEffect(() => {
     console.log(providerState);
     const ticket = sessionStorage.getItem("ticket") as string;
-    let parsedTicket = JSON.parse(ticket) as Omit<TicketSchemaType, "transactionID">;
+    let parsedTicket = JSON.parse(ticket) as Omit<
+      TicketSchemaType,
+      "transactionID"
+    >;
     setTicketState(parsedTicket);
-  }, [providerState]);
+  }, []);
+
+  useEffect(() => {
+    setIsLoading(false);
+  }, [ticketState]);
 
   async function handleOnClick(
     quantity: number,
@@ -144,6 +153,7 @@ export default function Booking({ params }: { params: {} }) {
     provider: string,
     price?: number
   ) {
+    setIsLoading(true);
     price = price ?? 0;
 
     const ticketFormData = new FormData();
@@ -165,6 +175,7 @@ export default function Booking({ params }: { params: {} }) {
         if (responseObject.type === "error") {
           setText(responseObject.response);
           setHeaderText("There was a problem with your request");
+          setIsLoading(false);
           setIsOpen(true);
           return "error";
         }
@@ -183,17 +194,18 @@ export default function Booking({ params }: { params: {} }) {
         let parsedResponse = JSON.parse(textresponse);
 
         // window.location.href = `/ticket/${responseObject.response}/${verificationID}`;
-        window.location.href = parsedResponse.response.data.authorization_url
+        window.location.href = parsedResponse.response.data.authorization_url;
       })
       .catch((error) => {
         console.log(error);
         setText(String(error));
+        setIsLoading(false);
         setHeaderText("Payment failed");
         return "error";
       });
-
-    // window.location.href = `/`;
   }
+
+  if (isLoading) return <Loading />;
 
   return (
     <div
@@ -201,9 +213,10 @@ export default function Booking({ params }: { params: {} }) {
     >
       <div className="h-[65px] w-full  flex items-center justify-between font-bold text-[1.2rem]">
         <div className="" onClick={() => router.back()}>
-          <ArrowLeft height="23px" width="23px" color={COLORSMAP.primaryBlue} />
+          <ChevronLeft height="30px" width="30px" color={"red"} />
         </div>
-        <div>Detail Order</div>
+        <div>Order Details
+        </div>
         <SheetComponent />
       </div>
       {ticketState && (
@@ -241,7 +254,8 @@ export default function Booking({ params }: { params: {} }) {
         setValueState={setProviderState}
       /> */}
       <Button
-      className="w-[9rem]"
+        disabled={isLoading}
+        className="w-[9rem]"
         onClick={async () =>
           await handleOnClick(
             ticketState?.scans || 0,
@@ -251,7 +265,7 @@ export default function Booking({ params }: { params: {} }) {
           )
         }
       >
-      Checkout
+        Checkout
       </Button>
     </div>
   );

@@ -3,13 +3,14 @@ import { Button } from "@/components/ui/button";
 import QrCodeScanner from "../../../../components/components/qrcodeScanner";
 import { useState, useEffect } from "react";
 import SheetComponent from "../../../../components/components/sheet";
-import { ArrowLeftIcon, ScanBarcodeIcon, EllipsisIcon } from "lucide-react";
+import { ArrowLeftIcon, ScanBarcodeIcon, EllipsisIcon, ChevronLeft } from "lucide-react";
 import ToastComponent from "../../../../components/components/toast";
 import { comfortaa } from "@/app/page";
 import ScannerSVG from "@/images/svg/scanner";
 import { Html5Qrcode } from "html5-qrcode";
 import Loading from "@/app/loading";
 import { useToast } from "@/hooks/use-toast";
+import { StringToBoolean } from "class-variance-authority/types";
 
 function displayResult({ scans }: { scans: number | null }) {
 
@@ -90,7 +91,7 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
   async function scannerInit() {
 
   //   checkTicket({
-  //     scannedID: "5909479810",
+  //     scannedID: "5267575548",
   //     eventID: eventID,
   //     setProcessing: setProcessing,
   //     setQuerying: setQuerying,
@@ -115,7 +116,7 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
         setProcessing(true);
 
         checkTicket({
-          scannedID: scannedID,
+          scannedID: res as string,
           eventID: eventID,
           setProcessing: setProcessing,
           setQuerying: setQuerying,
@@ -134,7 +135,7 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
     >
       <div className="flex justify-between h-[4rem] w-full p-4 z-10 bg-none">
         <button className="">
-          <ArrowLeftIcon color="blue" />
+          <ChevronLeft color="red" />
         </button>
         <div className="text-[2rem]">Scanner</div>
         <SheetComponent />
