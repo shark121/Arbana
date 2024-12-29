@@ -19,6 +19,7 @@ export default function GetTicket() {
   const [tickets, setTickets] = useState<TicketSchemaType[]>([]);
   const [userState, setUserState] = useState<User>();
   const [ticketNames, setTicketNames] = useState<string[]>();
+  const [loadingBuffer, setLoadingBuffer] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -136,7 +137,15 @@ export default function GetTicket() {
     setIsLoading(false);
   }, [tickets]);
 
-  if (isLoading) {
+
+
+  setTimeout(() => {
+    setLoadingBuffer(false);
+  }
+  , 3000);
+
+
+  if (isLoading || loadingBuffer) {
     return <Loading />;
   }
 

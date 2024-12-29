@@ -46,6 +46,7 @@ export default function Booking({ params }: { params: {} }) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [defaultValue, setDefaultValue] = useState<number>(1);
+  const [loadingBuffer , setLoadingBuffer] = useState<boolean>(true);
   const [ticketState, setTicketState] = useState<Omit<
     TicketSchemaType,
     "transactionID"
@@ -204,8 +205,13 @@ export default function Booking({ params }: { params: {} }) {
         return "error";
       });
   }
+  
+  setTimeout(() => {
+    setLoadingBuffer(false);
+  }
+  , 3000);
 
-  if (isLoading) return <Loading />;
+  if (isLoading || loadingBuffer) return <Loading />;
 
   return (
     <div

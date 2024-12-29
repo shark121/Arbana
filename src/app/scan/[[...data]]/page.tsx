@@ -11,6 +11,7 @@ import { Html5Qrcode } from "html5-qrcode";
 import Loading from "@/app/loading";
 import { useToast } from "@/hooks/use-toast";
 import { StringToBoolean } from "class-variance-authority/types";
+import { useRouter } from "next/navigation";
 
 function displayResult({ scans }: { scans: number | null }) {
 
@@ -39,6 +40,7 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
   const [processingState, setProcessing] = useState<boolean>(false);
   const [queryingState, setQuerying] = useState<boolean>(false);
   const [ticketData, setTicketData] = useState<any>();
+  const router = useRouter();
   const { toast } = useToast();
 
   async function checkTicket({
@@ -134,7 +136,9 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
       className={` ${comfortaa.className}  w-screen h-screen flex flex-col items-center`}
     >
       <div className="flex justify-between h-[4rem] w-full p-4 z-10 bg-none">
-        <button className="">
+        <button className="h-full aspect-square"
+        onClick={()=>router.back()}
+        >
           <ChevronLeft color="red" />
         </button>
         <div className="text-[2rem]">Scanner</div>

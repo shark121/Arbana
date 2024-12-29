@@ -29,6 +29,8 @@ const searchClient = algoliasearch(
   "d8b19e7a00ef293456a27f59f480e776"
 );
 
+
+
 function CustomSearchBox(props: UseSearchBoxProps) {
   let divs = [];
   let colors: string[] = ["blue", "yellow", "gray", "red"];
@@ -117,18 +119,20 @@ export default function Home() {
   const [statusChanged, setStatusChanged] = useState(false);
   const { scrollYProgress, scrollY } = useScroll();
 
-  console.log(process.env.NEXT_PUBLIC_DOMAIN);
+  
 
   return (
     <div className="flex flex-col relative items-center bg-white justify-center h-full w-full">
-      <InstantSearch
+      {/* <InstantSearch
         searchClient={searchClient}
         indexName="events_index"
-      ></InstantSearch>
+        insights
+      ></InstantSearch> */}
 
       <InstantSearch
         searchClient={searchClient}
         indexName="events_index"
+        onStateChange={()=>console.log("state changed")}
         insights
       >
         <AlgoSearch

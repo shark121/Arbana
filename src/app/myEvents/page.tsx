@@ -18,6 +18,7 @@ export default function MyEvents() {
   const [userID, setUserID] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [userState, setUserState] = useState<User>({} as User);
+  const [loadingBuffer, setLoadingBuffer] = useState(true);
   const [userEvents, setUserEvents] = useState<EventType[]>([]);
   const router = useRouter();
   const userDocsRef = collection(database, "users");
@@ -52,7 +53,14 @@ export default function MyEvents() {
     setIsLoading(false);
   }, [userState]);
 
-  if (isLoading) {
+
+  setTimeout(() => {
+    setLoadingBuffer(false);
+  }
+  , 3000);
+
+
+  if (isLoading || loadingBuffer) {
     return <Loading />;
   }
 

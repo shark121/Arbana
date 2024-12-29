@@ -23,6 +23,7 @@ export default function Ticket({ params }: { params: { data: string[] } }) {
   const [dialogText, setDialogText] = useState<string>("");
   const [dialogHeader, setDialogHeader] = useState<string>("");
   const [isLoading, setIsLoading ] = useState<boolean>(true)
+  const [loadingBuffer, setLoadingBuffer] = useState<boolean>(true)
   const [eventState, setEventState] = useState<EventType>(); //
   const [ticketState, setTicketState] = useState<{
     name: string;
@@ -84,7 +85,13 @@ export default function Ticket({ params }: { params: { data: string[] } }) {
      // generatePDF()
   }, [ticketState]);
 
-  if(isLoading) return <Loading/>
+
+  setTimeout(() => {
+    setLoadingBuffer(false);
+  }
+  , 3000);
+
+  if(isLoading || loadingBuffer) return <Loading/>
 
   return (
     <div

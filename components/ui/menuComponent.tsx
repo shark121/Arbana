@@ -57,22 +57,22 @@ export default function MenuComponent({
     >
       <div className={`h-[60px] w-full flex items-center justify-start rounded-lg `}>
         <div className={`${isUser ? userIconStyle : regularCurrentIconStyle}`}>
-          {userState && isUser && userState.photoURL ? (
+          {userState && isUser && userState.photoURL && "" ? (
             <div className="relative">
-              <Image
+              {/* <Image
                 src={userState?.photoURL || ""}
                 alt="user Image"
                 height={80}
                 width={80}
                 className="rounded-full"
-              />
+              /> */}
             </div>
           ) : (
             icon
           )}
         </div>
         <div className="ml-6 h-[20px] ">
-          {isUser ? userState?.displayName : text}
+          {isUser ? "" : text}
 
         </div>
       </div>

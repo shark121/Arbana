@@ -39,6 +39,7 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
   const [currentTier, setCurrentTier] = useState<string>("");
   const [currentPrice, setCurrentPrice] = useState<number>(1);
   const [userInfoState, setUserInfoState] = useState<User>();
+  const [loadingBuffer, setLoadingBuffer] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const router = useRouter();
   const eventID = params.params.eventID;
@@ -169,7 +170,12 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
     window.location.href = `/booking/${eventID}`;
   } 
 
-  if(isLoading) return <Loading/>
+  setTimeout(() => {
+    setLoadingBuffer(false);
+  }
+  , 3000);
+
+  if(isLoading ||  loadingBuffer) return <Loading/>
 
   return (
     <div

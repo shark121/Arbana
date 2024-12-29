@@ -93,6 +93,7 @@ export default function EventItem(params: { params: { eventID: string } }) {
   const eventID = params.params.eventID;
   const [loading, setLoading] = useState(true);
 
+
   useEffect(() => {
     const eventData = sessionStorage.getItem(eventID);
     console.log(eventID, "event ID");
@@ -133,7 +134,11 @@ export default function EventItem(params: { params: { eventID: string } }) {
     eventState && (
       <div className="bg-gray-100 min-h-screen flex flex-col justify-center items-center p-4">
         <div className="w-full h-[3rem] flex items-center justify-between">
-          <ChevronLeft color={palletState} height={"30px"} width={"30px"} />
+          <div className="h-[3rem] aspect-square flex items-center justify-center"
+          onClick={() => router.back()}
+          >
+            <ChevronLeft color={palletState} height={"30px"} width={"30px"} />
+          </div>
           <SheetComponent fill={palletState} />
         </div>
         <div className="bg-white rounded-lg shadow-md w-full max-w-md md:max-w-lg lg:max-w-xl">
@@ -161,16 +166,9 @@ export default function EventItem(params: { params: { eventID: string } }) {
                   {/* <p className="text-sm font-semibold">4.5</p> */}
                 </div>
                 <p className="text-sm md:text-base text-gray-500">
-                  {convertDate(eventState.startDate)["day"]}{" "}
-                  {convertDate(eventState.startDate)["month"]},{" "}
-                  {convertDate(eventState.startDate)["year"]}
                   {/* 14 December, 2019 */}
                   <br />
                   <span className="text-xs text-gray-400">
-                    {convertDate(eventState.startDate)["dayOfWeek"]}
-                    {",    "}
-                    {eventState.time}
-
                     {/* Tuesday, 4pm - 9pm */}
                   </span>
                 </p>
@@ -223,7 +221,7 @@ export default function EventItem(params: { params: { eventID: string } }) {
                   className="text-red-600 cursor-pointer"
                   onClick={() => setShouldShowAll(!shouldShowAll)}
                 >
-                  {shouldShowAll ? "    less" : "...  more"}
+                  {shouldShowAll ? "   ... less" : "...  more"}
                 </span>
               )}
             </p>

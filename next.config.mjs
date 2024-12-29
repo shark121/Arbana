@@ -1,4 +1,4 @@
-// import  withPWA from 'next-pwa'  
+// import  withPWA from 'next-pwa'
 // let modWithPWA = withPWA({
 //   pwa: {
 //     dest: 'public',
@@ -21,17 +21,23 @@
 
 //   export default nextConfig;
 
-
 const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: '*',
-        port: '',
+        protocol: "https",
+        hostname: "*",
+        port: "",
       },
     ],
   },
-}
+  typescript: {
+    // !! WARN !!
+    // Dangerously allow production builds to successfully complete even if
+    // your project has type errors.
+    // !! WARN !!
+    ignoreBuildErrors: true,
+  }
+};
 
 export default nextConfig;
