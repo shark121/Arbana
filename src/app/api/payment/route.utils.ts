@@ -83,9 +83,10 @@ export async function cancelTransaction(ticketDataJSONString: string) {
     docRef: doc(collection(database, "events"), ticketData.eventID),
   }).catch((err) => {
     console.error(err, "error correcting database");
-  });
+  }).then(()=>{
+    console.log("Database corrected, transaction cancelled");
+  })
 
-  console.log("Transaction Cancelled");
 }
 
 export async function makePaymentRequest({
@@ -198,7 +199,7 @@ export async function startPaymentProcess({
             paymentRequestResponse.response.data.reference,
             String(ticketData.scans),
             JSON.stringify(ticketData),
-            100
+            20
           );
 
           await invokeSubscriberCallback((key) => {

@@ -75,8 +75,8 @@ export async function POST(req: NextRequest) {
             console.log("booking document updated");
 
 
-            deleteFromCache(reference)
-            deleteFromCache(`${reference}_`).then((res) => {
+            await deleteFromCache(reference)
+            await deleteFromCache(`${reference}_`).then((res) => {
               console.log("deleted from cache after successful payment");
             });
 
