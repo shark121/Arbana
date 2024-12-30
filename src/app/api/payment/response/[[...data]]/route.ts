@@ -9,13 +9,24 @@ import {
 } from "firebase/firestore";
 import { database } from "@/firebase.config";
 import { TicketSchemaType } from "@/lib/types";
-import { existsInCache, getCache, setCache } from "@/lib/server_utils";
+import {
+  existsInCache,
+  getCache,
+  setCache,
+  invokeSubscriberCallback,
+  deleteFromCache,
+} from "@/lib/server_utils";
 
 const bookingsCollection = collection(database, "bookings");
 const userCollection = collection(database, "users");
 
 export async function POST(req: NextRequest) {
   const { reference, eventId, ticketId, trxref, userId } = await req.json();
+
+  
+    await invokeSubscriberCallback((message) => {
+      console.log(message, "payment ttl data pos updated...............");
+    });
 
   const ticeketDoc = doc(bookingsCollection, eventId);
 
@@ -63,6 +74,12 @@ export async function POST(req: NextRequest) {
 
             console.log("booking document updated");
 
+
+            deleteFromCache(reference)
+            deleteFromCache(`${reference}_`).then((res) => {
+              console.log("deleted from cache after successful payment");
+            });
+
             return NextResponse.json({ status: 200, err: null });
           } else {
             console.log("Document does not exist");
@@ -79,7 +96,7 @@ export async function POST(req: NextRequest) {
       });
   });
 
-  console.log("transaction did not initiate");
+  // console.log("transaction did not initiate");
 
   return NextResponse.json({ status: 200, err: "trasaction did not initiate" });
   // return NextResponse.json({ });

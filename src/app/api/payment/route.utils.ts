@@ -7,9 +7,12 @@ import {
   arrayUnion,
 } from "firebase/firestore";
 import { NextRequest, NextResponse } from "next/server";
-import {EventSchemaType as EventType} from "@/lib/types";
-import { existsInCache, getCache, setCache } from "@/lib/server_utils";
-import { error } from "console";
+import { EventSchemaType as EventType } from "@/lib/types";
+import {
+  setRedisTriggerEvent,
+  invokeSubscriberCallback,
+  getCache,
+} from "@/lib/server_utils";
 
 export async function updateTicketsQuantity({
   requestedNumber,
@@ -69,7 +72,23 @@ export async function updateTicketsQuantity({
   });
 }
 
-export async function makePayment({
+export async function cancelTransaction(ticketDataJSONString: string) {
+  const ticketData = JSON.parse(ticketDataJSONString) as TicketSchemaType;
+
+  console.log(ticketData, "ticketData cancelling transaction");
+
+ await updateTicketsQuantity({
+    requestedNumber: -ticketData.scans,
+    ticketTier: ticketData.tier,
+    docRef: doc(collection(database, "events"), ticketData.eventID),
+  }).catch((err) => {
+    console.error(err, "error correcting database");
+  });
+
+  console.log("Transaction Cancelled");
+}
+
+export async function makePaymentRequest({
   amount,
   provider,
   ticketData,
@@ -95,7 +114,8 @@ export async function makePayment({
         provider: "mtn,vodafone",
       },
       callback_url:
-        process.env.NEXT_PUBLIC_DOMAIN + `/ticket/${ticketData?.ticketID}@${ticketData?.eventID}@${ticketData?.uid}`,
+        process.env.NEXT_PUBLIC_DOMAIN +
+        `/ticket/${ticketData?.ticketID}@${ticketData?.eventID}@${ticketData?.uid}`,
     }),
   })
     .then(async (response) => {
@@ -124,7 +144,7 @@ export async function createTicketEntry(
 
   // const ticketeventID = ticketEntry.eventID
 
-  ticketEntry.scans = 0
+  ticketEntry.scans = 0;
 
   return await runTransaction(database, async (transaction) => {
     // transaction.set(
@@ -139,8 +159,6 @@ export async function createTicketEntry(
       { [ticketEntry.ticketID]: ticketEntry },
       { merge: true }
     );
-
-   
   })
     .catch((error) => {
       console.error(error, "error in ticket entry");
@@ -160,7 +178,6 @@ export async function startPaymentProcess({
   provider: string;
   ticketData: Omit<TicketSchemaType, "transactionID">;
 }): Promise<{ response: string | null; error: string | null }> {
-
   return await updateTicketsQuantity({
     requestedNumber: ticketData.scans,
     ticketTier: ticketData.tier,
@@ -171,36 +188,72 @@ export async function startPaymentProcess({
         return { response: null, error: updateTicketsQuantityResponse.error };
       }
 
-      return await makePayment({ amount, provider, ticketData }).then(
-        async (paymentResponse) => {
-          if (paymentResponse.error) {
-            return { response: null, error: paymentResponse.error };
+      return await makePaymentRequest({ amount, provider, ticketData }).then(
+        async (paymentRequestResponse) => {
+          if (paymentRequestResponse.error) {
+            return { response: null, error: paymentRequestResponse.error };
           }
+
+          await setRedisTriggerEvent(
+            paymentRequestResponse.response.data.reference,
+            String(ticketData.scans),
+            JSON.stringify(ticketData),
+            100
+          );
+
+          await invokeSubscriberCallback((key) => {
+            getCache(`${key}_`).then((ticketDataJSONString) => {
+              cancelTransaction(ticketDataJSONString);
+            });
+          });
 
           return await createTicketEntry(
             ticketData,
             ticketData.uid,
-            paymentResponse.response.data.access_code
-          ).then(async (createTicketEntryResponse) => {
-            if (createTicketEntryResponse.error) {
-              await updateTicketsQuantity({
-                requestedNumber: -ticketData.scans,
-                ticketTier: ticketData.tier,
-                docRef: doc(collection(database, "events"), ticketData.eventID),
-              });
+            paymentRequestResponse.response.data.access_code
+          )
+            .then(async (createTicketEntryResponse) => {
+              if (createTicketEntryResponse.error) {
+                await updateTicketsQuantity({
+                  requestedNumber: -ticketData.scans,
+                  ticketTier: ticketData.tier,
+                  docRef: doc(
+                    collection(database, "events"),
+                    ticketData.eventID
+                  ),
+                }).catch((err) => {
+                  console.error(err, "error correcting database");
+
+                  return {
+                    response: null,
+                    error: "Error correcting database",
+                  };
+                });
+
+                return {
+                  response: null,
+                  error: createTicketEntryResponse.error,
+                };
+              } else {
+                return {
+                  response: JSON.stringify(paymentRequestResponse),
+                  error: null,
+                };
+              }
+            })
+            .catch((err) => {
+              console.error(err, "error creating ticket entry");
 
               return {
                 response: null,
-                error: createTicketEntryResponse.error,
+                error: "Error Creating Ticket Entry ",
               };
-            } else {
-              return { response: JSON.stringify(paymentResponse), error: null };
-            }
-          });
+            });
         }
       );
     })
     .catch((error) => {
+      console.error(error, "error in payment process");
       return { response: null, error: error.message };
     });
 }

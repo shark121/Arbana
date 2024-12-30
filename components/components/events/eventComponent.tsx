@@ -1,4 +1,4 @@
-import { EventType } from "@/lib/types";
+import { EventSchemaType as EventType} from "@/lib/types";
 import { ChevronRight } from "lucide-react";
 import { COLORSMAP } from "../../../data/colors";
 

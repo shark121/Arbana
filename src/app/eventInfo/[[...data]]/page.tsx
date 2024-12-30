@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/form";
 import { Vibrant } from "node-vibrant/browser";
 import Verified from "@/images/svg/verified";
+import Loading from "@/app/loading";
 
 async function generatePallete(imageFile: File) {
   const imageUrl = URL.createObjectURL(imageFile);
@@ -171,6 +172,7 @@ export default function EventInfo(params: {
     Number(generateRandomId(20))
   );
   const [userInfoState, setUserInfoState] = useState<User>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const userInfo = JSON.parse(sessionStorage.getItem("user") as string);
@@ -318,6 +320,15 @@ export default function EventInfo(params: {
 
     console.log(imageFileState, "imageFileState");
 
+    let palette: { Vibrant: { rgb: [number, number, number] } } = {
+      Vibrant: { rgb: [255, 0, 0] },
+    };
+
+    if (imageFileState) {
+      palette = await generatePallete(imageFileState);
+      console.log(palette, "palette");
+    }
+
     const eventWithExtraParams: EventSchemaType = {
       ...event,
       categories: fileteredCategories,
@@ -325,6 +336,8 @@ export default function EventInfo(params: {
       userID: userInfoState?.uid!,
       createdAt: new Date().toISOString(),
       eventId: eventIDState,
+      creator: eventState!.creator,
+      imagePallete: palette ? palette : eventState!.imagePallete,
     };
 
     console.log(eventWithExtraParams, "eventWithExtraParams");
@@ -351,22 +364,24 @@ export default function EventInfo(params: {
 
     // console.log("Form Data:", event);
 
-    if (imageFileState) {
-      const palette = await generatePallete(imageFileState);
-      event["imagePallete"] = palette;
-      console.log(palette, "palette");
-    }
-
-    sendUpdateRequest({ event: eventWithExtraParams }).catch((err) =>
-      console.log(err, "err")
-    );
+    sendUpdateRequest({ event: eventWithExtraParams })
+      .catch((err) => console.log(err, "err"))
+      .catch((err) => {
+        console.log(err);
+      })
+      .then(() => {
+        window.location.href = "/myEvents";
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   function onSubmittest() {
     console.log("onSubmit");
   }
 
-  
+  if (isLoading) return <Loading />;
 
   return (
     eventState && (

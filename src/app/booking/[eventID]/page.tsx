@@ -209,7 +209,7 @@ export default function Booking({ params }: { params: {} }) {
   setTimeout(() => {
     setLoadingBuffer(false);
   }
-  , 3000);
+  , 500);
 
   if (isLoading || loadingBuffer) return <Loading />;
 

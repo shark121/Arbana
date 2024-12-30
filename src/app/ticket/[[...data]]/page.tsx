@@ -89,7 +89,7 @@ export default function Ticket({ params }: { params: { data: string[] } }) {
   setTimeout(() => {
     setLoadingBuffer(false);
   }
-  , 3000);
+  , 500);
 
   if(isLoading || loadingBuffer) return <Loading/>
 

@@ -142,7 +142,7 @@ export default function GetTicket() {
   setTimeout(() => {
     setLoadingBuffer(false);
   }
-  , 3000);
+  , 500);
 
 
   if (isLoading || loadingBuffer) {

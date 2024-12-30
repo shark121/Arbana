@@ -166,12 +166,20 @@ export default function EventItem(params: { params: { eventID: string } }) {
                   {/* <p className="text-sm font-semibold">4.5</p> */}
                 </div>
                 <p className="text-sm md:text-base text-gray-500">
+                  {convertDate(eventState.startDate)["day"]}{" "}
+                  {convertDate(eventState.startDate)["month"]},{" "}
+                  {convertDate(eventState.startDate)["year"]}
                   {/* 14 December, 2019 */}
                   <br />
                   <span className="text-xs text-gray-400">
+                    {convertDate(eventState.startDate)["dayOfWeek"]}
+                    {",    "}
+                    {eventState.time}
+
                     {/* Tuesday, 4pm - 9pm */}
                   </span>
                 </p>
+
               </div>
             </div>
 

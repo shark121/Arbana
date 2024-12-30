@@ -14,7 +14,11 @@ import TicketTierType, {
   AddNewTicket,
 } from "../../../../components/components/eventInfo/ticketTierTypeComponent";
 import { comfortaa } from "@/app/page";
-import { EventSchemaType, EventSchemaType as EventType, AvailableSeatsType } from "@/lib/types";
+import {
+  EventSchemaType,
+  EventSchemaType as EventType,
+  AvailableSeatsType,
+} from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
@@ -27,8 +31,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Vibrant } from "node-vibrant/browser";
-import {rgbToHex} from "@/lib/utils"
-
+import { rgbToHex } from "@/lib/utils";
+import Loading from "@/app/loading";
 
 async function genertePallete(imageFile: File) {
   const imageUrl = URL.createObjectURL(imageFile);
@@ -36,16 +40,17 @@ async function genertePallete(imageFile: File) {
   const image = new Image();
   image.src = imageUrl;
 
-  return await Vibrant.from(image).getPalette().then((palette:any) => {
-    console.log(palette, "palette");
-     return palette
-  }).catch((err:any) => {
-    console.log(String(err), "err")
-    return null
-  });
-
+  return await Vibrant.from(image)
+    .getPalette()
+    .then((palette: any) => {
+      console.log(palette, "palette");
+      return palette;
+    })
+    .catch((err: any) => {
+      console.log(String(err), "err");
+      return null;
+    });
 }
-
 
 type RequestType = EventType;
 
@@ -79,7 +84,9 @@ function AddTicket({
 }: {
   seatsState: AvailableSeatsType[];
   setSeatsState: React.Dispatch<React.SetStateAction<AvailableSeatsType[]>>;
-  setAvailableSeatsState: React.Dispatch<React.SetStateAction<AvailableSeatsType[]>>;
+  setAvailableSeatsState: React.Dispatch<
+    React.SetStateAction<AvailableSeatsType[]>
+  >;
   availableSeatsState: AvailableSeatsType[];
 }) {
   const [isAddingNewTicket, setIsAddingNewTicket] = useState<boolean>(false);
@@ -138,9 +145,9 @@ function AddTicket({
   );
 }
 export default function CreateEvent() {
-  const [availableSeatsState, setAvailableSeatsState] = useState<AvailableSeatsType[]>(
-    []
-  );
+  const [availableSeatsState, setAvailableSeatsState] = useState<
+    AvailableSeatsType[]
+  >([]);
   const [currentItem, setCurrentItem] = useState<string>("");
   const [categoriesState, setCategoriesState] = useState<string[]>([]);
   const [chosenCategoriesList, setChosenCategoriesList] =
@@ -153,6 +160,7 @@ export default function CreateEvent() {
   const [fallBackMailAdressState, setFallBackMailAdressState] =
     useState<string>("");
   const [seatsState, setSeatsState] = useState<AvailableSeatsType[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const eventNameRef = useRef(null);
 
   useEffect(() => {
@@ -273,8 +281,6 @@ export default function CreateEvent() {
     },
   });
 
-
-
   const onSubmit = async (
     event: z.infer<Omit<typeof FormValidEventSchema, "imageFile">>
   ) => {
@@ -294,7 +300,6 @@ export default function CreateEvent() {
       "FormValidEventSchemaParseSuccess"
     );
 
-
     const imagePallete = await genertePallete(imageFileState as File);
 
     console.log(imageFileState, "imageFileState");
@@ -313,7 +318,7 @@ export default function CreateEvent() {
         verified: userInfoState?.emailVerified!,
         uid: userInfoState?.uid!,
       },
-      imagePallete
+      imagePallete,
     };
 
     console.log(eventWithExtraParams, "eventWithExtraParams");
@@ -342,10 +347,24 @@ export default function CreateEvent() {
 
     // console.log("Collected Data:", collectedData);
 
-    sendCreateRequest({ event: eventWithExtraParams }).catch((err) =>
-      console.log(err, "err")
-    );
+    setIsLoading(true);
+
+    sendCreateRequest({ event: eventWithExtraParams })
+      .catch((err) => console.log(err, "err"))
+      .then((res: any) => {
+        if (res.response === "success") {
+          window.location.href = "/myEvents";
+        }
+      })
+      .finally(() => setIsLoading(false));
+
+    // form.reset();
+    // setSeatsState([]);
+    // setChosenCategoriesList([]);
+    // setImageFileState(null);
   };
+
+  if (isLoading) return <Loading />;
 
   return (
     <Form {...form}>

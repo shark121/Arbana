@@ -57,7 +57,7 @@ export default function MyEvents() {
   setTimeout(() => {
     setLoadingBuffer(false);
   }
-  , 3000);
+  , 500);
 
 
   if (isLoading || loadingBuffer) {

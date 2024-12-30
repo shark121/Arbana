@@ -173,7 +173,7 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
   setTimeout(() => {
     setLoadingBuffer(false);
   }
-  , 3000);
+  , 500);
 
   if(isLoading ||  loadingBuffer) return <Loading/>
 
