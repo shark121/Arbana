@@ -8,18 +8,37 @@ import { setCookie } from "@/lib/utils";
 const provider = new GoogleAuthProvider();
 
 async function triggerPopup() {
-   return signInWithPopup(auth, provider)
+  return signInWithPopup(auth, provider)
     .then((result) => {
       // This gives you a Google Access Token. You can use it to access the Google API.
-      console.log("used pop up...........................")
+      console.log("used pop up...........................");
       const credential = GoogleAuthProvider.credentialFromResult(result);
       const token = credential && credential.accessToken;
       // The signed-in user info.
-      const user = result.user;
-      setCookie("user", JSON.stringify(user), 7);
+      // const user = result.user;
+      const {
+        uid,
+        email,
+        emailVerified,
+        photoURL,
+        displayName,
+        phoneNumber,
+        providerData,
+      } = result.user;
+
+      const user = {
+        uid,
+        email,
+        emailVerified,
+        photoURL,
+        displayName,
+        phoneNumber,
+        providerData,
+      };
+      setCookie("user", JSON.stringify(user), 1);
       sessionStorage.setItem("user", JSON.stringify(user));
       window.location.href = "/";
-    //   console.log(user);
+      //   console.log(user);
       return user;
       // ...
     })
@@ -36,16 +55,19 @@ async function triggerPopup() {
 }
 
 function handleOnClick() {
-    triggerPopup().then((result) => {
-        console.log(result);
-    })
+  triggerPopup().then((result) => {
+    console.log(result);
+  });
 }
 
 export default function GoogleAuth() {
   return (
-      <button className="h-10 w-[15rem] flex items-center justify-center gap-4 rounded relative my-3 bg-gray-100" onClick={handleOnClick}>
-        Continue with google
-        <Image src={GoogleSVG} height={20}  alt="google logo" />
-      </button>
+    <button
+      className="h-10 w-[15rem] flex items-center justify-center gap-4 rounded relative my-3 bg-gray-100"
+      onClick={handleOnClick}
+    >
+      Continue with google
+      <Image src={GoogleSVG} height={20} alt="google logo" />
+    </button>
   );
 }

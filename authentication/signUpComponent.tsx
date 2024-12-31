@@ -10,27 +10,37 @@ import { Button } from "@/components/ui/button";
 import { setCookie } from "@/lib/utils";
 import Logo from "@/images/svg/logo";
 
-
-
-function createNewUserWithEmailAndPassword(email: string, password: string) {
-  createUserWithEmailAndPassword(auth, email, password)
+async function createNewUserWithEmailAndPassword(
+  email: string,
+  password: string
+) {
+  await createUserWithEmailAndPassword(auth, email, password)
     .then(async (userCredential) => {
       const user = userCredential.user;
-      setCookie("user", JSON.stringify(user), 7);
-      sessionStorage.setItem("user", JSON.stringify(user));
-      console.log(user);
+      const { uid, email, emailVerified, displayName, phoneNumber, photoURL } =
+        userCredential.user;
+      const userInfo = {
+        uid,
+        email,
+        emailVerified,
+        displayName,
+        phoneNumber,
+        photoURL,
+      };
+      setCookie("user", JSON.stringify(userInfo), 1);
+      sessionStorage.setItem("user", JSON.stringify(userInfo));
+      console.log(userInfo);
 
-      sendEmailVerification(user).then((verification) => {
+      await sendEmailVerification(user).then((verification) => {
         console.log(verification);
         console.log("email sent");
-    
       });
     })
     .catch((error) => {
       const errorCode = error.code;
       const errorMessage = error.message;
       console.log(error);
-      // ..
+    
     });
 }
 
@@ -47,7 +57,9 @@ export default function SignUpComponent() {
 
     emailRef?.current?.value ? (emailRef.current.value = "") : null;
     passwordRef?.current?.value ? (passwordRef.current.value = "") : null;
-    confirmPasswordRef?.current?.value ? (confirmPasswordRef.current.value = "") : null;
+    confirmPasswordRef?.current?.value
+      ? (confirmPasswordRef.current.value = "")
+      : null;
 
     setEmailState("");
     setPasswordState("");
@@ -56,7 +68,7 @@ export default function SignUpComponent() {
   return (
     <main className="w-screen  flex flex-col items-center justify-center">
       {/* <div>Logo</div> */}
-      <Logo/>
+      <Logo />
       <div className="w-[20rem]  flex flex-col items-center justify-center gap-4">
         <Input
           type="email"
