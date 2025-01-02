@@ -10,7 +10,7 @@ import jsPDF from "jspdf";
 import QRcode from "qrcode";
 import Image from "next/image";
 
-const domain = "https://4280-100-43-16-155.ngrok-free.app";
+const domain = process.env.NEXT_PUBLIC_DOMAIN;
 
 
 export default function EventOptions({

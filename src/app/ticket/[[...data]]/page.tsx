@@ -97,11 +97,12 @@ export default function Ticket({ params }: { params: { data: string[] } }) {
     <div
       className={`bg-gray-50 #bg-opacity-15  min-h-screen min-w-screen ${comfortaa.className}`}
     >
-      {/* <div className="w-full h-[70px]  font-bold text-[1.4rem] flex items-center justify-between">
+      <div className="w-full h-[70px]  font-bold text-[1.4rem] flex items-center justify-between p-2">
         <div></div>
-        <div>QR code</div>
+        {/* <div>QR code</div> */}
+        <div></div>
         <SheetComponent />
-      </div> */}
+      </div>
       <div className="flex items-center justify-center p-4 w-full h-[35rem] ">
         <div className="w-full h-full fixed -z-10">
           <DialogComponent

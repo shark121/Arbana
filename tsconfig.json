@@ -21,6 +21,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/page.jsx", "components/components/qrcodeGenrator.Jsx", "components/components/searchComponent.tsx", "components/components/headlessCombobox.jsx", "components/components/deleteAlertPopover.tsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/page.jsx", "components/components/qrcodeGenrator.Jsx", "components/components/searchComponent.tsx", "components/components/headlessCombobox.jsx", "components/components/deleteAlertPopover.tsx", "src/app/map/[[...data]]/page.tsx", "components/components/mapComponents/showPlaces.js"],
   "exclude": ["node_modules"]
 }

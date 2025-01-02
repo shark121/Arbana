@@ -1,14 +1,9 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import {createClient} from "redis";
+import { createClient } from "redis";
 import dotenv from "dotenv";
 
-
-
-export const vars = dotenv.config({path: "../.env"});  
-
-
-
+export const vars = dotenv.config({ path: "../.env" });
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -67,13 +62,12 @@ export function generateRandomId(length: number): string {
 const randomId = generateRandomId(10); // Generates a random ID with 10 characters
 console.log("Random ID:", randomId);
 
-
-export function rgbToHex(r:number, g:number, b:number) {
+export function rgbToHex(r: number, g: number, b: number) {
   // Ensure the values are between 0 and 255
   r = Math.min(255, Math.max(0, Math.round(r)));
   g = Math.min(255, Math.max(0, Math.round(g)));
   b = Math.min(255, Math.max(0, Math.round(b)));
-  
+
   // Convert to hex and pad with zeros if needed
   const hex = ((r << 16) | (g << 8) | b).toString(16);
   return "#" + "0".repeat(6 - hex.length) + hex;
@@ -86,8 +80,6 @@ export function rgbToHex(r:number, g:number, b:number) {
 // } else {
 //   console.log('No username cookie found.');
 // }
-
-
 
 // export function getColorPallete(i)
 
@@ -114,4 +106,24 @@ export function rgbToHex(r:number, g:number, b:number) {
 //     };
 // }
 
+export async function getLocationCoordiantes(placeId: string) {
+  console.log(placeId);
+  return await fetch(
+    `https://maps.googleapis.com/maps/api/geocode/json?place_id=${placeId}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
+  )
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.status === "OK") {
+        console.log(data);
+        const location = data.results[0].geometry.location;
+        return { lat: location.lat, lng: location.lng };
+      }
+    });
+}
 
+export function convertTo12HourFormat(time24: string) {
+  const [hours, minutes] = time24.split(":");
+  const period = +hours >= 12 ? "PM" : "AM";
+  const hours12 = +hours % 12 || 12; // Convert 0 or 12 to 12 in 12-hour format
+  return `${hours12}:${minutes} ${period}`;
+}

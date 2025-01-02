@@ -7,6 +7,7 @@ import BackSVG from "@/images/svg/back";
 import ShareSVG from "@/images/svg/share";
 import { COLORSMAP } from "../../../../../data/colors";
 import { Comfortaa } from "next/font/google";
+import { motion as m } from "framer-motion";
 
 import { DaysOfTheWeek } from "../../../../../data/days";
 import { useRouter } from "next/navigation";
@@ -19,7 +20,9 @@ import {
   Calendar,
   CalendarCheck,
   ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+import GoogleMapEmbed from "../../../../../components/components/googleEmbed";
 
 async function fetchEventData(
   eventID: string,
@@ -93,7 +96,6 @@ export default function EventItem(params: { params: { eventID: string } }) {
   const eventID = params.params.eventID;
   const [loading, setLoading] = useState(true);
 
-
   useEffect(() => {
     const eventData = sessionStorage.getItem(eventID);
     console.log(eventID, "event ID");
@@ -134,8 +136,9 @@ export default function EventItem(params: { params: { eventID: string } }) {
     eventState && (
       <div className="bg-gray-100 min-h-screen flex flex-col justify-center items-center p-4">
         <div className="w-full h-[3rem] flex items-center justify-between">
-          <div className="h-[3rem] aspect-square flex items-center justify-center"
-          onClick={() => router.back()}
+          <div
+            className="h-[3rem] aspect-square flex items-center justify-center"
+            onClick={() => router.back()}
           >
             <ChevronLeft color={palletState} height={"30px"} width={"30px"} />
           </div>
@@ -179,12 +182,13 @@ export default function EventItem(params: { params: { eventID: string } }) {
                     {/* Tuesday, 4pm - 9pm */}
                   </span>
                 </p>
-
               </div>
             </div>
 
             {/* Location */}
-            <div className="mt-4 flex items-center space-x-2">
+            <div className="mt-4 flex items-center space-x-2 cursor-pointer"
+            onClick={() => router.push(`/map/${eventID}/`)}
+            >
               <div className="bg-gray-100 w-10 h-10 rounded-full flex items-center justify-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -211,10 +215,25 @@ export default function EventItem(params: { params: { eventID: string } }) {
                   {eventState.location}
                   {/* Gala Night Convention */}
                 </p>
-                <p className="text-xs md:text-sm text-gray-500">
-                  {/* 2855 South Orange Ave, Florida */}
-                  {eventState.location} {",  "} {eventState.province}
-                </p>
+                <div className="text-xs text-gray-400 flex gap-1  items-center">
+                  {/* {eventState.location} */}
+                  View Location
+                  <m.div
+                    initial={{ x: 0, opacity: 0 }}
+                    animate={{
+                      x: 5,
+                      opacity: 1,
+                      transition: {
+                        duration: 1,
+                        repeat: Infinity,
+                        ease: "linear",
+                      },
+                    }}
+                  >
+                    <ChevronRight size={15} className="" />
+                  </m.div>
+                  {/* 123, Main Street, New York, USA */}
+                </div>
               </div>
             </div>
 

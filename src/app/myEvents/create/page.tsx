@@ -31,8 +31,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Vibrant } from "node-vibrant/browser";
-import { rgbToHex } from "@/lib/utils";
+import { rgbToHex, getLocationCoordiantes, convertTo12HourFormat } from "@/lib/utils";
 import Loading from "@/app/loading";
+import ShowPlaces from "../../../../components/components/mapComponents/showPlaces";
+import { useLoadScript } from "@react-google-maps/api";
 
 async function genertePallete(imageFile: File) {
   const imageUrl = URL.createObjectURL(imageFile);
@@ -67,13 +69,16 @@ async function sendCreateRequest({ event }: { event: createRequestType }) {
 
   console.log(event, "requestFormData");
 
-  await fetch("/api/data/create/event/", {
+ return await fetch("/api/data/create/event/", {
     method: "POST",
     body: requestFormData,
   })
     .then((res) => res.json())
     .then((data) => console.log(data))
-    .catch((error) => console.log(error));
+    .catch((error) => {
+      window.alert(`An error occured ${String(error)}`);
+      console.log(error)
+    });
 }
 
 function AddTicket({
@@ -157,11 +162,17 @@ export default function CreateEvent() {
     Number(generateRandomId(5))
   );
   const [userInfoState, setUserInfoState] = useState<User>();
-  const [fallBackMailAdressState, setFallBackMailAdressState] =
-    useState<string>("");
+  const [locationDataState, setLocationDataState] = useState();
   const [seatsState, setSeatsState] = useState<AvailableSeatsType[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const eventNameRef = useRef(null);
+
+  const { isLoaded: mapIsLoaded } = useLoadScript({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
+    libraries: ["places"],
+  });
+  const [selected, setSelected] = useState({ id: 0, description: "" });
+  const [selectedPlace, setSelectedPlace] = useState({place_id: "", description: ""});
 
   useEffect(() => {
     const userInfo = JSON.parse(sessionStorage.getItem("user") as string);
@@ -169,6 +180,12 @@ export default function CreateEvent() {
     // console.log(userInfo, "userInfo................");
     setUserInfoState(userInfo);
   }, []);
+
+
+
+  
+
+  
 
   useEffect(() => {
     console.log(currentItem, "currentItem");
@@ -261,9 +278,9 @@ export default function CreateEvent() {
     province: z.string(),
     mobile: z.string().regex(/^\+?\d{10,14}$/, "Invalid mobile number"),
     imageFile: z.any(),
+    location: z.string(),
     // imageFile :
     description: z.string(),
-    location: z.string(),
     time: z.string(),
   });
 
@@ -277,6 +294,7 @@ export default function CreateEvent() {
       mobile: "",
       // imageFile: "",
       description: "",
+      location: "",
       time: "",
     },
   });
@@ -299,10 +317,42 @@ export default function CreateEvent() {
       FormValidEventSchemaParseSuccess,
       "FormValidEventSchemaParseSuccess"
     );
+ 
 
+
+    if (!FormValidEventSchemaParseSuccess) {
+      window.alert("Please fill in all the required fields");
+      return;
+    }
+
+
+    if (categoriesState.length === 0) {
+      window.alert("Please select a category");
+      return;
+    }
+
+    if (seatsState.length === 0) {
+      window.alert("Please add a ticket tier");
+      return;
+    }
+
+    if(!selectedPlace){
+      window.alert("Please select a location");
+      return;
+    } 
+   
     const imagePallete = await genertePallete(imageFileState as File);
 
+    console.log(selectedPlace.place_id, "place_id");
+
+    const locationCoordinates = await getLocationCoordiantes(selectedPlace.place_id);
+
     console.log(imageFileState, "imageFileState");
+
+    console.log(selectedPlace, "selectedPlace");
+
+    event["time"] = convertTo12HourFormat(event["time"]);
+    
 
     const eventWithExtraParams: EventSchemaType = {
       ...event,
@@ -319,55 +369,47 @@ export default function CreateEvent() {
         uid: userInfoState?.uid!,
       },
       imagePallete,
+      location: selectedPlace.description,
+      locationCoordinates,
     };
 
-    console.log(eventWithExtraParams, "eventWithExtraParams");
+    // console.log("Form Data:", event);
 
-    if (!FormValidEventSchemaParseSuccess) {
-      window.alert("Please fill in all the required fields");
-      return;
-    }
+    // console.log("Collected Data:", collectedData);
 
     if (!eventWithExtraParams.userID) {
       window.alert("Please login to create an event");
       return;
     }
 
-    if (categoriesState.length === 0) {
-      window.alert("Please select a category");
-      return;
-    }
+    console.log(eventWithExtraParams, "eventWithExtraParams");
 
-    if (seatsState.length === 0) {
-      window.alert("Please add a ticket tier");
-      return;
-    }
-
-    // console.log("Form Data:", event);
-
-    // console.log("Collected Data:", collectedData);
 
     setIsLoading(true);
 
-    sendCreateRequest({ event: eventWithExtraParams })
+    await sendCreateRequest({ event: eventWithExtraParams })
       .catch((err) => console.log(err, "err"))
       .then((res: any) => {
-        if (res.response === "success") {
-          window.location.href = "/myEvents";
+        if (res) {
+          console.log(res, "res");
+          // window.location.href = "/myEvents";
         }
       })
       .finally(() => setIsLoading(false));
 
-    // form.reset();
-    // setSeatsState([]);
-    // setChosenCategoriesList([]);
-    // setImageFileState(null);
+    form.reset();
+    setSeatsState([]);
+    setChosenCategoriesList([]);
+    setImageFileState(null);
   };
 
-  if (isLoading) return <Loading />;
+  if (isLoading || !mapIsLoaded) return <Loading />;
+
+
 
   return (
-    <Form {...form}>
+    <Form {...form}
+    >
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-8 p-4"
@@ -439,7 +481,7 @@ export default function CreateEvent() {
             </FormItem>
           )}
         />
-        <FormField
+        {/* <FormField
           control={form.control}
           name="location"
           render={({ field }) => (
@@ -451,7 +493,16 @@ export default function CreateEvent() {
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
+        <div className="w-full h-[7rem] relative">
+          <FormLabel>Location</FormLabel>
+          <ShowPlaces
+            selected={selected}
+            selectedPlace={selectedPlace}
+            setSelected={setSelected}
+            setSelectedPlace={setSelectedPlace}
+          />
+        </div>
         <FormField
           control={form.control}
           name="time"

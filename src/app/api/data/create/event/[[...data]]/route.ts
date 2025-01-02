@@ -138,7 +138,7 @@ export async function POST(
     "restToJSON....................................................................."
   );
 
-  await addEvent(
+  return await addEvent(
     buffer,
     eventIdtoString,
     fileType,
@@ -146,9 +146,13 @@ export async function POST(
     eventIdtoString,
     userID
   )
-    .catch((error) => console.error("Error adding document: ", error))
+    .catch((error) => {
+      console.error("Error adding document: ", error)
+      return NextResponse.error();
+    })
     .then((eventData) => {
       console.log(eventData, ".......");
+      return NextResponse.json({ response: "success" });
     });
   // .then(async () => {
   //   await getDocs(eventCollectionRef).then((querySnapshot) => {
@@ -159,5 +163,5 @@ export async function POST(
   //   });
   // });
 
-  return NextResponse.json({ response: "success" });
+  return NextResponse.json({ status: 200 });
 }

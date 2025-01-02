@@ -32,6 +32,7 @@ async function createNewUserWithEmailAndPassword(
       console.log(userInfo);
 
       await sendEmailVerification(user).then((verification) => {
+        
         console.log(verification);
         console.log("email sent");
       });

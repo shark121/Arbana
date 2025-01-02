@@ -79,16 +79,12 @@ export type EventSchemaType = z.infer<typeof EventSchema>;
 
 const TicketSchema = z.object({
   name: z.string().min(1, "Ticket name is required"),
-  startDate: z
-    .string()
-    .refine((date) => new Date(date) >= new Date(), {
-      message: "Start date must be a future date",
-    }),
-  endDate: z
-    .string()
-    .refine((date) => new Date(date) >= new Date(), {
-      message: "End date must be a future date",
-    }),
+  startDate: z.string().refine((date) => new Date(date) >= new Date(), {
+    message: "Start date must be a future date",
+  }),
+  endDate: z.string().refine((date) => new Date(date) >= new Date(), {
+    message: "End date must be a future date",
+  }),
   eventID: z.string().min(1, "Event ID is required"),
   tier: z.string().min(1, "Tier is required"),
   price: z.number().min(0, "Price must be a positive number"),
@@ -109,6 +105,14 @@ const TicketSchema = z.object({
     .string()
     .optional()
     .describe("The seat number assigned to the ticket"),
+  locationCoordinates: z
+    .object({
+      lat: z.number(),
+      lng: z.number(),
+    })
+    .optional()
+    .describe("The coordinates of the ticket"),
+
   // status: z
   //   .enum(["active", "used", "cancelled"])
   //   .describe("The current status of the ticket"),
@@ -180,6 +184,13 @@ export const EventSchema = z
       .string()
       .refine((mobile) => mobile.startsWith("+233") && mobile.length == 13),
     creator: CreatorSchema,
+    locationCoordinates: z
+      .object({
+        lat: z.number(),
+        lng: z.number(),
+      })
+      .optional()
+      .describe("The coordinates of the ticket"),
   })
   .strict();
 //   .refine((data) => new Date(data.startDate) < new Date(data.endDate), {

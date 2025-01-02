@@ -27,9 +27,9 @@ export default function AlertDialogComp({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="outline" className=" text-white font-bold">
+        <div className=" text-white font-bold h-[40px] w-[40px] flex items-center justify-center">
         <DeleteIcon height="30px" width="30px" fill="red" />
-        </Button>
+        </div>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
