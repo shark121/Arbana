@@ -42,7 +42,7 @@ async function addEvent(
   //buffer as Blob may couse problems later , did it to avoid type error
   
 
-  uploadTask.on(
+ return uploadTask.on(
     "state_changed",
     (snapshot) => {
       const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
@@ -71,7 +71,7 @@ async function addEvent(
           const eventDocRef = doc(eventCollectionRef, eventIdtoString);
           const userDocRef = doc(collection(database, "users"), userID);
 
-         await runTransaction(database, async (transaction) => {
+        return await runTransaction(database, async (transaction) => {
             transaction.set(eventDocRef, eventUploadData);
             transaction.set(
               userDocRef,
@@ -82,11 +82,12 @@ async function addEvent(
             .then(async() => {
               console.log("transaction done");
 
-            await  getCache(userID + "_events").then(async (data) => {
+           return await getCache(userID + "_events").then(async (data) => {
                 console.log(JSON.parse(data));
                 eventData = JSON.parse(data);
                 eventData.push(eventUploadData);
                 await setCache(userID + "_events", eventData);
+                return eventData
               });
             })
             .catch((error) => {
