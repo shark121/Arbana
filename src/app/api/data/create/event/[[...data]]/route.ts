@@ -60,8 +60,8 @@ async function addEvent(
       console.log("an error occured while uploading the file");
       console.log(".........................................");
     },
-    () => {
-      getDownloadURL(uploadTask.snapshot.ref)
+    async () => {
+     await getDownloadURL(uploadTask.snapshot.ref)
         .then(async (url) => {
           const eventUploadData = {
             ...restToJSON,
@@ -71,7 +71,7 @@ async function addEvent(
           const eventDocRef = doc(eventCollectionRef, eventIdtoString);
           const userDocRef = doc(collection(database, "users"), userID);
 
-          runTransaction(database, async (transaction) => {
+         await runTransaction(database, async (transaction) => {
             transaction.set(eventDocRef, eventUploadData);
             transaction.set(
               userDocRef,
@@ -79,14 +79,14 @@ async function addEvent(
               { merge: true }
             );
           })
-            .then(() => {
+            .then(async() => {
               console.log("transaction done");
 
-              getCache(userID + "_events").then((data) => {
+            await  getCache(userID + "_events").then(async (data) => {
                 console.log(JSON.parse(data));
                 eventData = JSON.parse(data);
                 eventData.push(eventUploadData);
-                setCache(userID + "_events", eventData);
+                await setCache(userID + "_events", eventData);
               });
             })
             .catch((error) => {

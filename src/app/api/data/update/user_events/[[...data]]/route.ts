@@ -3,11 +3,7 @@ import { storage, database } from "@/firebase.config";
 import { createRequestType } from "@/app/myEvents/create/page";
 import {
   collection,
-  setDoc,
-  getDocs,
   doc,
-  updateDoc,
-  addDoc,
   runTransaction,
   arrayUnion,
 } from "firebase/firestore";
@@ -20,7 +16,6 @@ import {
 } from "firebase/storage";
 import { setCache, getCache, existsInCache } from "@/lib/server_utils";
 import { algoliasearch } from "algoliasearch";
-import { indexedDBLocalPersistence } from "firebase/auth";
 
 const algoliaClient = algoliasearch(
   "W6M4AJCW2Z",
@@ -64,8 +59,8 @@ async function addEventWithFile(
       console.log("an error occured while uploading the file");
       console.log(".........................................");
     },
-    () => {
-      getDownloadURL(uploadTask.snapshot.ref)
+   async () => {
+      await getDownloadURL(uploadTask.snapshot.ref)
         .then(async (url) => {
           const eventUploadData = {
             ...restToJSON,
@@ -75,7 +70,7 @@ async function addEventWithFile(
           const eventDocRef = doc(eventCollectionRef, eventIdtoString);
           const userDocRef = doc(collection(database, "users"), userID);
 
-          runTransaction(database, async (transaction) => {
+        await  runTransaction(database, async (transaction) => {
             transaction.set(eventDocRef, eventUploadData);
             transaction.set(
               userDocRef,
@@ -83,10 +78,10 @@ async function addEventWithFile(
               { merge: true }
             );
           })
-            .then(() => {
+            .then(async () => {
               console.log("transaction done");
 
-              getCache(userID + "_events").then((data) => {
+              await getCache(userID + "_events").then((data) => {
                 console.log(JSON.parse(data));
                 eventData = JSON.parse(data);
                 eventData.push(eventUploadData);
