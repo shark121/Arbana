@@ -139,7 +139,7 @@ export async function POST(
     "restToJSON....................................................................."
   );
 
-  await addEvent(
+ return await addEvent(
     buffer,
     eventIdtoString,
     fileType,
