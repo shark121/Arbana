@@ -138,7 +138,7 @@ export async function POST(
     "restToJSON....................................................................."
   );
 
-  return await addEvent(
+  await addEvent(
     buffer,
     eventIdtoString,
     fileType,
@@ -152,7 +152,7 @@ export async function POST(
     })
     .then((eventData) => {
       console.log(eventData, ".......");
-      return NextResponse.json({ response: "success", eventData });
+      return NextResponse.json({ response: "success", eventData,  });
     });
   // .then(async () => {
   //   await getDocs(eventCollectionRef).then((querySnapshot) => {

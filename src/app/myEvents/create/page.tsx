@@ -74,7 +74,7 @@ async function sendCreateRequest({ event }: { event: createRequestType }) {
     body: requestFormData,
   })
     .then((res) => res.json())
-    .then((data) => console.log(data))
+    .then((data) => console.log(data, "event data"))
     .catch((error) => {
       window.alert(`An error occured ${String(error)}`);
       console.log(error)
