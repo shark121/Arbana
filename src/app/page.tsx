@@ -23,6 +23,9 @@ import AlgoSearch from "../../components/components/algosearch";
 import Verified from "@/images/svg/verified";
 import SheetComponent from "../../components/components/sheet";
 import { useScroll } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
+import { Button } from "@/components/ui/button";
 
 const searchClient = algoliasearch(
   "W6M4AJCW2Z",
@@ -118,6 +121,9 @@ export default function Home() {
   const [value, setValue] = useState<EventType | null>(null);
   const [statusChanged, setStatusChanged] = useState(false);
   const { scrollYProgress, scrollY } = useScroll();
+  const {toast} = useToast()
+
+  
 
   
 
@@ -128,6 +134,18 @@ export default function Home() {
         indexName="events_index"
         insights
       ></InstantSearch> */}
+      {/* <Button 
+       onClick={() => {
+        // console.log("clicked")
+        toast({
+          title: "Scheduled: Catch up ",
+          description: "Friday, February 10, 2023 at 5:57 PM",
+          action: (
+            <ToastAction altText="Goto schedule to undo">Undo</ToastAction>
+          ),
+        })
+      }}
+      >click</Button> */}
 
       <InstantSearch
         searchClient={searchClient}
