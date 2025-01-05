@@ -40,7 +40,7 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
   const [currentPrice, setCurrentPrice] = useState<number>(1);
   const [userInfoState, setUserInfoState] = useState<User>();
   const [loadingBuffer, setLoadingBuffer] = useState<boolean>(true);
-  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const router = useRouter();
   const eventID = params.params.eventID;
 
@@ -63,11 +63,8 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
     setValueState({ name: eventState?.availableSeats[0].tier ?? "" });
     setCurrentTier(eventState?.availableSeats[0].tier ?? "");
     setCurrentPrice(eventState?.availableSeats[0].price ?? 1);
-    setIsLoading(false)
+    setIsLoading(false);
   }, [eventState]);
-
-
-  
 
   const convertedStartDate = Object.values(convertDate(eventState?.startDate))
     .slice(1)
@@ -89,7 +86,7 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
           setCurrentTier(type.tier);
           setCurrentPrice(type.price);
         }}
-        className={`relative flex flex-col transition-all duration-300 ease-in-out delay-100 px-4 items-start  gap-4 w-[90%]  rounded-xl shadow-sm ${
+        className={`relative flex h-[9rem] flex-col transition-all duration-300 ease-in-out delay-100 px-4 items-start  gap-4 w-[90%]  rounded-xl shadow-sm ${
           isCurrentTier ? "scale-105" : ""
         } `}
       >
@@ -97,7 +94,9 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
           className={`h-[3rem] w-full top items-center justify-start flex rounded-t-2xl`}
         >
           <div className="font-bold text-[1.1rem] flex justify-between items-center w-full">
-            <div>{type.tier}</div>
+            <div className="h-full w-[2rem] items-center justify-center">
+              {type.tier}
+            </div>
             <div>
               {" "}
               {isCurrentTier ? (
@@ -108,40 +107,29 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
             </div>
           </div>
         </div>
-        <div className="w-full">
-          <div className="h-[4rem] p4 flex relative w-full">
-            {/* <div className="relative h-[6rem] w-[6rem] mx-1">
-              <Image
-                fill
-                alt="ticket image"
-                src={eventState.imageUrl}
-                className="rounded"
-              />
-            </div> */}
-            <div className="p-x w-[80%] flex  flex-col justify-start items-start">
-              {/* <div className="font-bold ">{eventState.name}</div> */}
-              <div className="text-[0.8rem] text-gray-500 font-thin flex flex-col w-full ">
-                <div>{`${convertedStartDate}   •   ${convertedEndDate}`}</div>
-                <div className="text-[0.8rem]">{eventState?.location}</div>
-
-                {/* <div>{eventState.time}</div> */}
-              </div>
-              <div className="font-bold  absolute right-2 bottom-2">
-                ${type.price}
+        <div className="w-full h-[4.5rem]">
+          <div className="h-[4rem] flex relative w-full">
+            <div className="p-x w-full flex  flex-col justify-start items-start h-full">
+              <div className="font-thin flex flex-col gap-2 w-full text-xs">
+                <div className="text-gray-500 ">{`${convertedStartDate}   •   ${convertedEndDate}`}</div>
+                <div className="text-gray-500 ">{eventState?.location}</div>
+                <div className="font-bold text-[1rem] h-[1.5rem] w-full flex items-center justify-between">
+                  <div>${type.price}</div>
+                  <div
+                    className={`w-full h-[60px]  flex items-center justify-end ${
+                      isCurrentTier ? "" : "hidden"
+                    }`}
+                  >
+                    <Counter
+                      max={999}
+                      id={eventID}
+                      defaultValue={defaultValueState}
+                      setDefaultValue={setDefaultValueState}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-          <div
-            className={`w-full h-[60px]  flex items-center justify-end ${
-              !isCurrentTier ? "hidden" : "hidden"
-            }`}
-          >
-            {/* <Counter
-              max={999}
-              id={eventID}
-              defaultValue={defaultValueState}
-              setDefaultValue={setDefaultValueState}
-            /> */}
           </div>
           <div className=""></div>
         </div>
@@ -150,9 +138,7 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
   });
 
   function handleOnClick(eventID: string, tier: string, price: number) {
-
-
-    const ticeketData: Omit<TicketSchemaType, "transactionID">  = {
+    const ticeketData: Omit<TicketSchemaType, "transactionID"> = {
       name: eventState!.name,
       startDate: eventState!.startDate,
       endDate: eventState!.endDate,
@@ -161,6 +147,7 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
       tier,
       price,
       scans: defaultValueState,
+      quantity: defaultValueState,
       createdAt: new Date().toISOString(),
       uid: userInfoState?.uid || generateRandomId(6),
       ticketID: generateRandomId(10),
@@ -168,14 +155,13 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
 
     sessionStorage.setItem("ticket", JSON.stringify(ticeketData));
     window.location.href = `/booking/${eventID}`;
-  } 
+  }
 
   setTimeout(() => {
     setLoadingBuffer(false);
-  }
-  , 500);
+  }, 500);
 
-  if(isLoading ||  loadingBuffer) return <Loading/>
+  if (isLoading || loadingBuffer) return <Loading />;
 
   return (
     <div

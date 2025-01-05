@@ -11,12 +11,8 @@ export async function POST(
   context: { params: { data: string[] } }
 ) {
   const ticketFormData = await req.formData();
-  const quantity = Number(context.params.data[1]);
-  const price = Number(context.params.data[2]);
-  const amount = price;
   const provider = context.params.data[0];
-
-  console.log(price, "price .......")
+  const amount = Math.ceil(Number(context.params.data[1]));
 
   const ticketData: Omit<TicketSchemaType, "transactionID"> = JSON.parse(
     ticketFormData.get("ticket") as string

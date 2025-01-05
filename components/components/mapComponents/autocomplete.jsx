@@ -76,7 +76,7 @@ export default function Autocomplete({
                     value={item}
                   >
                     {({ selected, active }) => {
-                      console.log(selected, active);
+                      // console.log(selected, active);
 
                       return (
                         <>

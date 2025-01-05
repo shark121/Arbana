@@ -26,34 +26,30 @@ import {
 
 const FormSchema = z.object({
   dob: z.date({
-    required_error: "A date of birth is required.",
+    required_error: "A date is required.",
   }),
 })
 
 export default function CalendarForm({
-  dateState,
+  defaultDate, 
   setDateState,
   label
 }: {
-  dateState: Date;
-  setDateState: React.Dispatch<React.SetStateAction<Date>>;
+  defaultDate?: Date;
+  dateState: Date | undefined;
+  setDateState: React.Dispatch<React.SetStateAction<Date | undefined>>;
   label?:string
 }) {
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
+    defaultValues: {
+      // dob: new Date("Wed Dec 31 2025 00:00:00 GMT-0500 (Eastern Standard Time)"),
+      dob:  defaultDate ?  defaultDate  : undefined,
+    },
   })
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    // toast({
-    //   title: "You submitted the following values:",
-    //   description: (
-    //     <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-    //       <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-    //     </pre>
-    //   ),
-    // })
-
     console.log(data)
   }
 
@@ -93,7 +89,13 @@ export default function CalendarForm({
                   <Calendar
                     mode="single"
                     selected={field.value}
-                    onSelect={field.onChange}    
+                    onSelect={(e)=>{
+                    console.log(e)
+                    setDateState(e)
+                    return field.onChange(e)
+                    }}
+                        
+                    // onSelect={(date)=>setDateState(date)}
                     // disabled={(date) =>
                     //   date > new Date() || date < new Date("1900-01-01")
                     // }

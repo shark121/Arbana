@@ -14,6 +14,8 @@ import {
   getCache,
 } from "@/lib/server_utils";
 
+/// to future me and anyone supposed to work on this code apart from me..... I am indeed truly sorry,  I was not very wise ...
+
 export async function updateTicketsQuantity({
   requestedNumber,
   ticketTier,
@@ -46,7 +48,6 @@ export async function updateTicketsQuantity({
               ) {
                 currentSeat.quantity -= requestedNumber;
                 transaction.set(docRef, { availableSeats }, { merge: true });
-                console.log("Transaction completed");
                 response = true;
               }
               if (
@@ -77,16 +78,17 @@ export async function cancelTransaction(ticketDataJSONString: string) {
 
   console.log(ticketData, "ticketData cancelling transaction");
 
- await updateTicketsQuantity({
-    requestedNumber: -ticketData.scans,
+  await updateTicketsQuantity({
+    requestedNumber: -ticketData.quantity,
     ticketTier: ticketData.tier,
     docRef: doc(collection(database, "events"), ticketData.eventID),
-  }).catch((err) => {
-    console.error(err, "error correcting database");
-  }).then(()=>{
-    console.log("Database corrected, transaction cancelled");
   })
-
+    .catch((err) => {
+      console.error(err, "error correcting database");
+    })
+    .then(() => {
+      console.log("Database corrected, transaction cancelled");
+    });
 }
 
 export async function makePaymentRequest({
@@ -170,6 +172,29 @@ export async function createTicketEntry(
     });
 }
 
+export async function replenishTickets({
+  quantity,
+  tier,
+  eventID,
+}: {
+  quantity: number;
+  tier: string;
+  eventID: string;
+}) {
+  await updateTicketsQuantity({
+    requestedNumber: -quantity,
+    ticketTier: tier,
+    docRef: doc(collection(database, "events"), eventID),
+  }).catch((err) => {
+    console.error(err, "error correcting database");
+
+    return {
+      response: null,
+      error: "Error correcting database",
+    };
+  });
+}
+
 export async function startPaymentProcess({
   amount,
   provider,
@@ -180,7 +205,7 @@ export async function startPaymentProcess({
   ticketData: Omit<TicketSchemaType, "transactionID">;
 }): Promise<{ response: string | null; error: string | null }> {
   return await updateTicketsQuantity({
-    requestedNumber: ticketData.scans,
+    requestedNumber: ticketData.quantity,
     ticketTier: ticketData.tier,
     docRef: doc(collection(database, "events"), ticketData.eventID),
   })
@@ -192,6 +217,13 @@ export async function startPaymentProcess({
       return await makePaymentRequest({ amount, provider, ticketData }).then(
         async (paymentRequestResponse) => {
           if (paymentRequestResponse.error) {
+
+            await replenishTickets({
+              quantity: ticketData.quantity,
+              eventID: ticketData.eventID,
+              tier: ticketData.tier,
+            });
+
             return { response: null, error: paymentRequestResponse.error };
           }
 
@@ -199,7 +231,7 @@ export async function startPaymentProcess({
             paymentRequestResponse.response.data.reference,
             String(ticketData.scans),
             JSON.stringify(ticketData),
-            20
+            60 * 60 * 1 // wait for one hour
           );
 
           await invokeSubscriberCallback((key) => {
@@ -215,21 +247,12 @@ export async function startPaymentProcess({
           )
             .then(async (createTicketEntryResponse) => {
               if (createTicketEntryResponse.error) {
-                await updateTicketsQuantity({
-                  requestedNumber: -ticketData.scans,
-                  ticketTier: ticketData.tier,
-                  docRef: doc(
-                    collection(database, "events"),
-                    ticketData.eventID
-                  ),
-                }).catch((err) => {
-                  console.error(err, "error correcting database");
 
-                  return {
-                    response: null,
-                    error: "Error correcting database",
-                  };
-                });
+                await replenishTickets({
+                  quantity: ticketData.quantity,
+                  eventID: ticketData.eventID,
+                  tier: ticketData.tier,
+                });                 
 
                 return {
                   response: null,

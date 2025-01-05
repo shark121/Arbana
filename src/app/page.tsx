@@ -157,7 +157,6 @@ export default function Home() {
           setStatusChanged={setStatusChanged}
           statusState={statusChanged}
         />
-
         <Configure hitsPerPage={40} />
         <RefinementList attribute="name" />
         <Hits hitComponent={Hit} className="w-full h-full" />

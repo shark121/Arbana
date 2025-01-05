@@ -24,6 +24,81 @@ const algoliaClient = algoliasearch(
 
 const eventCollectionRef = collection(database, "events");
 
+// async function addEventWithFile(
+//   buffer: Buffer,
+//   nameID: string,
+//   fileType: string,
+//   restToJSON: Omit<createRequestType, "imageFile">,
+//   eventIdtoString: string,
+//   userID: string
+// ) {
+//   const nameIDTrim = nameID.trim();
+//   console.log(nameIDTrim, fileType);
+//   let eventData: any[] = [];
+
+//   const storageRef = ref(storage, `${nameIDTrim}.${fileType}`);
+//   const uploadTask = uploadBytesResumable(
+//     storageRef,
+//     buffer as unknown as Blob
+//   );
+//   uploadTask.on(
+//     "state_changed",
+//     (snapshot) => {
+//       const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+//       console.log("Upload is " + progress + "% done");
+//       switch (snapshot.state) {
+//         case "paused":
+//           console.log("Upload is paused");
+//           break;
+//         case "running":
+//           console.log("Upload is running");
+//           break;
+//       }
+//     },
+//     (error) => {
+//       console.log("an error occured while uploading the file");
+//       console.log(".........................................");
+//     },
+//    async () => {
+//       await getDownloadURL(uploadTask.snapshot.ref)
+//         .then(async (url) => {
+//           const eventUploadData = {
+//             ...restToJSON,
+//             imageUrl: url as unknown as string,
+//           };
+
+//           const eventDocRef = doc(eventCollectionRef, eventIdtoString);
+//           const userDocRef = doc(collection(database, "users"), userID);
+
+//         await  runTransaction(database, async (transaction) => {
+//             transaction.set(eventDocRef, eventUploadData);
+//             transaction.set(
+//               userDocRef,
+//               { events: arrayUnion(eventUploadData) },
+//               { merge: true }
+//             );
+//           })
+//             .then(async () => {
+//               console.log("transaction done");
+
+//               await getCache(userID + "_events").then((data) => {
+//                 console.log(JSON.parse(data));
+//                 eventData = JSON.parse(data);
+//                 eventData.push(eventUploadData);
+//                 setCache(userID + "_events", eventData);
+//               });
+//             })
+//             .catch((error) => {
+//               console.error("Error adding document: ", error);
+//             });
+//         })
+//         .catch((error) => NextResponse.error());
+//     }
+//   );
+
+//   return eventData;
+// }
+
 async function addEventWithFile(
   buffer: Buffer,
   nameID: string,
@@ -33,70 +108,54 @@ async function addEventWithFile(
   userID: string
 ) {
   const nameIDTrim = nameID.trim();
-  console.log(nameIDTrim, fileType);
-  let eventData: any[] = [];
-
   const storageRef = ref(storage, `${nameIDTrim}.${fileType}`);
-  const uploadTask = uploadBytesResumable(
-    storageRef,
-    buffer as unknown as Blob
-  );
-  uploadTask.on(
-    "state_changed",
-    (snapshot) => {
-      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-      console.log("Upload is " + progress + "% done");
-      switch (snapshot.state) {
-        case "paused":
-          console.log("Upload is paused");
-          break;
-        case "running":
-          console.log("Upload is running");
-          break;
+
+  try {
+  const uploadTaskPromise = new Promise((resolve, reject) => {
+    const uploadTask = uploadBytesResumable(storageRef, buffer);
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log(`Upload is ${progress}% done`);
+      },
+      (error) => {
+        console.error("Upload error: ", error);
+        reject(error);
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then(resolve).catch(reject);
       }
-    },
-    (error) => {
-      console.log("an error occured while uploading the file");
-      console.log(".........................................");
-    },
-   async () => {
-      await getDownloadURL(uploadTask.snapshot.ref)
-        .then(async (url) => {
-          const eventUploadData = {
-            ...restToJSON,
-            imageUrl: url as unknown as string,
-          };
+    );
+  });
 
-          const eventDocRef = doc(eventCollectionRef, eventIdtoString);
-          const userDocRef = doc(collection(database, "users"), userID);
+  const downloadURL = await uploadTaskPromise;
 
-        await  runTransaction(database, async (transaction) => {
-            transaction.set(eventDocRef, eventUploadData);
-            transaction.set(
-              userDocRef,
-              { events: arrayUnion(eventUploadData) },
-              { merge: true }
-            );
-          })
-            .then(async () => {
-              console.log("transaction done");
+  const eventUploadData = { ...restToJSON, imageUrl: downloadURL };
 
-              await getCache(userID + "_events").then((data) => {
-                console.log(JSON.parse(data));
-                eventData = JSON.parse(data);
-                eventData.push(eventUploadData);
-                setCache(userID + "_events", eventData);
-              });
-            })
-            .catch((error) => {
-              console.error("Error adding document: ", error);
-            });
-        })
-        .catch((error) => NextResponse.error());
-    }
-  );
+  const eventDocRef = doc(eventCollectionRef, eventIdtoString);
+  const userDocRef = doc(collection(database, "users"), userID);
 
-  return eventData;
+  await runTransaction(database, async (transaction) => {
+    transaction.set(eventDocRef, eventUploadData);
+    transaction.set(
+      userDocRef,
+      { events: arrayUnion(eventUploadData) },
+      { merge: true }
+    );
+  });
+
+  const cachedEvents = JSON.parse(await getCache(userID + "_events")) || [];
+  cachedEvents.push(eventUploadData);
+  await setCache(userID + "_events", cachedEvents);
+
+  return cachedEvents;
+
+} catch (error) {
+  console.error("Error in addEvent: ", error);
+  throw error;
+}
 }
 
 function uploadWithoutFile({

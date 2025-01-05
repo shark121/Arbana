@@ -8,6 +8,7 @@ import { auth } from "../src/firebase.config";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { setCookie } from "@/lib/utils";
+import PasswordInput from "../components/ui/passwordInputType";
 import Logo from "@/images/svg/logo";
 
 async function createNewUserWithEmailAndPassword(
@@ -32,7 +33,6 @@ async function createNewUserWithEmailAndPassword(
       console.log(userInfo);
 
       await sendEmailVerification(user).then((verification) => {
-        
         console.log(verification);
         console.log("email sent");
       });
@@ -41,7 +41,6 @@ async function createNewUserWithEmailAndPassword(
       const errorCode = error.code;
       const errorMessage = error.message;
       console.log(error);
-    
     });
 }
 
@@ -77,7 +76,14 @@ export default function SignUpComponent() {
           ref={emailRef}
           onChange={(e) => setEmailState(() => e.target.value)}
         />
-        <Input
+        <PasswordInput ref={passwordRef} setPasswordState={setPasswordState} />
+
+        <PasswordInput
+          ref={confirmPasswordRef}
+          setPasswordState={setPasswordState}
+        />
+
+        {/* <Input
           type="password"
           placeholder="Password"
           ref={passwordRef}
@@ -88,7 +94,7 @@ export default function SignUpComponent() {
           placeholder="Confirm Password"
           ref={confirmPasswordRef}
           onChange={(e) => setPasswordState(() => e.target.value)}
-        />
+        /> */}
         <Button onClick={(e) => handleOnclick(e)}>Submit</Button>
       </div>
     </main>

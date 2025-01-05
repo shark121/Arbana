@@ -88,6 +88,7 @@ const TicketSchema = z.object({
   eventID: z.string().min(1, "Event ID is required"),
   tier: z.string().min(1, "Tier is required"),
   price: z.number().min(0, "Price must be a positive number"),
+  quantity : z.number().min(1, "Quantity must be a positive number"), 
   imageUrl: z.string().url("Must be a valid URL"),
   scans: z.number().min(0, "Scans must be a non-negative number"),
   uid: z
@@ -112,7 +113,7 @@ const TicketSchema = z.object({
     })
     .optional()
     .describe("The coordinates of the ticket"),
-
+  
   // status: z
   //   .enum(["active", "used", "cancelled"])
   //   .describe("The current status of the ticket"),

@@ -127,3 +127,23 @@ export function convertTo12HourFormat(time24: string) {
   const hours12 = +hours % 12 || 12; // Convert 0 or 12 to 12 in 12-hour format
   return `${hours12}:${minutes} ${period}`;
 }
+
+
+export function convertTo24Hour(timeStr:string) {
+  let [time, period] = timeStr.split(' ');
+  let [hours, minutes] = time.split(':').map(Number);
+
+  if (period === "AM") {
+      if (hours === 12) {
+          hours = 0;
+      }
+  } else {
+      if (hours !== 12) {
+          hours += 12;
+      }
+  }
+
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+}
+
+

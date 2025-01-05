@@ -47,6 +47,7 @@ export default function Booking({ params }: { params: {} }) {
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [defaultValue, setDefaultValue] = useState<number>(1);
   const [loadingBuffer , setLoadingBuffer] = useState<boolean>(true);
+  const [total, setTotal] = useState<number>(0);
   const [ticketState, setTicketState] = useState<Omit<
     TicketSchemaType,
     "transactionID"
@@ -104,6 +105,9 @@ export default function Booking({ params }: { params: {} }) {
     quantity: number;
   }) {
     const total = price * quantity + tax;
+
+    setTotal(total);
+
     return (
       <div className="w-full h-[18rem]  flex items-center justify-start font-bold  flex-col">
         <div className="w-full h-[50px]  flex items-center justify-start p-6 font-bold  ">
@@ -156,12 +160,13 @@ export default function Booking({ params }: { params: {} }) {
   ) {
     setIsLoading(true);
     price = price ?? 0;
+    phoneNumber = phoneNumber ?? 200000;
 
     const ticketFormData = new FormData();
     ticketFormData.append("ticket", JSON.stringify(ticketState));
 
     await fetch(
-      `/api/payment/request/${phoneNumber}/${provider}/${price}/${quantity}`,
+      `/api/payment/request/${phoneNumber}/${provider}/${total}`,
       {
         method: "POST",
         body: ticketFormData,
@@ -236,7 +241,7 @@ export default function Booking({ params }: { params: {} }) {
         />
       )}
       {ticketState && (
-        <OrderSummary price={ticketState.price} quantity={ticketState.scans} />
+        <OrderSummary price={ticketState.price} quantity={ticketState.quantity} />
       )}
 
       <div className="relative -z-10">

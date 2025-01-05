@@ -51,12 +51,62 @@ export default function AlgoSearch(
     refine(newQuery);
   }
 
+
+
+   return (
+    <div className="relative w-[250px] sm:w-[500px] h-[50px] sm:h-[60px] py-1 px-3 rounded-full bg-gray-100 flex items-center justify-center  ">
+        <form
+          action=""
+          role="search"
+          noValidate
+          className="flex items-center justify-center w-[90%] h-full"
+          onSubmit={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            if (inputRef.current) {
+              inputRef.current.blur();
+            }
+            document.body.style.zoom = "100%";
+
+            //   window.resizeTo(window.screen.availWidth , window.screen.availHeight)
+          }}
+          onReset={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            setQuery("");
+
+            if (inputRef.current) {
+              inputRef.current.focus();
+            }
+          }}
+        >
+          <input
+            className="bg-inherit outline-none h-full w-full  text-gray-600"
+            ref={inputRef}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            placeholder=""
+            spellCheck={false}
+            maxLength={512}
+            type="search"
+            value={inputValue}
+            onChange={(event) => {
+              setQuery(event.currentTarget.value);
+            }}
+            autoFocus
+          />
+          <button type="submit" className="absolute right-3">
+            <Verified height="30px" width="30px" bgfill="#ED191D" />
+          </button>
+        </form>
+      </div>
+   )
+  
   return (
-    <m.div
-      animate={{
-        // translateY: !isScrollingUp ? -100 : 0,
-        transition: { delay: 0.5, duration: 0.2 },
-      }}
+    <div
       className="flex items-center z-10 h-[4rem] justify-between sticky top-2 w-full"
     >
       <div></div>
@@ -110,7 +160,7 @@ export default function AlgoSearch(
         </form>
       </div>
       <SheetComponent />
-    </m.div>
+    </div>
   );
 }
 

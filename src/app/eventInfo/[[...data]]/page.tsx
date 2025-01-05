@@ -6,7 +6,7 @@ import ScanQRCode from "../../scan/[[...data]]/page";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { generateRandomId, getCookie } from "../../../lib/utils";
+import { convertTo12HourFormat, generateRandomId, getCookie } from "../../../lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { Selector } from "../../../../components/components/selector";
@@ -14,7 +14,13 @@ import { categoriesList } from "../../../../data/categories";
 import { X } from "lucide-react";
 import z from "zod";
 import { User } from "firebase/auth";
+import { AddTicket } from "../../../../components/components/events/AddTicket";
+import { CategoriesComponent } from "../../../../components/components/events/categoriesComponent";
+import Calendar  from "../../../../components/components/calendar";
 import TicketPopOver from "../../../../components/components/ticketPopOver";
+import ShowPlaces from "../../../../components/components/mapComponents/showPlaces";
+
+import { useLoadScript } from "@react-google-maps/api";
 import TicketTierType, {
   AddNewTicket,
 } from "../../../../components/components/eventInfo/ticketTierTypeComponent";
@@ -25,6 +31,8 @@ import {
   AvailableSeatsSchema,
   AvailableSeatsType,
 } from "@/lib/types";
+
+import {convertTo24Hour, getLocationCoordiantes} from "@/lib/utils";
 
 import { useForm } from "react-hook-form";
 
@@ -76,75 +84,6 @@ async function sendUpdateRequest({ event }: { event: EventSchemaType }) {
 
 type RequestType = EventSchemaType & { imageFile: File | null };
 
-function AddTicket({
-  setAvailableSeatsState,
-  availableSeatsState,
-  seatsState,
-  setSeatsState,
-}: {
-  seatsState: AvailableSeatsType[];
-  setSeatsState: React.Dispatch<React.SetStateAction<AvailableSeatsType[]>>;
-  setAvailableSeatsState: React.Dispatch<
-    React.SetStateAction<AvailableSeatsType[]>
-  >;
-  availableSeatsState: AvailableSeatsType[];
-}) {
-  const [isAddingNewTicket, setIsAddingNewTicket] = useState<boolean>(false);
-
-  useEffect(() => {
-    availableSeatsState &&
-      setSeatsState((seatsState) => [
-        ...seatsState,
-        ...(availableSeatsState as AvailableSeatsType[]),
-      ]);
-  }, [availableSeatsState]);
-
-  function RemoveTicketType({ seat }: { seat: AvailableSeatsType }) {
-    setSeatsState((seatsState) =>
-      seatsState.filter((el) => el.tier !== seat.tier)
-    );
-  }
-
-  function AddTicketType(
-    ticketTier: string,
-    tierPrice: number,
-    tierQuantity: number
-  ) {
-    if (!ticketTier || !tierPrice || !tierQuantity) return;
-
-    if (seatsState.map((el) => el.tier).includes(ticketTier)) return;
-
-    setSeatsState((seatsState) => [
-      ...seatsState,
-      { tier: ticketTier, quantity: tierQuantity, price: tierPrice },
-    ]);
-  }
-
-  return (
-    <div>
-      {seatsState.map((el, i) => {
-        return (
-          <TicketTierType
-            RemoveTicketType={RemoveTicketType}
-            AddTicketType={AddTicketType}
-            seat={el}
-            key={el.tier}
-          />
-        );
-      })}
-      {isAddingNewTicket ? (
-        <AddNewTicket
-          seatsState={seatsState}
-          setSeatsState={setSeatsState}
-          setIsAddingNewTicket={setIsAddingNewTicket}
-        />
-      ) : (
-        <Button onClick={() => setIsAddingNewTicket(true)}>Add New Tier</Button>
-      )}
-    </div>
-  );
-}
-
 export default function EventInfo(params: {
   params: { data: [eventId: string] };
 }) {
@@ -173,6 +112,18 @@ export default function EventInfo(params: {
   );
   const [userInfoState, setUserInfoState] = useState<User>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [startDateState, setStartDateState] = useState<Date | undefined>();
+  const [endDateState, setEndDateState] = useState<Date | undefined>();
+  const [eventNameState, setEventNameState] = useState<string>("");
+  const [selected, setSelected] = useState({ id: 0, description: "" });
+  const [selectedPlace, setSelectedPlace] = useState({
+    place_id: "",
+    description: "",
+  });
+  const { isLoaded: mapIsLoaded } = useLoadScript({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
+    libraries: ["places"],
+  });
 
   useEffect(() => {
     const userInfo = JSON.parse(sessionStorage.getItem("user") as string);
@@ -191,7 +142,14 @@ export default function EventInfo(params: {
       categoriesState?.map((category, i) => {
         if (category === "") return <div></div>;
 
-        return <CategoriesComponent currentItem={category} key={i} />;
+        return (
+          <CategoriesComponent
+            currentItem={category}
+            key={i}
+            categoriesState={categoriesState}
+            setCategoriesState={setCategoriesState}
+          />
+        );
       })
     );
   }, [categoriesState]);
@@ -208,19 +166,23 @@ export default function EventInfo(params: {
     eventId: true,
     imagePallete: true,
     creator: true,
+    name: true,
+    startDate: true,
+    endDate: true,
+    location: true,
   });
 
   const form = useForm<z.infer<typeof FormValidEventSchema>>({
     resolver: zodResolver(FormValidEventSchema),
     defaultValues: {
-      name: "",
-      startDate: "",
-      endDate: "",
+      // name: "",
+      // startDate: "",
+      // endDate: "",
       province: "",
       mobile: "",
       imageFile: null,
       description: "",
-      location: "",
+      // location: "",
       time: "",
       imageUrl: "",
     },
@@ -233,71 +195,24 @@ export default function EventInfo(params: {
     );
     setEventIDState(eventState?.eventId as number);
     setCategoriesState(eventState?.categories as string[]);
+    setStartDateState(new Date(eventState?.startDate as string));
+    setEndDateState(new Date(eventState?.endDate as string));
+    setEventNameState(eventState?.name as string);
+    setSelectedPlace({
+      place_id: eventState?.location as string,
+      description: eventState?.location as string,
+    });
 
-    form.setValue("name", eventState?.name as string);
-    form.setValue("startDate", eventState?.startDate as string);
-    form.setValue("endDate", eventState?.endDate as string);
+    // form.setValue("name", eventState?.name as string);
+    // form.setValue("startDate", eventState?.startDate as string);
+    // form.setValue("endDate", eventState?.endDate as string);
     form.setValue("province", eventState?.province as string);
     form.setValue("mobile", eventState?.mobile as string);
     form.setValue("description", eventState?.description as string);
-    form.setValue("location", eventState?.location as string);
-    form.setValue("time", eventState?.time as string);
+    // form.setValue("location", eventState?.location as string);
+   eventState?.time && form.setValue("time", convertTo24Hour(eventState.time));
     form.setValue("imageUrl", eventState?.imageUrl as string);
   }, [eventState]);
-
-  function CategoriesComponent({ currentItem }: { currentItem: string }) {
-    function handleOnClick() {
-      const newCategories = categoriesState?.filter(
-        (category) => category !== currentItem
-      );
-      setCategoriesState(newCategories);
-    }
-
-    return (
-      <Button variant={"outline"} className="m-4">
-        {currentItem}{" "}
-        <X
-          onClick={handleOnClick}
-          height={"15px"}
-          width={"15px"}
-          className="mx-3"
-        />
-      </Button>
-    );
-  }
-
-  // async function handleCreateEvent() {
-  //   const fileteredCategories = categoriesState.filter(
-  //     (category) => category !== ""
-  //   );
-
-  //   const userIDAsString = userInfoState?.uid as string;
-
-  //   console.log(userIDAsString, "user ID");
-
-  //   console.log(fileteredCategories);
-
-  //   const event: Omit<RequestType, "imageUrl"> = {
-  //     name: eventNameState,
-  //     startDate: startDateState,
-  //     endDate: endDateState,
-  //     location: locationState,
-  //     description: descriptionState,
-  //     categories: fileteredCategories,
-  //     availableSeats: seatsState,
-  //     eventId: eventIDState,
-  //     time: startTimeState,
-  //     imageFile: imageFileState,
-  //     createdAt: new Date().toISOString(),
-  //     creatorMailAdress: userInfoState,
-  //     fallBackMailAdress: fallBackMailAdressState,
-  //     userID: userIDAsString,
-  //   };
-
-  //   console.log(event);
-
-  //   await sendUpdateRequest({ event }).catch((err) => console.log(err, "err"));
-  // }
 
   const onSubmit = async (
     event: z.infer<Omit<typeof FormValidEventSchema, "imageFile">>
@@ -329,6 +244,14 @@ export default function EventInfo(params: {
       console.log(palette, "palette");
     }
 
+    event["time"] = convertTo12HourFormat(event.time);
+
+    // const locationCoordinates = await getLocationCoordiantes(
+    //   selectedPlace.place_id
+    // );
+
+    const locationCoordinates = { lat: 0, lng: 0 };
+
     const eventWithExtraParams: EventSchemaType = {
       ...event,
       categories: fileteredCategories,
@@ -338,6 +261,11 @@ export default function EventInfo(params: {
       eventId: eventIDState,
       creator: eventState!.creator,
       imagePallete: palette ? palette : eventState!.imagePallete,
+      name: eventNameState,
+      startDate: startDateState?.toISOString() || new Date().toISOString(),
+      endDate: endDateState?.toISOString()|| new Date().toISOString(),
+      location: selectedPlace.description,
+      locationCoordinates 
     };
 
     console.log(eventWithExtraParams, "eventWithExtraParams");
@@ -362,74 +290,61 @@ export default function EventInfo(params: {
       return;
     }
 
-    // console.log("Form Data:", event);
-
-    sendUpdateRequest({ event: eventWithExtraParams })
+    await sendUpdateRequest({ event: eventWithExtraParams })
       .catch((err) => console.log(err, "err"))
       .catch((err) => {
         console.log(err);
       })
       .then(() => {
-        window.location.href = "/myEvents";
+        // window.location.href = "/myEvents";
       })
       .finally(() => {
         setIsLoading(false);
       });
   };
 
-  function onSubmittest() {
-    console.log("onSubmit");
-  }
-
-  if (isLoading) return <Loading />;
+  if (isLoading || !mapIsLoaded) return <Loading />;
 
   return (
     eventState && (
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-8 p-4"
-          id="createEventForm"
-        >
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Event Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Event Name" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="startDate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Start Date</FormLabel>
-                <FormControl>
-                  <Input placeholder="YYYY-MM-DD" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />{" "}
-          <FormField
-            control={form.control}
-            name="endDate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>End Date</FormLabel>
-                <FormControl>
-                  <Input placeholder="YYYY-MM-DD" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+      <div>
+          <div className="h-[18rem] flex w-full flex-col p-4 gap-1">
+            {/* <FormLabel>Event Name</FormLabel> */}
+            <p className="text-sm font-medium">Event Name</p>
+            <Input
+              placeholder="Event Name"
+              onChange={(e) => setEventNameState(e.target.value)}
+              defaultValue={eventState?.name}
+            />
+            <p className="text-sm font-medium">Start Date</p>
+            <Calendar
+              setDateState={setStartDateState}
+              dateState={startDateState}
+              defaultDate={new Date(eventState?.startDate as string)}
+            />
+            <p className="text-sm font-medium">End Date</p>
+
+            <Calendar 
+            setDateState={setEndDateState} 
+            dateState={endDateState}  
+            defaultDate={new Date(eventState?.endDate as string)}
+            />
+          </div>
+           <Form {...form}>
+           <form
+             onSubmit={form.handleSubmit(onSubmit)}
+             className="space-y-8 p-4"
+             id="createEventForm"
+           >
+          <div className="w-full h-[7rem] relative">
+            <FormLabel>Location</FormLabel>
+            <ShowPlaces
+              selected={selected}
+              selectedPlace={selectedPlace}
+              setSelected={setSelected}
+              setSelectedPlace={setSelectedPlace}
+            />
+          </div>
           {
             <AddTicket
               setAvailableSeatsState={setAvailableSeatsState}
@@ -452,19 +367,6 @@ export default function EventInfo(params: {
                 <FormLabel>Description</FormLabel>
                 <FormControl>
                   <Textarea placeholder="Description" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="location"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Location</FormLabel>
-                <FormControl>
-                  <Input placeholder="Location" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -544,6 +446,7 @@ export default function EventInfo(params: {
           </Button>
         </form>
       </Form>
+      </div>
     )
   );
 }

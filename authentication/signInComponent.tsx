@@ -7,7 +7,8 @@ import { Input } from "../src/components/ui/input";
 import GoogleAuth from "./googleAuth";
 import { setCookie } from "@/lib/utils";
 import Image from "next/image";
-import Logo from "@/images/svg/logo"
+import Logo from "@/images/svg/logo";
+import PasswordInput from "../components/ui/passwordInputType";
 
 export async function emailAndPasswordSignIn(email: string, password: string) {
   await signInWithEmailAndPassword(auth, email, password)
@@ -47,7 +48,7 @@ export default function SignInComponent() {
   return (
     <main className=" flex flex-col items-center justify-center text-black">
       <div>
-        <Logo/>
+        <Logo />
       </div>
       <div className="w-[20rem]  flex flex-col items-center justify-center gap-4">
         <Input
@@ -57,13 +58,14 @@ export default function SignInComponent() {
           onChange={(e) => setEmail(() => e.target.value)}
           className="text-black"
         />
-        <Input
+        {/* <Input
           type="password"
           placeholder="password"
           ref={passwordRef}
           onChange={(e) => setPassword(() => e.target.value)}
           className="text-black"
-        />
+        /> */}
+        <PasswordInput ref={passwordRef} setPasswordState={setPassword} />
         <button
           className="w-full h-14 bg-black/90 rounded-lg text-white"
           onClick={(e) => handleOnclick(e)}
