@@ -18,13 +18,9 @@ import { AddTicket } from "../../../../components/components/events/AddTicket";
 import { CategoriesComponent } from "../../../../components/components/events/categoriesComponent";
 import Calendar  from "../../../../components/components/calendar";
 import TicketPopOver from "../../../../components/components/ticketPopOver";
-<<<<<<< HEAD
 import ShowPlaces from "../../../../components/components/mapComponents/showPlaces";
-
+import Cookies from "js-cookie"
 import { useLoadScript } from "@react-google-maps/api";
-=======
-import Cookies from "js-cookie";
->>>>>>> feature/maps
 import TicketTierType, {
   AddNewTicket,
 } from "../../../../components/components/eventInfo/ticketTierTypeComponent";

@@ -150,7 +150,6 @@ export function convertTo12HourFormat(time24: string) {
 }
 
 
-<<<<<<< HEAD
 export function convertTo24Hour(timeStr:string) {
   let [time, period] = timeStr.split(' ');
   let [hours, minutes] = time.split(':').map(Number);
@@ -169,5 +168,3 @@ export function convertTo24Hour(timeStr:string) {
 }
 
 
-=======
->>>>>>> feature/maps

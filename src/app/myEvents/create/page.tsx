@@ -15,11 +15,8 @@ import { AddTicket } from "../../../../components/components/events/AddTicket";
 import TicketTierType, {
   AddNewTicket,
 } from "../../../../components/components/eventInfo/ticketTierTypeComponent";
-<<<<<<< HEAD
-=======
 import Cookies from "js-cookie";
 import { comfortaa } from "@/app/page";
->>>>>>> feature/maps
 import {
   EventSchemaType,
   EventSchemaType as EventType,
@@ -191,14 +188,9 @@ export default function CreateEvent() {
   });
 
   useEffect(() => {
-<<<<<<< HEAD
-    const userInfo = JSON.parse(sessionStorage.getItem("user") as string);
-
-=======
     // const userInfo = JSON.parse(sessionStorage.getItem("user") as string);
     const userInfo = JSON.parse(Cookies.get("user") as string);
     // console.log(userInfo, "userInfo................");
->>>>>>> feature/maps
     setUserInfoState(userInfo);
   }, []);
 
