@@ -38,6 +38,7 @@ export default function SheetComponent({ fill }: { fill?: string }) {
               icon={icon}
               url={url}
               callback={callback}
+              key={text}
             />
             // </SheetClose>
           ))}

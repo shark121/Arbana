@@ -2,6 +2,7 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { createClient } from "redis";
 import dotenv from "dotenv";
+import Cookies from "js-cookie";
 
 export const vars = dotenv.config({ path: "../.env" });
 
@@ -18,22 +19,42 @@ export function setCookie(data: string, values: string, days: number) {
 // Example usage:
 // setCookie('username', 'john_doe', 7); // Sets a cookie named 'username' with value 'john_doe' that expires in 7 days
 
-export function getCookie(name: string): string | null {
-  const cookieString = document.cookie;
-  const cookies = cookieString.split("; ");
-  console.log(cookies);
+// export function getCookie(name: string): object | null {
+//   const cookieString = document.cookie;
+//   const cookies = cookieString.split("; ");
 
-  for (const cookie of cookies) {
-    const [cookieName, cookieValue] = cookie.split("=");
-    if (cookieName === name) {
-      // JSON.parse(cookieValue)
-      return decodeURIComponent(cookieValue);
-      // return cookieValue;
-    }
+//   for (const cookie of cookies) {
+//     const [cookieName, cookieValue] = cookie.split("=");
+//     if (cookieName === name) {
+//       try {
+//         return JSON.parse(decodeURIComponent(cookieValue));
+//       } catch (error) {
+//         console.error(`Failed to parse cookie "${name}":`, error);
+//         return null;
+//       }
+//     }
+//   }
+
+//   return null; 
+// }
+
+
+export function getCookie(name: string): Record<string, string> | null {
+  if(Cookies.get(name) !== null){
+  
+    try{
+      return JSON.parse(Cookies.get(name) as string); 
+    }catch(error){
+      console.error(`Failed to parse cookie "${name}":`, error);
+      return null;
   }
 
-  return null; // Cookie not found
 }
+
+return null
+
+}
+
 
 export function deleteCookie(name: string, path?: string, domain?: string) {
   if (getCookie(name)) {
@@ -129,6 +150,7 @@ export function convertTo12HourFormat(time24: string) {
 }
 
 
+<<<<<<< HEAD
 export function convertTo24Hour(timeStr:string) {
   let [time, period] = timeStr.split(' ');
   let [hours, minutes] = time.split(':').map(Number);
@@ -147,3 +169,5 @@ export function convertTo24Hour(timeStr:string) {
 }
 
 
+=======
+>>>>>>> feature/maps

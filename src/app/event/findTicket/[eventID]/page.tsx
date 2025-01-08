@@ -11,6 +11,7 @@ import Counter from "../../../../../components/components/counter";
 import BackSVG from "@/images/svg/back";
 import { Comfortaa } from "next/font/google";
 import { COLORSMAP } from "../../../../../data/colors";
+import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { convertDate } from "../../getEvent/[eventID]/page";
 import Image from "next/image";
@@ -53,7 +54,8 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
   useEffect(() => {
     const eventData = sessionStorage.getItem(eventID);
     eventData && setEventState(JSON.parse(eventData));
-    const userInformation = sessionStorage.getItem("user");
+    // const userInformation = sessionStorage.getItem("user");
+    const userInformation = Cookies.get("user");
     setUserInfoState(JSON.parse(userInformation as string));
 
     console.log(eventData);

@@ -6,8 +6,9 @@ import Loading from "@/app/loading";
 import TicketsListComponents from "../../../components/components/tickets/ticketsListComponent";
 import { comfortaa } from "../../app/page";
 import SheetComponent from "../../../components/components/sheet";
-import { getCookie } from "@/lib/utils";
-import { connectStorageEmulator } from "firebase/storage";
+// import { getCookie } from "@/lib/utils";
+// import { connectStorageEmulator } from "firebase/storage";
+import Cookies from "js-cookie";
 
 const fetchTickets = async ({ userID }: { userID: string }) => {
   const res = await fetch(`/api/data/read/bookings/${userID}`);
@@ -24,6 +25,8 @@ export default function GetTicket() {
 
   useEffect(() => {
     const userJSON = JSON.parse(sessionStorage.getItem("user") as string);
+    // const userJSON = JSON.parse(Cookies.get("user") as string);
+    console.log(userJSON.uid)
 
     setUserState(userJSON);
   }, []);

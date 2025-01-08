@@ -6,6 +6,7 @@ import { Comfortaa } from "next/font/google";
 import { EventSchemaType as EventType } from "@/lib/types";
 import Loading from "./loading";
 import { liteClient as algoliasearch } from "algoliasearch/lite";
+import Cookies from "js-cookie"
 import {
   InstantSearch,
   SearchBox,
@@ -23,16 +24,18 @@ import AlgoSearch from "../../components/components/algosearch";
 import Verified from "@/images/svg/verified";
 import SheetComponent from "../../components/components/sheet";
 import { useScroll } from "framer-motion";
+<<<<<<< HEAD
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
+=======
+import { get } from "https";
+>>>>>>> feature/maps
 
 const searchClient = algoliasearch(
   "W6M4AJCW2Z",
   "d8b19e7a00ef293456a27f59f480e776"
 );
-
-
 
 // function CustomSearchBox(props: UseSearchBoxProps) {
 //   let divs = [];
@@ -67,11 +70,11 @@ const searchClient = algoliasearch(
 //     creator: {
 //       name: "creator",
 //       email: "email",
-//       verified: true, 
-//       uid: "uid",     
+//       verified: true,
+//       uid: "uid",
 //     },
 //     province: "province",
-    
+
 //   };
 
 //   for (let i: number = 0; i < 100; i++) {
@@ -93,12 +96,10 @@ const searchClient = algoliasearch(
 // }
 
 function Hit({ hit }: { hit: any }) {
-  return <div className="w-screen h-full">
-    {EventComponent({ event: hit })}
-  </div>
-    
+  return (
+    <div className="w-full h-full">{EventComponent({ event: hit })}</div>
+  );
 }
-
 
 export const comfortaa = Comfortaa({
   weight: ["400", "700", "300", "500", "600"],
@@ -125,10 +126,11 @@ export default function Home() {
 
   
 
-  
+  // console.log(JSON.parse(Cookies.get("user") as string), "user cookie");
 
   return (
     <div className="flex flex-col relative items-center bg-white justify-center h-full w-full">
+<<<<<<< HEAD
       {/* <InstantSearch
         searchClient={searchClient}
         indexName="events_index"
@@ -146,22 +148,23 @@ export default function Home() {
         })
       }}
       >click</Button> */}
+=======
+      <InstantSearch searchClient={searchClient} indexName="events_index"
+>>>>>>> feature/maps
 
-      <InstantSearch
-        searchClient={searchClient}
-        indexName="events_index"
-        onStateChange={()=>console.log("state changed")}
-        insights
       >
         <AlgoSearch
-          setStatusChanged={setStatusChanged}
           statusState={statusChanged}
+          setStatusChanged={setStatusChanged}
         />
+<<<<<<< HEAD
+=======
+        <Hits hitComponent={Hit} className="w-full h-full" />
+>>>>>>> feature/maps
         <Configure hitsPerPage={40} />
         <RefinementList attribute="name" />
-        <Hits hitComponent={Hit} className="w-full h-full" />
       </InstantSearch>
-      {/* <CustomSearchBox /> */}
     </div>
   );
+
 }

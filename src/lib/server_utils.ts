@@ -1,5 +1,6 @@
 "use server";
 
+import { liteClient as algoliasearch } from "algoliasearch/lite";
 import { createClient } from "redis";
 
 const redisClient = createClient({
@@ -126,3 +127,8 @@ async () =>
   });
 
 export async function sendMessage() {}
+
+// export const searchClient = algoliasearch(
+//   process.env.ALGOLIA_APP_ID as string,
+//   process.env.ALGOLIA_SEARCH_KEY as string
+// );

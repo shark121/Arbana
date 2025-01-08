@@ -3,6 +3,7 @@ import Link from "next/link";
 import { auth } from "../../src/firebase.config";
 import { useEffect, useState } from "react";
 import { getCookie } from "../../src/lib/utils";
+import Cookies from "js-cookie";
 import parseJson from "parse-json";
 import { User as FirebaseUser } from "firebase/auth";
 import Image from "next/image";
@@ -26,7 +27,7 @@ export default function MenuComponent({
   const [userState, setUserState] = useState<FirebaseUser | null>();
 
   useEffect(() => {
-    const userString = sessionStorage.getItem("user");
+    const userString = Cookies.get("user") || "";
     const user: FirebaseUser | null = userString
       ? JSON.parse(userString)
       : null;
