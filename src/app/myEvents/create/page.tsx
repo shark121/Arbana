@@ -13,6 +13,7 @@ import { User } from "firebase/auth";
 import TicketTierType, {
   AddNewTicket,
 } from "../../../../components/components/eventInfo/ticketTierTypeComponent";
+import Cookies from "js-cookie";
 import { comfortaa } from "@/app/page";
 import {
   EventSchemaType,
@@ -175,8 +176,8 @@ export default function CreateEvent() {
   const [selectedPlace, setSelectedPlace] = useState({place_id: "", description: ""});
 
   useEffect(() => {
-    const userInfo = JSON.parse(sessionStorage.getItem("user") as string);
-
+    // const userInfo = JSON.parse(sessionStorage.getItem("user") as string);
+    const userInfo = JSON.parse(Cookies.get("user") as string);
     // console.log(userInfo, "userInfo................");
     setUserInfoState(userInfo);
   }, []);

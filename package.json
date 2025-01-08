@@ -34,6 +34,7 @@
     "framer-motion": "^11.11.10",
     "headlessui": "^0.0.0",
     "html5-qrcode": "^2.3.8",
+    "js-cookie": "^3.0.5",
     "jspdf": "^2.5.1",
     "lucide-react": "^0.372.0",
     "motion": "^10.17.0",
@@ -60,6 +61,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@types/js-cookie": "^3.0.6",
     "@types/node": "^20",
     "@types/qrcode": "^1.5.5",
     "@types/react": "^18.3.12",

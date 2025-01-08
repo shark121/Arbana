@@ -10,12 +10,16 @@ const provider = new GoogleAuthProvider();
 async function triggerPopup() {
   return signInWithPopup(auth, provider)
     .then((result) => {
+
       // This gives you a Google Access Token. You can use it to access the Google API.
+
       console.log("used pop up...........................");
       const credential = GoogleAuthProvider.credentialFromResult(result);
       const token = credential && credential.accessToken;
+
       // The signed-in user info.
       // const user = result.user;
+     
       const {
         uid,
         email,

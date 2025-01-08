@@ -15,6 +15,7 @@ import { X } from "lucide-react";
 import z from "zod";
 import { User } from "firebase/auth";
 import TicketPopOver from "../../../../components/components/ticketPopOver";
+import Cookies from "js-cookie";
 import TicketTierType, {
   AddNewTicket,
 } from "../../../../components/components/eventInfo/ticketTierTypeComponent";
@@ -175,7 +176,8 @@ export default function EventInfo(params: {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    const userInfo = JSON.parse(sessionStorage.getItem("user") as string);
+    // const userInfo = JSON.parse(sessionStorage.getItem("user") as string);
+     const userInfo = JSON.parse(Cookies.get("user") as string);
     setUserInfoState(userInfo);
   }, []);
 
