@@ -24,8 +24,8 @@ export default function GetTicket() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const userJSON = JSON.parse(sessionStorage.getItem("user") as string);
-    // const userJSON = JSON.parse(Cookies.get("user") as string);
+    // const userJSON = JSON.parse(sessionStorage.getItem("user") as string);
+    const userJSON = JSON.parse(Cookies.get("user") as string);
     console.log(userJSON.uid)
 
     setUserState(userJSON);

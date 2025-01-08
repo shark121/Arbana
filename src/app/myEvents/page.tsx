@@ -13,6 +13,7 @@ import ScanQRCode from "../scan/[[...data]]/page";
 import EventListComponent from "../../../components/components/events/eventComponent";
 import { comfortaa } from "../page";
 import Loading from "../loading";
+import Cookies from "js-cookie";
 
 export default function MyEvents() {
   const [userID, setUserID] = useState();
@@ -24,7 +25,8 @@ export default function MyEvents() {
   const userDocsRef = collection(database, "users");
 
   useEffect(() => {
-    const userJSON = JSON.parse(sessionStorage.getItem("user") as string);
+    // const userJSON = JSON.parse(sessionStorage.getItem("user") as string);
+    const userJSON = JSON.parse(Cookies.get("user") as string);
     setUserState(userJSON);
   }, []);
 
