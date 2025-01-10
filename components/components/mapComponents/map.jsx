@@ -86,7 +86,16 @@ function Map({latLng}) {
               options={{
                 polylineOptions: {
                   strokeColor: "red",
+                  
                 },
+                
+                // markerOptions: {
+
+                //   icon: {
+                //     url: "https://cdn-icons-png.flaticon.com/512/124/124021.png",
+                //     scaledSize: new google.maps.Size(30, 30),
+                //   },
+                // }
               }}
             />
           ) : (

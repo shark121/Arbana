@@ -11,7 +11,7 @@ async function verifyTicket(ticketID: string, eventID: string) {
     console.log(ticketBookings.data())
     
     if (!ticketBookings.exists()) {
-      console.log("deos not exist in DB")
+      console.log("does not exist in DB")
       return {scans : null}
     }
 
@@ -19,7 +19,7 @@ async function verifyTicket(ticketID: string, eventID: string) {
 
     console.log(Object.keys(bookingsData))
 
-    if(Object.keys(bookingsData).includes(ticketID )){
+    if(Object.keys(bookingsData).includes(ticketID)){
       console.log(bookingsData, "bookings data")
       const ticketData = bookingsData[ticketID]
       console.log(ticketData, "ticket Data.......................")

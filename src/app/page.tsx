@@ -6,7 +6,9 @@ import { Comfortaa } from "next/font/google";
 import { EventSchemaType as EventType } from "@/lib/types";
 import Loading from "./loading";
 import { liteClient as algoliasearch } from "algoliasearch/lite";
-import Cookies from "js-cookie"
+import ScannerComponent from "../../components/components/scannerComponent";
+
+import Cookies from "js-cookie";
 import {
   InstantSearch,
   SearchBox,
@@ -90,9 +92,7 @@ const searchClient = algoliasearch(
 // }
 
 function Hit({ hit }: { hit: any }) {
-  return (
-    <div className="w-full h-full">{EventComponent({ event: hit })}</div>
-  );
+  return <div className="w-full h-full">{EventComponent({ event: hit })}</div>;
 }
 
 export const comfortaa = Comfortaa({
@@ -115,27 +115,30 @@ export default function Home() {
   const [data, setData] = useState<EventType[]>();
   const [value, setValue] = useState<EventType | null>(null);
   const [statusChanged, setStatusChanged] = useState(false);
+  const [scannerState, setScannerState] = useState(false);
   const { scrollYProgress, scrollY } = useScroll();
   // const {toast} = useToast()
-
-  
 
   // console.log(JSON.parse(Cookies.get("user") as string), "user cookie");
 
   return (
-    <div className="flex flex-col relative items-center bg-white justify-center h-full w-full">
-      <InstantSearch searchClient={searchClient} indexName="events_index"
-
-      >
-        <AlgoSearch
-          statusState={statusChanged}
-          setStatusChanged={setStatusChanged}
+    <div className="flex flex-col relative items-center bg-white justify-center h-full w-full transition-all duration-300 ease-in-out">
+      {scannerState ? (
+        <ScannerComponent
+        setScannerState={setScannerState}
         />
-        <Hits hitComponent={Hit} className="w-full h-full" />
-        <Configure hitsPerPage={40} />
-        <RefinementList attribute="name" />
-      </InstantSearch>
+      ) : (
+        <InstantSearch searchClient={searchClient} indexName="events_index">
+          <AlgoSearch
+            statusState={statusChanged}
+            setStatusChanged={setStatusChanged}
+            setScannerState={setScannerState}
+          />
+          <Hits hitComponent={Hit} className="w-full h-full" />
+          <Configure hitsPerPage={40} />
+          <RefinementList attribute="name" />
+        </InstantSearch>
+      )}
     </div>
   );
-
 }

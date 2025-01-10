@@ -112,7 +112,9 @@ export default function EventItem(params: { params: { eventID: string } }) {
 
   useEffect(() => {
     if (eventState) {
-      createRGBString(eventState.imagePallete.Vibrant.rgb, setPalletState);
+      eventState.imagePallete.Vibrant &&
+        createRGBString(eventState.imagePallete.Vibrant?.rgb, setPalletState);
+
       setLoading(false);
     }
 
@@ -135,17 +137,26 @@ export default function EventItem(params: { params: { eventID: string } }) {
   return (
     eventState && (
       <div className="bg-gray-100 min-h-screen flex flex-col justify-center items-center p-4">
-        <div className="w-full h-[3rem] flex items-center justify-between">
+        <div className="w-full h-[3rem] hidden sm:flex items-center justify-between">
           <div
-            className="h-[3rem] aspect-square flex items-center justify-center"
+            className="h-[3rem] aspect-square flex items-center justify-center "
             onClick={() => router.back()}
           >
             <ChevronLeft color={palletState} height={"30px"} width={"30px"} />
           </div>
           <SheetComponent fill={palletState} />
         </div>
-        <div className="bg-white rounded-lg shadow-md w-full max-w-md md:max-w-lg lg:max-w-xl">
+        <div className="bg-white rounded-lg shadow-md w-full max-w-md md:max-w-lg lg:max-w-xl relative">
           {/* Image Section */}
+          <div className="w-full h-[3rem] sm:hidden flex items-center justify-between absolute z-50 px-4">
+            <button
+              className="h-[2rem] aspect-square flex items-center justify-center bg-white"
+              onClick={() => router.back()}
+            >
+              <ChevronLeft color={palletState} height={"30px"} width={"30px"} />
+            </button>
+            <SheetComponent fill={palletState} />
+          </div>
           <div className="relative w-full aspect-square">
             <img
               src={eventState.imageUrl}
@@ -186,8 +197,9 @@ export default function EventItem(params: { params: { eventID: string } }) {
             </div>
 
             {/* Location */}
-            <div className="mt-4 flex items-center space-x-2 cursor-pointer"
-            onClick={() => router.push(`/map/${eventID}/`)}
+            <div
+              className="mt-4 flex items-center space-x-2 cursor-pointer"
+              onClick={() => router.push(`/map/${eventID}/`)}
             >
               <div className="bg-gray-100 w-10 h-10 rounded-full flex items-center justify-center">
                 <svg

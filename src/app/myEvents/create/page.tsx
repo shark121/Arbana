@@ -361,6 +361,7 @@ export default function CreateEvent() {
       imagePallete,
       location: selectedPlace.description,
       locationCoordinates,
+      locationId: selectedPlace.place_id,
     };
 
     if (!eventWithExtraParams.userID) {

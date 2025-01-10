@@ -203,7 +203,7 @@ export default function EventInfo(params: {
       place_id: eventState?.location as string,
       description: eventState?.location as string,
     });
-
+  
     // form.setValue("name", eventState?.name as string);
     // form.setValue("startDate", eventState?.startDate as string);
     // form.setValue("endDate", eventState?.endDate as string);
@@ -236,14 +236,16 @@ export default function EventInfo(params: {
 
     console.log(imageFileState, "imageFileState");
 
-    let palette: { Vibrant: { rgb: [number, number, number] } } = {
-      Vibrant: { rgb: [255, 0, 0] },
-    };
+    let palette: { Vibrant: { rgb: [number, number, number] } } = eventState?.imagePallete
+
+    const locationId  = selectedPlace.place_id ?? eventState?.locationId as string;
+  
 
     if (imageFileState) {
       palette = await generatePallete(imageFileState);
       console.log(palette, "palette");
     }
+
 
     event["time"] = convertTo12HourFormat(event.time);
 
@@ -266,8 +268,14 @@ export default function EventInfo(params: {
       startDate: startDateState?.toISOString() || new Date().toISOString(),
       endDate: endDateState?.toISOString()|| new Date().toISOString(),
       location: selectedPlace.description,
-      locationCoordinates 
+      locationCoordinates,
+      locationId
+       
     };
+    
+    if (imageFileState) {
+      eventWithExtraParams["imageFile"] = imageFileState;
+    }
 
     console.log(eventWithExtraParams, "eventWithExtraParams");
 

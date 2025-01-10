@@ -7,6 +7,7 @@ import {
 import Verified from "@/images/svg/verified";
 import SheetComponent from "../../components/components/sheet";
 import { motion as m, useScroll, useMotionValue } from "framer-motion";
+import {QrCodeIcon} from "lucide-react"
 
 import { useEffect } from "react";
 
@@ -89,10 +90,12 @@ import { comfortaa } from "@/app/page";
 export default function AlgoSearch({
   statusState,
   setStatusChanged,
+  setScannerState,
   ...props
 }: {
   statusState: boolean;
   setStatusChanged: React.Dispatch<React.SetStateAction<boolean>>;
+  setScannerState: React.Dispatch<React.SetStateAction<boolean>>;
 } & UseSearchBoxProps) {
   console.log(props);
   const { query, refine, clear } = useSearchBox(props);
@@ -180,9 +183,9 @@ export default function AlgoSearch({
   
   return (
     <div
-      className="flex items-center z-10 h-[4rem] justify-between sticky top-2 w-full"
+      className="flex items-center z-10 h-[4rem] justify-between sticky top-2 w-full px-4"
     >
-      <div></div>
+      <button onClick={()=>setScannerState((state)=>!state)}><QrCodeIcon color="red" size={30}/></button>
       <div className="relative w-[250px] sm:w-[500px] h-[50px] sm:h-[60px] py-1 px-3 rounded-full bg-gray-100 flex items-center justify-center  ">
         <form
           action=""
@@ -226,6 +229,7 @@ export default function AlgoSearch({
               setQuery(event.currentTarget.value);
             }}
             autoFocus
+            onClick={()=>setScannerState(false)}
           />
           <button type="submit" className="absolute right-3">
             <Verified height="30px" width="30px" bgfill="#ED191D" />

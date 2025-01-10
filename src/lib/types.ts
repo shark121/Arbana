@@ -192,6 +192,7 @@ export const EventSchema = z
       })
       .optional()
       .describe("The coordinates of the ticket"),
+    locationId : z.string(),
   })
   .strict();
 //   .refine((data) => new Date(data.startDate) < new Date(data.endDate), {
