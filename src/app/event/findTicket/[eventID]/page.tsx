@@ -56,7 +56,9 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
     eventData && setEventState(JSON.parse(eventData));
     // const userInformation = sessionStorage.getItem("user");
     const userInformation = Cookies.get("user");
-    setUserInfoState(JSON.parse(userInformation as string));
+
+    if (userInformation)  setUserInfoState(JSON.parse(userInformation as string));
+
 
     console.log(eventData);
   }, []);
@@ -151,7 +153,7 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
       scans: defaultValueState,
       quantity: defaultValueState,
       createdAt: new Date().toISOString(),
-      uid: userInfoState?.uid || generateRandomId(6),
+      uid: userInfoState?.uid || "anon_" + generateRandomId(6),
       ticketID: generateRandomId(10),
     };
 
