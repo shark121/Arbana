@@ -20,17 +20,12 @@ import { StringToBoolean } from "class-variance-authority/types";
 import { useRouter } from "next/navigation";
 import { set } from "date-fns";
 // import { AppRouterInstance } from "next/navigation";
-;
-
-
-
-
 export default function ScannerComponent({
-    setScannerState
-}:{
-    setScannerState: React.Dispatch<React.SetStateAction<boolean>>
+  setScannerState,
+}: {
+  setScannerState: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-//   const eventID = params.params.data[0];
+  //   const eventID = params.params.data[0];
   const [file, setFile] = useState<File | null>(null);
   const [errorState, setErrorState] = useState<any>();
   const [started, setStarted] = useState<boolean>(false);
@@ -47,28 +42,28 @@ export default function ScannerComponent({
   function redirectToRelativeUrl(fullUrl: string) {
     console.log(fullUrl);
 
- if (!fullUrl) {
-    console.error("url is empty");
-    window.alert("url is empty");
-     
-    setScannerState(false);
-    return
+    if (!fullUrl) {
+      console.error("url is empty");
+      window.alert("url is empty");
+
+      setScannerState(false);
+      return;
+    }
+
+    const regex = /^https?:\/\/(?:localhost:3000|arbana\.vercel\.app)/;
+
+    if (regex.test(fullUrl)) {
+      const relativePath = fullUrl.replace(regex, "");
+
+      console.log("Redirecting to:", relativePath);
+
+      window.location.href = relativePath;
+    } else {
+      console.error("URL does not match the expected hosts or protocol.");
+      window.alert("URL does not match the expected hosts or protocol.");
+      setScannerState(false);
+    }
   }
-
-  const regex = /^https?:\/\/(?:localhost:3000|arbana\.vercel\.app)/;
-
-  if (regex.test(fullUrl)) {
-    const relativePath = fullUrl.replace(regex, "");
-
-    console.log("Redirecting to:", relativePath);
-
-    window.location.href = relativePath;
-  } else {
-    console.error("URL does not match the expected hosts or protocol.");
-    window.alert("URL does not match the expected hosts or protocol.");
-    setScannerState(false);
-  }
-}
 
   async function scannerInit() {
     setScanning(true);
@@ -81,36 +76,41 @@ export default function ScannerComponent({
         setErrorState("");
         setProcessing(true);
         
-        if(!res){
-            window.alert("There was an error scanning the QR code");
-            setScannerState(false);
-            return
+        if (!res) {
+          window.alert("There was an error scanning the QR code");
+          setScannerState(false);
+          return;
         }
 
         redirectToRelativeUrl(res as string);
-
+        
         setScanning(false);
+        
+        setProcessing(false);
 
-        setProcessing(true);
+        setScannerState(false);
       })
       .catch((error) => {
         // setErrorState(String(error) + count);
-         window.alert("Error: " + error);
-         console.log(error)
+        window.alert("Error: " + error);
+        console.log(error);
         setScanning(false);
       });
   }
 
   if (processingState) {
     return <Loading />;
-  } 
+  }
 
   return (
     <div
       className={` ${comfortaa.className}  w-screen h-screen flex flex-col items-center`}
     >
       <div className="flex justify-between h-[4rem] w-full p-4 z-10 bg-none">
-        <button className="h-full aspect-square" onClick={() => setScannerState(false)}>
+        <button
+          className="h-full aspect-square"
+          onClick={() => setScannerState(false)}
+        >
           <ChevronLeft color="red" />
         </button>
         {/* <div className="text-[2rem]">Scanner</div> */}
@@ -132,19 +132,29 @@ export default function ScannerComponent({
         {idle ? (
           <QrCodeIcon height={"40%"} width={"40%"} strokeWidth="1px" />
         ) : null}
-        {processingState ? <Loading  /> : null}
-        {queryingState ? <Loading /> : null}
+        {processingState ? (
+          <div className="absolute top-0 left-0 bottom-0 right-0">
+            <Loading />
+          </div>
+        ) : null}
+        {queryingState ? (
+          <div className="absolute top-0 left-0 bottom-0 right-0">
+            <Loading />
+          </div>
+        ) : null}
       </div>
 
       <div></div>
-     {!processingState && <Button
-        className={`h-[2.5rem] min-w-[7rem] rounded-[0.5rem] ${
-          processingState ? "bg-red-400" : "bg-primary"
-        } flex items-center justify-center`}
-        onClick={scannerInit}
-      >
-        Scan
-      </Button>}
+      {!processingState && (
+        <Button
+          className={`h-[2.5rem] min-w-[7rem] rounded-[0.5rem] ${
+            processingState ? "bg-red-400" : "bg-primary"
+          } flex items-center justify-center`}
+          onClick={scannerInit}
+        >
+          Scan
+        </Button>
+      )}
       {/* <div className=" h-[2px] w-[200px]">{errorState}</div> */}
       {/* <div className=" h-[2px] w-[200px] mt-4">{scannedID}</div> */}
       {/* <div className=" h-[2px] w-[200px]">{ticketData && ticketData.scans}</div> */}
