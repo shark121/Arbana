@@ -136,11 +136,11 @@ export default function EventItem(params: { params: { eventID: string } }) {
   // background: linear-gradient(to right, #ff7e5f, #feb47b);
   return (
     eventState && (
-      <div className="bg-gray-100 min-h-screen flex flex-col justify-center items-center p-4">
+      <div className="bg-gray-100 w-full min-h-screen flex flex-col justify-center items-center p-4">
         <div className="w-full h-[3rem] hidden sm:flex items-center justify-between">
           <div
             className="h-[3rem] aspect-square flex items-center justify-center "
-            onClick={() => router.back()}
+            onClick={() => window.location.href = "/"}
           >
             <ChevronLeft color={palletState} height={"30px"} width={"30px"} />
           </div>
@@ -150,12 +150,14 @@ export default function EventItem(params: { params: { eventID: string } }) {
           {/* Image Section */}
           <div className="w-full h-[3rem] sm:hidden flex items-center justify-between absolute z-50 px-4">
             <button
-              className="h-[2rem] aspect-square flex items-center justify-center bg-white"
+              className="h-[2rem] aspect-square flex items-center justify-center bg-white rounded-lg bg-opacity-50 backdrop-filter backdrop-blur-lg"
               onClick={() => router.back()}
             >
               <ChevronLeft color={palletState} height={"30px"} width={"30px"} />
             </button>
-            <SheetComponent fill={palletState} />
+            <div className="h-[2rem] aspect-square flex items-center justify-center bg-white rounded-lg bg-opacity-50 backdrop-filter backdrop-blur-lg">
+              <SheetComponent fill={palletState} />
+            </div>
           </div>
           <div className="relative w-full aspect-square">
             <img
@@ -198,7 +200,7 @@ export default function EventItem(params: { params: { eventID: string } }) {
 
             {/* Location */}
             <div
-              className="mt-4 flex items-center space-x-2 cursor-pointer"
+              className="mt-4 flex w-full items-center space-x-2 cursor-pointer"
               onClick={() => router.push(`/map/${eventID}/`)}
             >
               <div className="bg-gray-100 w-10 h-10 rounded-full flex items-center justify-center">
@@ -222,8 +224,8 @@ export default function EventItem(params: { params: { eventID: string } }) {
                   />
                 </svg>
               </div>
-              <div>
-                <p className="text-sm md:text-base font-semibold">
+              <div className="w-[70%]">
+                <p className=" text-sm md:text-base font-semibold">
                   {eventState.location}
                   {/* Gala Night Convention */}
                 </p>

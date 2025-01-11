@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { comfortaa } from "@/app/page";
-import { EventSchemaType  as EventType} from "@/lib/types";
+import { EventSchemaType as EventType } from "@/lib/types";
 import { Button } from "../../../../components/ui/button";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Edit, Download, ChevronLeft } from "lucide-react";
@@ -9,30 +9,28 @@ import { COLORSMAP } from "../../../../../data/colors";
 import jsPDF from "jspdf";
 import QRcode from "qrcode";
 import Image from "next/image";
+import {ChevronRight} from "lucide-react"
 
 const domain = process.env.NEXT_PUBLIC_DOMAIN;
-
 
 export default function EventOptions({
   params,
 }: {
-  params: { data: string[] };
+  params: { data: string };
 }) {
-  const eventID = params.data[0];
+  const eventID = params.data;
   const [eventState, setEventState] = useState<EventType>();
   const [isReady, setIsReady] = useState(false);
   const [qrCode, setQrCode] = useState<string>();
   const router = useRouter();
 
-
-
   const pdf = new jsPDF({ format: "c5" });
 
   function generatePDF() {
-    const ticketState = eventState
+    const ticketState = eventState;
     qrCode && pdf.addImage(qrCode, "PNG", 10, 60, 50, 50);
     pdf.setFontSize(20);
-   eventState && pdf.text(eventState.name, 10, 10);
+    eventState && pdf.text(eventState.name, 10, 10);
     // pdf.setFontSize(7);
 
     // pdf.setFontSize(7);
@@ -66,9 +64,7 @@ export default function EventOptions({
   return (
     <div className={`${comfortaa.className} min-w-screen min-h-screen p-2`}>
       <div className="h-[3rem] w-full flex justify-between items-center mb-4">
-        <button 
-        className="w-[40px]"
-        onClick={() => router.back()}>
+        <button className="w-[40px]" onClick={() => router.back()}>
           <ChevronLeft size={20} color={"red"} />
         </button>
         {eventState && <div className="text-[1rem] text-wrap">{}</div>}
@@ -142,14 +138,15 @@ export default function EventOptions({
               ))}
             </div>
           </div>
-
-          {/* <div className={borderStyling}>
-           <div className={labelStyling}>Image</div>
-          <div>{eventState.imageUrl}</div>
-          </div> */}
+          <div
+            className="w-full h-[2.5rem] hover:bg-gray-200  border-b-[1px] border-gray-100 text-gray-700 text-[0.85rem] flex items-center cursor-pointer justify-between"
+            onClick={() => window.location.href = `/myEvents/eventOptions/${eventID}/team`}
+          >
+            <div>Team</div>
+            <ChevronRight size={20} color={"red"} />
+          </div>
           {qrCode && (
             <div className="w-full h-[10.1rem] flex items-center justify-center">
-        
               <div className="relative h-[10rem] w-[10rem] flex items-center justify-center">
                 <Image
                   src={qrCode}
@@ -163,7 +160,6 @@ export default function EventOptions({
                   onClick={() => generatePDF()}
                   className="-right-5 absolute"
                 />
-        
               </div>
             </div>
           )}
