@@ -171,6 +171,8 @@ export default function EventInfo(params: {
     startDate: true,
     endDate: true,
     location: true,
+    locationCoordinates: true,
+    locationId: true,
   });
 
   const form = useForm<z.infer<typeof FormValidEventSchema>>({
