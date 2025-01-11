@@ -113,8 +113,8 @@ export default function EventItem(params: { params: { eventID: string } }) {
 
   useEffect(() => {
     if (eventState) {
-      eventState.imagePallete.Vibrant &&
-        createRGBString(eventState.imagePallete.Vibrant?.rgb, setPalletState);
+      if(eventState.imagePallete?.Vibrant)
+        createRGBString(eventState.imagePallete.Vibrant.rgb, setPalletState);
 
       setLoading(false);
     }
@@ -292,4 +292,12 @@ export default function EventItem(params: { params: { eventID: string } }) {
       </div>
     )
   );
+}
+
+
+
+export async function getServerSideProps(context: any) {
+  return {
+    props: { params: context.params },
+  };
 }
