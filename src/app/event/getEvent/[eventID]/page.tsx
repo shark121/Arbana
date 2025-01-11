@@ -44,6 +44,8 @@ async function fetchEventData(
       // }
 
       sessionStorage.setItem(eventID, JSON.stringify(data.data));
+
+      setEventState(data.data);
     })
     .catch((error) => {
       console.error(error);
@@ -123,9 +125,9 @@ export default function EventItem(params: { params: { eventID: string } }) {
         createRGBString(eventState.imagePallete.Vibrant.rgb, setPalletState);
       }
 
+      setLoading(false);
+
     }
-    
-    setLoading(false);
     
 
     if (eventState) {
