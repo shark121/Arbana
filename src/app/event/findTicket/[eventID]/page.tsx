@@ -64,10 +64,10 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
   }, []);
 
   useEffect(() => {
-    setValueState({ name: eventState?.availableSeats[0].tier ?? "" });
-    setCurrentTier(eventState?.availableSeats[0].tier ?? "");
-    setCurrentPrice(eventState?.availableSeats[0].price ?? 1);
-    setIsLoading(false);
+    eventState && setValueState({ name: eventState?.availableSeats[0].tier ?? "" });
+    eventState && setCurrentTier(eventState?.availableSeats[0].tier ?? "");
+    eventState && (eventState?.availableSeats[0].price ?? 1);
+    eventState && setIsLoading(false);
   }, [eventState]);
 
   const convertedStartDate = Object.values(convertDate(eventState?.startDate))
