@@ -35,10 +35,10 @@ async function fetchEventData(
     body: eventID,
   })
     .then(async (response) => await response.json())
-    .then((data : {data: EventSchemaType}) => {
+    .then((data: { data: EventSchemaType }) => {
       console.log(data);
       // setEventState(data.data);
-      
+
       // for (let item of data.data) {
       //   sessionStorage.setItem(String(item.eventId), JSON.stringify(item));
       // }
@@ -118,11 +118,15 @@ export default function EventItem(params: { params: { eventID: string } }) {
 
   useEffect(() => {
     if (eventState) {
-      if(eventState.imagePallete?.Vibrant)
-        createRGBString(eventState.imagePallete.Vibrant.rgb, setPalletState);
 
-      setLoading(false);
+      if (eventState.imagePallete?.Vibrant) {
+        createRGBString(eventState.imagePallete.Vibrant.rgb, setPalletState);
+      }
+
     }
+    
+    setLoading(false);
+    
 
     if (eventState) {
       if (eventState.description.length > 100) {
@@ -130,10 +134,6 @@ export default function EventItem(params: { params: { eventID: string } }) {
       }
     }
   }, [eventState]);
-
-  // function handleOnClick() {
-  //   window.location.href = `/event/findTicket/${eventID}/`;
-  // }
 
   if (loading) {
     return <Loading />;
@@ -147,7 +147,7 @@ export default function EventItem(params: { params: { eventID: string } }) {
         <div className="w-full h-[3rem] hidden sm:flex items-center justify-between">
           <div
             className="h-[3rem] aspect-square flex items-center justify-center "
-            onClick={() => (router.push("/"))}
+            onClick={() => router.push("/")}
           >
             <ChevronLeft color={palletState} height={"30px"} width={"30px"} />
           </div>
@@ -283,9 +283,7 @@ export default function EventItem(params: { params: { eventID: string } }) {
 
           {/* Buy Ticket Button */}
           <div className="p-4 md:p-6">
-            <Link href={`/event/findTicket/${eventID}/`}
-            prefetch={false}
-            >
+            <Link href={`/event/findTicket/${eventID}/`} prefetch={false}>
               <Button
                 className="w-full bg-primary text-white py-3 font-semibold text-sm md:text-base flex items-center justify-center"
                 // onClick={handleOnClick}
@@ -299,4 +297,3 @@ export default function EventItem(params: { params: { eventID: string } }) {
     )
   );
 }
-
