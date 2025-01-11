@@ -7,9 +7,10 @@ import {
   namedQuery,
   Query,
 } from "firebase/firestore";
-import { EventType } from "../../../../../../../components/ui/eventComponent";
+// import { EventType } from "../../../../../../../components/ui/eventComponent";
 import { getCache, setCache, existsInCache } from "@/lib/server_utils";
 import { httpsCallable } from "firebase/functions";
+import { EventSchemaType as EventType } from "@/lib/types";
 
 // import {} from "firebase/firestore/bundle";
 
@@ -42,7 +43,7 @@ async function fetchData(eventId?: string) {
       return event;
     }
 
-    return data;
+    // return data;
   }
 
   //   const response = await getDocs(collection(database, "events"));
@@ -55,7 +56,8 @@ async function fetchData(eventId?: string) {
 
   await setCache("events", data);
 
-  return data;
+  const event = data.find((event) => event.eventId === Number(eventId));
+  return event;
 }
 
 export async function POST(req: NextRequest) {

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { EventSchemaType as EventType } from "@/lib/types";
+import { EventSchemaType, EventSchemaType as EventType } from "@/lib/types";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import BackSVG from "@/images/svg/back";
@@ -34,10 +34,15 @@ async function fetchEventData(
     method: "POST",
     body: eventID,
   })
-    .then((response) => response.json())
-    .then((data) => {
+    .then(async (response) => await response.json())
+    .then((data : {data: EventSchemaType}) => {
       console.log(data);
-      setEventState(data.data);
+      // setEventState(data.data);
+      
+      // for (let item of data.data) {
+      //   sessionStorage.setItem(String(item.eventId), JSON.stringify(item));
+      // }
+
       sessionStorage.setItem(eventID, JSON.stringify(data.data));
     })
     .catch((error) => {
@@ -135,13 +140,14 @@ export default function EventItem(params: { params: { eventID: string } }) {
   }
 
   // background: linear-gradient(to right, #ff7e5f, #feb47b);
+
   return (
     eventState && (
       <div className="bg-gray-100 w-full min-h-screen flex flex-col justify-center items-center p-4">
         <div className="w-full h-[3rem] hidden sm:flex items-center justify-between">
           <div
             className="h-[3rem] aspect-square flex items-center justify-center "
-            onClick={() => (window.location.href = "/")}
+            onClick={() => (router.push("/"))}
           >
             <ChevronLeft color={palletState} height={"30px"} width={"30px"} />
           </div>
@@ -294,10 +300,3 @@ export default function EventItem(params: { params: { eventID: string } }) {
   );
 }
 
-
-
-export async function getServerSideProps(context: any) {
-  return {
-    props: { params: context.params },
-  };
-}
