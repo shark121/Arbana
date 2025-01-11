@@ -206,3 +206,19 @@ export const EventSchema = z
 //   });
 
 export type AvailableSeatsType = z.infer<typeof AvailableSeatsSchema>;
+
+
+
+export const PermissionsTypeSchema = z.object({
+  canEdit: z.boolean(),
+  canDelete: z.boolean().optional(),
+  canView: z.boolean().optional(),
+  canScan: z.boolean(),
+  canAddToTeam: z.boolean().optional(),
+  canViewStats: z.boolean(),
+});
+
+
+export type PermissionsSchemaType = z.infer<typeof PermissionsTypeSchema>;
+
+export type TeamDataType =  Record<string, { info: CreatorSchemaType; permissions: PermissionsSchemaType }>;

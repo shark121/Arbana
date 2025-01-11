@@ -373,15 +373,15 @@ export default function CreateEvent() {
 
     setIsLoading(true);
 
-    // await sendCreateRequest({ event: eventWithExtraParams })
-    //   .catch((err) => console.log(err, "err"))
-    //   .then((res: any) => {
-    //     if (res) {
-    //       console.log(res, "res");
-    //       window.location.href = "/myEvents";
-    //     }
-    //   })
-    //   .finally(() => setIsLoading(false));
+    await sendCreateRequest({ event: eventWithExtraParams })
+      .catch((err) => console.log(err, "err"))
+      .then((res: any) => {
+        if (res) {
+          console.log(res, "res");
+          window.location.href = "/myEvents";
+        }
+      })
+      .finally(() => setIsLoading(false));
   };
 
   if (isLoading || !mapIsLoaded) return <Loading />;

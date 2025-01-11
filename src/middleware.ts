@@ -8,12 +8,12 @@ export function middleware(request: NextRequest, event: NextFetchEvent) {
   const protocol = request.headers.get("x-forwarded-proto") || "http";
   const domain = `${protocol}://${host}`;
 
-  console.log(
-    request.headers.get("host"),
-    request.headers.get("referer"),
-    request.headers.get("origin"),
-    ".................................."
-  );
+  // console.log(
+  //   request.headers.get("host"),
+  //   request.headers.get("referer"),
+  //   request.headers.get("origin"),
+  //   ".................................."
+  // );
 
   if (
     request.nextUrl.pathname.startsWith("/myEvents") ||

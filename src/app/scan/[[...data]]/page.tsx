@@ -12,6 +12,7 @@ import Loading from "@/app/loading";
 import { useToast } from "@/hooks/use-toast";
 import { StringToBoolean } from "class-variance-authority/types";
 import { useRouter } from "next/navigation";
+import { EventSchemaType } from "@/lib/types";
 
 function displayResult({ scans }: { scans: number | null }) {
 
@@ -32,6 +33,7 @@ function displayResult({ scans }: { scans: number | null }) {
 export default function ScanQRCode(params: { params: { data: string[] } }) {
   const eventID = params.params.data[0];
   const [file, setFile] = useState<File | null>(null);
+  const [eventData, setEventData] = useState<EventSchemaType>();
   const [errorState, setErrorState] = useState<any>();
   const [started, setStarted] = useState<boolean>(false);
   const [scanning, setScanning] = useState<boolean>(false);
@@ -43,6 +45,19 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
   const router = useRouter();
   const { toast } = useToast();
 
+
+  useEffect(() => {
+     const eventData = sessionStorage.getItem("eventID");
+
+     if(!eventData){
+      //  router.push("/app/events")
+       console.log("no event data")
+     }else{
+        setEventData(JSON.parse(eventData));
+     }
+     
+  }, []);
+
   async function checkTicket({
     scannedID,
     eventID,
@@ -50,6 +65,7 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
     setQuerying,
     setTicketData,
     setIdle,
+    creatorID
   }: {
     scannedID: string;
     eventID: string;
@@ -57,6 +73,7 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
     setQuerying: React.Dispatch<React.SetStateAction<boolean>>;
     setTicketData: React.Dispatch<React.SetStateAction<any>>;
     setIdle: React.Dispatch<React.SetStateAction<boolean>>;
+    creatorID: string;
   }) {
     setProcessing(false);
 
@@ -66,7 +83,7 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
 
     return fetch("/api/data/read/scan", {
       method: "POST",
-      body: JSON.stringify({ ticketID: scannedID, eventID: eventID }),
+      body: JSON.stringify({ ticketID: scannedID, eventID, creatorID }),
     })
       .then((res) => {
         setQuerying(false);
@@ -117,13 +134,14 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
 
         setProcessing(true);
 
-        checkTicket({
+      eventData &&  checkTicket({
           scannedID: res as string,
           eventID: eventID,
           setProcessing: setProcessing,
           setQuerying: setQuerying,
           setTicketData: setTicketData,
           setIdle: setIdle,
+          creatorID: eventData?.creator.uid
         });
       })
       .catch((error) => {

@@ -22,6 +22,7 @@ import {
 import { setCache, getCache, existsInCache } from "@/lib/server_utils";
 
 const eventCollectionRef = collection(database, "events");
+const teamsCollectionRef = collection(database, "teams");
 
 // async function addEvent(
 //   buffer: Buffer,
@@ -112,51 +113,67 @@ async function addEvent(
   const storageRef = ref(storage, `${nameIDTrim}.${fileType}`);
 
   try {
-  const uploadTaskPromise = new Promise((resolve, reject) => {
-    const uploadTask = uploadBytesResumable(storageRef, buffer);
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log(`Upload is ${progress}% done`);
+    const uploadTaskPromise = new Promise((resolve, reject) => {
+      const uploadTask = uploadBytesResumable(storageRef, buffer);
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log(`Upload is ${progress}% done`);
+        },
+        (error) => {
+          console.error("Upload error: ", error);
+          reject(error);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then(resolve).catch(reject);
+        }
+      );
+    });
+
+    const downloadURL = await uploadTaskPromise;
+
+    const eventUploadData = { ...restToJSON, imageUrl: downloadURL };
+
+    const eventDocRef = doc(eventCollectionRef, eventIdtoString);
+    const userDocRef = doc(collection(database, "users"), userID);
+    const teamsDocRef = doc(teamsCollectionRef, "teams", eventIdtoString);
+
+    const ownerPermissions = {
+      [userID]: {
+        info: restToJSON.creator,
+        permissions: {
+          canEdit: true,
+          canDelete: true,
+          canView: true,
+          canScan: true,
+          canAddToTeam: true,
+          canViewStats: true,
+        },
       },
-      (error) => {
-        console.error("Upload error: ", error);
-        reject(error);
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then(resolve).catch(reject);
-      }
-    );
-  });
+    };
 
-  const downloadURL = await uploadTaskPromise;
+    await runTransaction(database, async (transaction) => {
+      transaction.set(eventDocRef, eventUploadData);
+      transaction.set(
+        userDocRef,
+        { events: arrayUnion(eventUploadData) },
+        { merge: true }
+      );
 
-  const eventUploadData = { ...restToJSON, imageUrl: downloadURL };
+      transaction.set(teamsDocRef, ownerPermissions);
+    });
 
-  const eventDocRef = doc(eventCollectionRef, eventIdtoString);
-  const userDocRef = doc(collection(database, "users"), userID);
+    const cachedEvents = JSON.parse(await getCache(userID + "_events")) || [];
+    cachedEvents.push(eventUploadData);
+    await setCache(userID + "_events", cachedEvents);
 
-  await runTransaction(database, async (transaction) => {
-    transaction.set(eventDocRef, eventUploadData);
-    transaction.set(
-      userDocRef,
-      { events: arrayUnion(eventUploadData) },
-      { merge: true }
-    );
-  });
-
-  const cachedEvents = JSON.parse(await getCache(userID + "_events")) || [];
-  cachedEvents.push(eventUploadData);
-  await setCache(userID + "_events", cachedEvents);
-
-  return cachedEvents;
-
-} catch (error) {
-  console.error("Error in addEvent: ", error);
-  throw error;
-}
+    return cachedEvents;
+  } catch (error) {
+    console.error("Error in addEvent: ", error);
+    throw error;
+  }
 }
 
 export async function POST(
@@ -211,5 +228,4 @@ export async function POST(
       console.log(eventData, ".......");
       return NextResponse.json({ response: "success", eventData, e: "e" });
     });
-
 }

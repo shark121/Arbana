@@ -44,7 +44,7 @@ export default function EventComponent({ event }: { event: EventType }) {
   return (
     <m.button
       onClick={handleOnClick}
-      className="min-h-[5rem]  w-[95%] text-ellipsis text-[0.9rem] text-gray-700 border-b-[1px] flex items-start bg-white my-1 p-4   justify-start"
+      className="  w-[95%] text-ellipsis text-[0.9rem] text-gray-700 border-b-[1px] flex items-start bg-white my-1 p-4   justify-start"
     >
       <div className="relative min-h-[5rem] w-[5rem] mr-2 rounded-xl flex items-center justify-center ">
         <Image
@@ -56,13 +56,13 @@ export default function EventComponent({ event }: { event: EventType }) {
       </div>
       <div className="text-left p-0 flex flex-col gap-2 w-[65%] ">
         <div className="text-lg">
-          {event.name.length > 30
-            ? event.name.slice(0, 35) + "..."
+          {event.name.length > 25
+            ? event.name.slice(0, 25) + "..."
             : event.name}
         </div>
         <div className="flex flex-col gap-1 text-[0.7rem]">
           <div>{startDateToString.split(" ").join(" • ")}</div>
-          <div className="flex h-[1rem] ">
+          <div className="flex ">
             <div className="h-[1rem] w-[1rem] hidden  items-center justify-center">
               {/* <LocationSVG fill="#371fef" height="13px" width="13px" />
                */}

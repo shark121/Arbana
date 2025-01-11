@@ -57,8 +57,8 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
     // const userInformation = sessionStorage.getItem("user");
     const userInformation = Cookies.get("user");
 
-    if (userInformation)  setUserInfoState(JSON.parse(userInformation as string));
-
+    if (userInformation)
+      setUserInfoState(JSON.parse(userInformation as string));
 
     console.log(eventData);
   }, []);
@@ -84,60 +84,62 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
   const TicketTypes = eventState?.availableSeats.map((type, i) => {
     const isCurrentTier = type.tier === currentTier;
     return (
-      <div
-        key={i}
-        onClick={() => {
-          setCurrentTier(type.tier);
-          setCurrentPrice(type.price);
-        }}
-        className={`relative flex h-[9rem] flex-col transition-all duration-300 ease-in-out delay-100 px-4 items-start  gap-4 w-[90%]  rounded-xl shadow-sm ${
-          isCurrentTier ? "scale-105" : ""
-        } `}
-      >
+      eventState && (
         <div
-          className={`h-[3rem] w-full top items-center justify-start flex rounded-t-2xl`}
+          key={i}
+          onClick={() => {
+            setCurrentTier(type.tier);
+            setCurrentPrice(type.price);
+          }}
+          className={`relative flex flex-col transition-all duration-300 ease-in-out delay-100 px-4 items-start  gap-4 w-[90%]  rounded-xl shadow-sm ${
+            isCurrentTier ? "scale-105" : ""
+          } `}
         >
-          <div className="font-bold text-[1.1rem] flex justify-between items-center w-full">
-            <div className="h-full w-[2rem] items-center justify-center">
-              {type.tier}
-            </div>
-            <div>
-              {" "}
-              {isCurrentTier ? (
-                <Verified height="30px" width="30px" bgfill="red" />
-              ) : (
-                <></>
-              )}
+          <div
+            className={`h-[3rem] w-full top items-center justify-start flex rounded-t-2xl`}
+          >
+            <div className="font-bold text-[1.1rem] flex justify-between items-center w-full">
+              <div className="h-full w-[2rem] items-center justify-center">
+                {type.tier}
+              </div>
+              <div>
+                {" "}
+                {isCurrentTier ? (
+                  <Verified height="30px" width="30px" bgfill="red" />
+                ) : (
+                  <></>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-        <div className="w-full h-[4.5rem]">
-          <div className="h-[4rem] flex relative w-full">
-            <div className="p-x w-full flex  flex-col justify-start items-start h-full">
-              <div className="font-thin flex flex-col gap-2 w-full text-xs">
-                <div className="text-gray-500 ">{`${convertedStartDate}   •   ${convertedEndDate}`}</div>
-                <div className="text-gray-500 ">{eventState?.location}</div>
-                <div className="font-bold text-[1rem] h-[1.5rem] w-full flex items-center justify-between">
-                  <div>${type.price}</div>
-                  <div
-                    className={`w-full h-[60px]  flex items-center justify-end ${
-                      isCurrentTier ? "" : "hidden"
-                    }`}
-                  >
-                    <Counter
-                      max={999}
-                      id={eventID}
-                      defaultValue={defaultValueState}
-                      setDefaultValue={setDefaultValueState}
-                    />
+          <div className="w-full #h-[4.5rem]">
+            <div className="#h-[4rem] flex relative w-full">
+              <div className="p-x w-full flex  flex-col justify-start items-start h-full">
+                <div className="font-thin flex flex-col gap-2 w-full text-xs">
+                  <div className="text-gray-500 ">{`${convertedStartDate}   •   ${convertedEndDate}`}</div>
+                  <div className="text-gray-500 ">{eventState?.location}</div>
+                  <div className="font-bold text-[1rem] h-[1.5rem] w-full flex items-center justify-between">
+                    <div>${type.price}</div>
+                    <div
+                      className={`w-full h-[60px]  flex items-center justify-end ${
+                        isCurrentTier ? "" : "hidden"
+                      }`}
+                    >
+                      <Counter
+                        max={999}
+                        id={eventID}
+                        defaultValue={defaultValueState}
+                        setDefaultValue={setDefaultValueState}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+            <div className=""></div>
           </div>
-          <div className=""></div>
         </div>
-      </div>
+      )
     );
   });
 
