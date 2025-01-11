@@ -146,6 +146,18 @@ async function addEventWithFile(
     );
   });
 
+  const algoliaUpdateBundle = {
+    indexName: "events_index",
+    objectID: eventIdtoString,
+    attributesToUpdate: eventUploadData,
+    createIfNotExists: true,
+  };
+
+  await algoliaClient
+    .partialUpdateObject(algoliaUpdateBundle)
+    .then(() => console.log("algolia updated"))
+    .catch((error) => console.error("Error updating algolia: ", error));
+
   const cachedEvents = JSON.parse(await getCache(userID + "_events")) || [];
   cachedEvents.push(eventUploadData);
   await setCache(userID + "_events", cachedEvents);
