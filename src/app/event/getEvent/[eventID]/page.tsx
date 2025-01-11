@@ -8,6 +8,7 @@ import ShareSVG from "@/images/svg/share";
 import { COLORSMAP } from "../../../../../data/colors";
 import { Comfortaa } from "next/font/google";
 import { motion as m } from "framer-motion";
+import Link from "next/link";
 
 import { DaysOfTheWeek } from "../../../../../data/days";
 import { useRouter } from "next/navigation";
@@ -125,9 +126,9 @@ export default function EventItem(params: { params: { eventID: string } }) {
     }
   }, [eventState]);
 
-  function handleOnClick() {
-    window.location.href = `/event/findTicket/${eventID}/`;
-  }
+  // function handleOnClick() {
+  //   window.location.href = `/event/findTicket/${eventID}/`;
+  // }
 
   if (loading) {
     return <Loading />;
@@ -140,7 +141,7 @@ export default function EventItem(params: { params: { eventID: string } }) {
         <div className="w-full h-[3rem] hidden sm:flex items-center justify-between">
           <div
             className="h-[3rem] aspect-square flex items-center justify-center "
-            onClick={() => window.location.href = "/"}
+            onClick={() => (window.location.href = "/")}
           >
             <ChevronLeft color={palletState} height={"30px"} width={"30px"} />
           </div>
@@ -276,12 +277,16 @@ export default function EventItem(params: { params: { eventID: string } }) {
 
           {/* Buy Ticket Button */}
           <div className="p-4 md:p-6">
-            <Button
-              className="w-full bg-primary text-white py-3 font-semibold text-sm md:text-base flex items-center justify-center"
-              onClick={handleOnClick}
+            <Link href={`/event/findTicket/${eventID}/`}
+            prefetch={false}
             >
-              Buy Ticket
-            </Button>
+              <Button
+                className="w-full bg-primary text-white py-3 font-semibold text-sm md:text-base flex items-center justify-center"
+                // onClick={handleOnClick}
+              >
+                Buy Ticket
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
