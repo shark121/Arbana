@@ -121,16 +121,11 @@ async function addEventWithFile({
     const userDocRef = doc(collection(database, "users"), userID);
 
     await runTransaction(database, async (transaction) => {
-      // transaction.set(eventDocRef, eventUploadData);
-      // transaction.set(
-      //   userDocRef,
-      //   { events: arrayUnion(eventUploadData) },
-      //   { merge: true }
-      // );
 
       const userDocs = await transaction.get(userDocRef);
       let filteredEvents = [];
       if (userDocs.exists()) {
+
         const userData = userDocs.data();
         if (userData) {
           filteredEvents = userData.events.filter(
@@ -138,6 +133,8 @@ async function addEventWithFile({
               String(event.eventId) !== eventIdtoString
           );
 
+          filteredEvents.push(eventUploadData);
+          
           transaction.set(
             userDocRef,
             { events: filteredEvents },
@@ -146,7 +143,6 @@ async function addEventWithFile({
         }
       }
 
-      filteredEvents.push(eventUploadData);
       transaction.set(eventDocRef, eventUploadData);
     });
 
@@ -186,24 +182,25 @@ function uploadWithoutFile({
   const userDocRef = doc(collection(database, "users"), userID);
   let eventData: any[] = [];
 
-  runTransaction(database, async (transaction) => {
-    // transaction.set(eventDocRef, restToJSON);
-    // transaction.set(
-    //   userDocRef,
-    //   { events: arrayUnion(restToJSON) },
-    //   { merge: true }
-    // );
 
+
+  
+  runTransaction(database, async (transaction) => {
+    
     const userDocs = await transaction.get(userDocRef);
     let filteredEvents = [];
     if (userDocs.exists()) {
       const userData = userDocs.data();
-
-      console.log("userData..............", userData);
+      
       if (userData) {
         filteredEvents = userData.events.filter(
           (event: EventSchemaType) => String(event.eventId) !== eventIdtoString
         );
+        console.log(userData.events, filteredEvents, "filteredEvents.....................");
+
+        // return NextResponse.json({ status: 200 });
+        filteredEvents.push(restToJSON);
+
         transaction.set(
           userDocRef,
           { events: filteredEvents },
@@ -211,12 +208,12 @@ function uploadWithoutFile({
         );
       }
     }
-
-    filteredEvents.push(restToJSON);
-
+    
+    
     console.log(filteredEvents, "filteredEvents.....................");
-
+    
     transaction.set(eventDocRef, restToJSON);
+
   })
     .then(async () => {
       console.log("transaction done");
@@ -271,12 +268,6 @@ export async function POST(
   }
 
   const imageFile = collectedData.get("imageFile") as File;
-
-
-  // console.log(
-  //   restToJSON,
-  //   "restToJSON....................................................................."
-  // );
 
   await addEventWithFile({
     file: imageFile,
