@@ -5,7 +5,7 @@ import { z } from "zod";
 
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
 
-const CreatorSchema = z.object({
+export const CreatorSchema = z.object({
   name: z.string(),
   uid: z.string(),
   email: z.string().email(),

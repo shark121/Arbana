@@ -2,6 +2,13 @@
 
 import { liteClient as algoliasearch } from "algoliasearch/lite";
 import { createClient } from "redis";
+import { getDoc, collection, doc, runTransaction, arrayUnion, } from "firebase/firestore";
+import { database, storage } from "@/firebase.config";
+import {CreatorSchemaType} from "@/lib/types"
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { generateRandomId } from "./utils";
+
+
 
 const redisClient = createClient({
   password: process.env.REDIS_PASSWORD as string,
@@ -132,3 +139,50 @@ export async function sendMessage() {}
 //   process.env.ALGOLIA_APP_ID as string,
 //   process.env.ALGOLIA_SEARCH_KEY as string
 // );
+
+
+export async function uploadFile({file, nameID}:{file: File, nameID?: string}) {
+  nameID = nameID ?? `img_${generateRandomId(5)}`;
+
+  const getFileTypeStartIndex = file.type.indexOf("/") + 1;
+
+  console.log(getFileTypeStartIndex, "getFileTypeStartIndex");
+
+  const fileType = file.type.slice(getFileTypeStartIndex);
+
+  const bytes = await file.arrayBuffer();
+
+  const buffer = Buffer.from(bytes);
+
+  const nameIDTrim = nameID.trim();
+
+  const storageRef = ref(storage, `${nameIDTrim}.${fileType}`);
+
+  try {
+    const uploadTaskPromise = new Promise((resolve, reject) => {
+      const uploadTask = uploadBytesResumable(storageRef, buffer);
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log(`Upload is ${progress}% done`);
+        },
+        (error) => {
+          console.error("Upload error: ", error);
+          reject(error);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then(resolve).catch(reject);
+        }
+      );
+    });
+
+    return await uploadTaskPromise;
+
+  } catch (error) {
+    console.error("Error in addEvent: ", error);
+    throw error;
+  }
+  
+}

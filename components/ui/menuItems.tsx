@@ -2,12 +2,12 @@ import SearchSVG from "@/images/svg/search";
 import TicketSVG from "@/images/svg/ticket";
 import UserSVG from "@/images/svg/user";
 import HomeSVG from "@/images/svg/home";
-import EventsCompotent from "@/images/svg/events";
+import Logout from "@/images/svg/logout";
 import { COLORSMAP } from "../../data/colors";
-import { LucideLogOut } from "lucide-react";
+import { LucideLogOut, User, UserRoundCog, Tickets, CalendarCheck2 } from "lucide-react";
 ("lucide-react");
 import { deleteCookie } from "@/lib/utils";
-import Logo from "@/images/svg/logo"
+import Logo from "@/images/svg/logo";
 
 export const menuItems = [
   {
@@ -19,38 +19,43 @@ export const menuItems = [
   {
     text: "Home",
     url: "/",
-    icon: <HomeSVG/>,
+    icon: <HomeSVG />,
     callback: () => {
       window.location.href = "/";
     },
   },
 
   {
-    text: "Tickets",
+    text: "My Tickets",
     url: "/tickets",
-    icon: <TicketSVG primaryColor="#ff8f00" />,
+    icon: <Tickets size={20} color={"gray"} />,
     callback: () => {
       window.location.href = "/tickets";
     },
   },
-  // {
-  //     text: "Search",
-  //     url: "/search",
-  //     icon: <SearchSVG fill="#2dfe64" height="35px"/>,
-  // },
   {
     text: "My Events",
     url: "/myEvents",
-    icon: <EventsCompotent />,
+    icon: <CalendarCheck2 size={20} color="gray" />,
     callback: () => {
       window.location.href = "/myEvents";
     },
   },
 
   {
+    text: "Account",
+    url: "/account",
+    icon: <UserRoundCog size={20} color={"gray"} />,
+    callback: () => {
+      // deleteCookie("user");
+      window.location.href = "/account";
+    },
+  },
+
+  {
     text: "Logout | Login",
     url: "/home",
-    icon: <LucideLogOut size={20} color={"gray"} />,
+    icon: <Logout fill={"gray"}  height="20px" width="20px"/>,
     callback: () => {
       deleteCookie("user");
       window.location.href = "/home";
