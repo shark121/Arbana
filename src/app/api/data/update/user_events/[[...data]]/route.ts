@@ -16,6 +16,8 @@ import {
 } from "firebase/storage";
 import { setCache, getCache, existsInCache } from "@/lib/server_utils";
 import { algoliasearch } from "algoliasearch";
+import { EventSchemaType } from "@/lib/types";
+import { uploadFile } from "@/lib/server_utils";
 
 const algoliaClient = algoliasearch(
   "W6M4AJCW2Z",
@@ -99,75 +101,76 @@ const eventCollectionRef = collection(database, "events");
 //   return eventData;
 // }
 
-async function addEventWithFile(
-  buffer: Buffer,
-  nameID: string,
-  fileType: string,
-  restToJSON: Omit<createRequestType, "imageFile">,
-  eventIdtoString: string,
-  userID: string
-) {
-  const nameIDTrim = nameID.trim();
-  const storageRef = ref(storage, `${nameIDTrim}.${fileType}`);
-
+async function addEventWithFile({
+  file,
+  restToJSON,
+  eventIdtoString,
+  userID,
+}: {
+  file: File;
+  restToJSON: Omit<createRequestType, "imageFile">;
+  eventIdtoString: string;
+  userID: string;
+}) {
   try {
-  const uploadTaskPromise = new Promise((resolve, reject) => {
-    const uploadTask = uploadBytesResumable(storageRef, buffer);
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log(`Upload is ${progress}% done`);
-      },
-      (error) => {
-        console.error("Upload error: ", error);
-        reject(error);
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then(resolve).catch(reject);
+    const downloadURL = await uploadFile({ file });
+
+    const eventUploadData = { ...restToJSON, imageUrl: downloadURL };
+
+    const eventDocRef = doc(eventCollectionRef, eventIdtoString);
+    const userDocRef = doc(collection(database, "users"), userID);
+
+    await runTransaction(database, async (transaction) => {
+      // transaction.set(eventDocRef, eventUploadData);
+      // transaction.set(
+      //   userDocRef,
+      //   { events: arrayUnion(eventUploadData) },
+      //   { merge: true }
+      // );
+
+      const userDocs = await transaction.get(userDocRef);
+      let filteredEvents = [];
+      if (userDocs.exists()) {
+        const userData = userDocs.data();
+        if (userData) {
+          filteredEvents = userData.events.filter(
+            (event: EventSchemaType) =>
+              String(event.eventId) !== eventIdtoString
+          );
+
+          transaction.set(
+            userDocRef,
+            { events: filteredEvents },
+            { merge: true }
+          );
+        }
       }
-    );
-  });
 
-  const downloadURL = await uploadTaskPromise;
+      filteredEvents.push(eventUploadData);
+      transaction.set(eventDocRef, eventUploadData);
+    });
 
-  const eventUploadData = { ...restToJSON, imageUrl: downloadURL };
+    const algoliaUpdateBundle = {
+      indexName: "events_index",
+      objectID: eventIdtoString,
+      attributesToUpdate: eventUploadData,
+      createIfNotExists: true,
+    };
 
-  const eventDocRef = doc(eventCollectionRef, eventIdtoString);
-  const userDocRef = doc(collection(database, "users"), userID);
+    await algoliaClient
+      .partialUpdateObject(algoliaUpdateBundle)
+      .then(() => console.log("algolia updated"))
+      .catch((error) => console.error("Error updating algolia: ", error));
 
-  await runTransaction(database, async (transaction) => {
-    transaction.set(eventDocRef, eventUploadData);
-    transaction.set(
-      userDocRef,
-      { events: arrayUnion(eventUploadData) },
-      { merge: true }
-    );
-  });
+    const cachedEvents = JSON.parse(await getCache(userID + "_events")) || [];
+    cachedEvents.push(eventUploadData);
+    await setCache(userID + "_events", cachedEvents);
 
-  const algoliaUpdateBundle = {
-    indexName: "events_index",
-    objectID: eventIdtoString,
-    attributesToUpdate: eventUploadData,
-    createIfNotExists: true,
-  };
-
-  await algoliaClient
-    .partialUpdateObject(algoliaUpdateBundle)
-    .then(() => console.log("algolia updated"))
-    .catch((error) => console.error("Error updating algolia: ", error));
-
-  const cachedEvents = JSON.parse(await getCache(userID + "_events")) || [];
-  cachedEvents.push(eventUploadData);
-  await setCache(userID + "_events", cachedEvents);
-
-  return cachedEvents;
-
-} catch (error) {
-  console.error("Error in addEvent: ", error);
-  throw error;
-}
+    return cachedEvents;
+  } catch (error) {
+    console.error("Error in addEvent: ", error);
+    throw error;
+  }
 }
 
 function uploadWithoutFile({
@@ -184,12 +187,36 @@ function uploadWithoutFile({
   let eventData: any[] = [];
 
   runTransaction(database, async (transaction) => {
+    // transaction.set(eventDocRef, restToJSON);
+    // transaction.set(
+    //   userDocRef,
+    //   { events: arrayUnion(restToJSON) },
+    //   { merge: true }
+    // );
+
+    const userDocs = await transaction.get(userDocRef);
+    let filteredEvents = [];
+    if (userDocs.exists()) {
+      const userData = userDocs.data();
+
+      console.log("userData..............", userData);
+      if (userData) {
+        filteredEvents = userData.events.filter(
+          (event: EventSchemaType) => String(event.eventId) !== eventIdtoString
+        );
+        transaction.set(
+          userDocRef,
+          { events: filteredEvents },
+          { merge: true }
+        );
+      }
+    }
+
+    filteredEvents.push(restToJSON);
+
+    console.log(filteredEvents, "filteredEvents.....................");
+
     transaction.set(eventDocRef, restToJSON);
-    transaction.set(
-      userDocRef,
-      { events: arrayUnion(restToJSON) },
-      { merge: true }
-    );
   })
     .then(async () => {
       console.log("transaction done");
@@ -224,16 +251,12 @@ export async function POST(
 ) {
   const collectedData = await req.formData();
 
-  console.log(collectedData, "collectedData");
-
   const rest = collectedData.get("rest") as string;
 
   const restToJSON: Omit<createRequestType, "imageFile"> =
     rest && JSON.parse(rest);
 
-  const eventId = restToJSON.eventId;
-
-  const eventIdtoString = String(eventId);
+  const eventIdtoString = String(restToJSON.eventId);
 
   const userID = restToJSON.userID;
 
@@ -249,35 +272,18 @@ export async function POST(
 
   const imageFile = collectedData.get("imageFile") as File;
 
-  uploadWithoutFile({
+
+  // console.log(
+  //   restToJSON,
+  //   "restToJSON....................................................................."
+  // );
+
+  await addEventWithFile({
+    file: imageFile,
     restToJSON,
     eventIdtoString,
     userID,
-  });
-
-  const getFileTypeStartIndex = imageFile.type.indexOf("/") + 1;
-
-  console.log(getFileTypeStartIndex, "getFileTypeStartIndex");
-
-  const fileType = imageFile.type.slice(getFileTypeStartIndex);
-
-  const bytes = await imageFile.arrayBuffer();
-
-  const buffer = Buffer.from(bytes);
-
-  console.log(
-    restToJSON,
-    "restToJSON....................................................................."
-  );
-
-  await addEventWithFile(
-    buffer,
-    eventIdtoString,
-    fileType,
-    restToJSON,
-    eventIdtoString,
-    userID
-  )
+  })
     .catch((error) => console.error("Error adding document: ", error))
     .then((eventData) => {
       console.log(eventData, ".......");

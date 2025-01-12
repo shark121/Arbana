@@ -6,20 +6,24 @@ import ScanQRCode from "../../scan/[[...data]]/page";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { convertTo12HourFormat, generateRandomId, getCookie } from "../../../lib/utils";
+import {
+  convertTo12HourFormat,
+  generateRandomId,
+  getCookie,
+} from "../../../lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { Selector } from "../../../../components/components/selector";
 import { categoriesList } from "../../../../data/categories";
-import { X } from "lucide-react";
+import { CameraIcon, EditIcon, Image, X } from "lucide-react";
 import z from "zod";
 import { User } from "firebase/auth";
 import { AddTicket } from "../../../../components/components/events/AddTicket";
 import { CategoriesComponent } from "../../../../components/components/events/categoriesComponent";
-import Calendar  from "../../../../components/components/calendar";
+import Calendar from "../../../../components/components/calendar";
 import TicketPopOver from "../../../../components/components/ticketPopOver";
 import ShowPlaces from "../../../../components/components/mapComponents/showPlaces";
-import Cookies from "js-cookie"
+import Cookies from "js-cookie";
 import { useLoadScript } from "@react-google-maps/api";
 import TicketTierType, {
   AddNewTicket,
@@ -32,7 +36,7 @@ import {
   AvailableSeatsType,
 } from "@/lib/types";
 
-import {convertTo24Hour, getLocationCoordiantes} from "@/lib/utils";
+import { convertTo24Hour, getLocationCoordiantes } from "@/lib/utils";
 
 import { useForm } from "react-hook-form";
 
@@ -48,6 +52,7 @@ import {
 import { Vibrant } from "node-vibrant/browser";
 import Verified from "@/images/svg/verified";
 import Loading from "@/app/loading";
+// import Img from "next/image";
 
 async function generatePallete(imageFile: File) {
   const imageUrl = URL.createObjectURL(imageFile);
@@ -66,6 +71,9 @@ async function generatePallete(imageFile: File) {
       return null;
     });
 }
+
+// import Image  from "next/image";
+
 
 async function sendUpdateRequest({ event }: { event: EventSchemaType }) {
   const { imageFile, ...rest } = event;
@@ -116,6 +124,7 @@ export default function EventInfo(params: {
   const [endDateState, setEndDateState] = useState<Date | undefined>();
   const [eventNameState, setEventNameState] = useState<string>("");
   const [selected, setSelected] = useState({ id: 0, description: "" });
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectedPlace, setSelectedPlace] = useState({
     place_id: "",
     description: "",
@@ -125,9 +134,17 @@ export default function EventInfo(params: {
     libraries: ["places"],
   });
 
+
+  useEffect(()=>{
+    if(imageFileState){
+      const imageUrl = URL.createObjectURL(imageFileState);
+      setPreviewUrl(imageUrl);
+    }
+  },[imageFileState])
+
   useEffect(() => {
     // const userInfo = JSON.parse(sessionStorage.getItem("user") as string);
-     const userInfo = JSON.parse(Cookies.get("user") as string);
+    const userInfo = JSON.parse(Cookies.get("user") as string);
     setUserInfoState(userInfo);
   }, []);
 
@@ -205,7 +222,7 @@ export default function EventInfo(params: {
       place_id: eventState?.location as string,
       description: eventState?.location as string,
     });
-  
+
     // form.setValue("name", eventState?.name as string);
     // form.setValue("startDate", eventState?.startDate as string);
     // form.setValue("endDate", eventState?.endDate as string);
@@ -213,8 +230,10 @@ export default function EventInfo(params: {
     form.setValue("mobile", eventState?.mobile as string);
     form.setValue("description", eventState?.description as string);
     // form.setValue("location", eventState?.location as string);
-   eventState?.time && form.setValue("time", convertTo24Hour(eventState.time));
+    eventState?.time && form.setValue("time", convertTo24Hour(eventState.time));
     form.setValue("imageUrl", eventState?.imageUrl as string);
+
+    setPreviewUrl(eventState?.imageUrl as string);
   }, [eventState]);
 
   const onSubmit = async (
@@ -238,24 +257,23 @@ export default function EventInfo(params: {
 
     console.log(imageFileState, "imageFileState");
 
-    let palette: { Vibrant: { rgb: [number, number, number] } } = eventState?.imagePallete
+    let palette: { Vibrant: { rgb: [number, number, number] } } =
+      eventState?.imagePallete ?? { Vibrant: { rgb: [0, 0, 0] } };
 
-    const locationId  = selectedPlace.place_id ?? eventState?.locationId as string;
-  
+    const locationId =
+      selectedPlace.place_id ?? (eventState?.locationId as string);
 
     if (imageFileState) {
       palette = await generatePallete(imageFileState);
       console.log(palette, "palette");
     }
 
-
     event["time"] = convertTo12HourFormat(event.time);
 
-    // const locationCoordinates = await getLocationCoordiantes(
-    //   selectedPlace.place_id
-    // );
+    const locationCoordinates = await getLocationCoordiantes(locationId);
 
-    const locationCoordinates = { lat: 0, lng: 0 };
+    console.log(locationCoordinates, palette);
+    // const locationCoordinates = { lat: 0, lng: 0 };
 
     const eventWithExtraParams: EventSchemaType = {
       ...event,
@@ -268,13 +286,12 @@ export default function EventInfo(params: {
       imagePallete: palette ? palette : eventState!.imagePallete,
       name: eventNameState,
       startDate: startDateState?.toISOString() || new Date().toISOString(),
-      endDate: endDateState?.toISOString()|| new Date().toISOString(),
+      endDate: endDateState?.toISOString() || new Date().toISOString(),
       location: selectedPlace.description,
       locationCoordinates,
-      locationId
-       
+      locationId,
     };
-    
+
     if (imageFileState) {
       eventWithExtraParams["imageFile"] = imageFileState;
     }
@@ -319,144 +336,151 @@ export default function EventInfo(params: {
   return (
     eventState && (
       <div>
-          <div className="h-[18rem] flex w-full flex-col p-4 gap-1">
-            {/* <FormLabel>Event Name</FormLabel> */}
-            <p className="text-sm font-medium">Event Name</p>
-            <Input
-              placeholder="Event Name"
-              onChange={(e) => setEventNameState(e.target.value)}
-              defaultValue={eventState?.name}
-            />
-            <p className="text-sm font-medium">Start Date</p>
-            <Calendar
-              setDateState={setStartDateState}
-              dateState={startDateState}
-              defaultDate={new Date(eventState?.startDate as string)}
-            />
-            <p className="text-sm font-medium">End Date</p>
+        <div className="h-[18rem] flex w-full flex-col p-4 gap-1">
+          {/* <FormLabel>Event Name</FormLabel> */}
+          <p className="text-sm font-medium">Event Name</p>
+          <Input
+            placeholder="Event Name"
+            onChange={(e) => setEventNameState(e.target.value)}
+            defaultValue={eventState?.name}
+          />
+          <p className="text-sm font-medium">Start Date</p>
+          <Calendar
+            setDateState={setStartDateState}
+            dateState={startDateState}
+            defaultDate={new Date(eventState?.startDate as string)}
+          />
+          <p className="text-sm font-medium">End Date</p>
 
-            <Calendar 
-            setDateState={setEndDateState} 
-            dateState={endDateState}  
+          <Calendar
+            setDateState={setEndDateState}
+            dateState={endDateState}
             defaultDate={new Date(eventState?.endDate as string)}
+          />
+        </div>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-8 p-4"
+            id="createEventForm"
+          >
+            <div className="w-full h-[7rem] relative">
+              <FormLabel>Location</FormLabel>
+              <ShowPlaces
+                selected={selected}
+                selectedPlace={selectedPlace}
+                setSelected={setSelected}
+                setSelectedPlace={setSelectedPlace}
+              />
+            </div>
+            {
+              <AddTicket
+                setAvailableSeatsState={setAvailableSeatsState}
+                availableSeatsState={availableSeatsState}
+                seatsState={seatsState}
+                setSeatsState={setSeatsState}
+              />
+            }
+            <Selector
+              label="Genre"
+              items={categoriesList}
+              setCurrentItemState={setCurrentItem}
             />
-          </div>
-           <Form {...form}>
-           <form
-             onSubmit={form.handleSubmit(onSubmit)}
-             className="space-y-8 p-4"
-             id="createEventForm"
-           >
-          <div className="w-full h-[7rem] relative">
-            <FormLabel>Location</FormLabel>
-            <ShowPlaces
-              selected={selected}
-              selectedPlace={selectedPlace}
-              setSelected={setSelected}
-              setSelectedPlace={setSelectedPlace}
+            <div className="w-full ">{chosenCategoriesList}</div>
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Description" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          {
-            <AddTicket
-              setAvailableSeatsState={setAvailableSeatsState}
-              availableSeatsState={availableSeatsState}
-              seatsState={seatsState}
-              setSeatsState={setSeatsState}
+            <FormField
+              control={form.control}
+              name="time"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Time</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Time" type="time" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          }
-          <Selector
-            label="Genre"
-            items={categoriesList}
-            setCurrentItemState={setCurrentItem}
-          />
-          <div className="w-full ">{chosenCategoriesList}</div>
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <Textarea placeholder="Description" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="time"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Time</FormLabel>
-                <FormControl>
-                  <Input placeholder="Time" type="time" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="province"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Province</FormLabel>
-                <FormControl>
-                  <Input placeholder="province" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />{" "}
-          <FormField
-            control={form.control}
-            name="mobile"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Mobile</FormLabel>
-                <FormControl>
-                  <Input placeholder="+233" {...field} />
-                </FormControl>
-                <FormDescription>
-                  This number will be used for payment disbursements and contact
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />{" "}
-          <FormField
-            control={form.control}
-            name="imageFile"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>imageFile</FormLabel>
-                <FormControl>
-                  <Input
-                    // className={inputStyling}
-                    type="file"
-                    accept="image/*"
-                    max={"10000"}
-                    placeholder="Selecet New Image"
-                    //commented because the added fields only accept strings
-                    // {...field}
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      file && setImageFileState(file as unknown as File);
-                      form.setValue("imageFile", file);
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type="submit" variant={"outline"} className="flex gap-4">
-            Submit
-            <Verified height="20px" width="20px" bgfill="#ED191D" />
-          </Button>
-        </form>
-      </Form>
+            <FormField
+              control={form.control}
+              name="province"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Province</FormLabel>
+                  <FormControl>
+                    <Input placeholder="province" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />{" "}
+            <FormField
+              control={form.control}
+              name="mobile"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Mobile</FormLabel>
+                  <FormControl>
+                    <Input placeholder="+233" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    This number will be used for payment disbursements and
+                    contact
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />{" "}
+            <FormField
+              control={form.control}
+              name="imageFile"
+              render={({ field }) => (
+                <FormItem className="flex  gap-4 items-center">
+                  <div className="w-[10rem] aspect-square bg-gray-100 rounded-md flex items-center justify-center relative">
+                    {previewUrl ? <img src={previewUrl} alt="image preview" className="h-full w-full" /> :   <CameraIcon size={20} strokeWidth={"1px"}/>}
+                  </div>
+                  <FormLabel>
+                    <EditIcon size={20} className="cursor-pointer" />
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      // className={inputStyling}
+                      className="hidden"
+                      type="file"
+                      accept="image/*"
+                      max={"10000"}
+                      placeholder="Selecet New Image"
+                      //commented because the added fields only accept strings
+                      // {...field}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        file && setImageFileState(file as unknown as File);
+                        form.setValue("imageFile", file);
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit" variant={"outline"} className="flex gap-4">
+              Submit
+              <Verified height="20px" width="20px" bgfill="#ED191D" />
+            </Button>
+          </form>
+        </Form>
       </div>
     )
   );

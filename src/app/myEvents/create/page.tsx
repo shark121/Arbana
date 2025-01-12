@@ -44,8 +44,7 @@ import Loading from "@/app/loading";
 import ShowPlaces from "../../../../components/components/mapComponents/showPlaces";
 import { useLoadScript } from "@react-google-maps/api";
 import Calendar from "../../../../components/components/calendar";
-import { setDate } from "date-fns";
-
+import { CameraIcon, EditIcon } from "lucide-react";
 async function generatePallete(imageFile: File) {
   const imageUrl = URL.createObjectURL(imageFile);
 
@@ -91,75 +90,6 @@ async function sendCreateRequest({ event }: { event: createRequestType }) {
     });
 }
 
-// function AddTicket({
-//   setAvailableSeatsState,
-//   availableSeatsState,
-//   seatsState,
-//   setSeatsState,
-// }: {
-//   seatsState: AvailableSeatsType[];
-//   setSeatsState: React.Dispatch<React.SetStateAction<AvailableSeatsType[]>>;
-//   setAvailableSeatsState: React.Dispatch<
-//     React.SetStateAction<AvailableSeatsType[]>
-//   >;
-//   availableSeatsState: AvailableSeatsType[];
-// }) {
-//   const [isAddingNewTicket, setIsAddingNewTicket] = useState<boolean>(false);
-
-//   useEffect(() => {
-//     availableSeatsState &&
-//       setSeatsState((seatsState) => [
-//         ...seatsState,
-//         ...(availableSeatsState as AvailableSeatsType[]),
-//       ]);
-//   }, [availableSeatsState]);
-
-//   function RemoveTicketType({ seat }: { seat: AvailableSeatsType }) {
-//     setSeatsState((seatsState) =>
-//       seatsState.filter((el) => el.tier !== seat.tier)
-//     );
-//   }
-
-//   function AddTicketType(
-//     ticketTier: string,
-//     tierPrice: number,
-//     tierQuantity: number
-//   ) {
-//     if (!ticketTier || !tierPrice || !tierQuantity) return;
-
-//     if (seatsState.map((el) => el.tier).includes(ticketTier)) return;
-
-//     setSeatsState((seatsState) => [
-//       ...seatsState,
-//       { tier: ticketTier, quantity: tierQuantity, price: tierPrice },
-//     ]);
-//   }
-
-//   return (
-//     <div>
-//       {isAddingNewTicket ? (
-//         <AddNewTicket
-//           seatsState={seatsState}
-//           setSeatsState={setSeatsState}
-//           setIsAddingNewTicket={setIsAddingNewTicket}
-//         />
-//       ) : (
-//         <Button onClick={() => setIsAddingNewTicket(true)}>Add New Tier</Button>
-//       )}
-//       {seatsState.map((el, i) => {
-//         return (
-//           <TicketTierType
-//             RemoveTicketType={RemoveTicketType}
-//             AddTicketType={AddTicketType}
-//             seat={el}
-//             key={el.tier}
-//           />
-//         );
-//       })}
-//     </div>
-//   );
-// }
-
 export default function CreateEvent() {
   const [availableSeatsState, setAvailableSeatsState] = useState<
     AvailableSeatsType[]
@@ -176,6 +106,14 @@ export default function CreateEvent() {
   const [eventNameState, setEventNameState] = useState<string>("");
   const [seatsState, setSeatsState] = useState<AvailableSeatsType[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (imageFileState) {
+      const imageUrl = URL.createObjectURL(imageFileState);
+      setPreviewUrl(imageUrl);
+    }
+  }, [imageFileState]);
 
   const { isLoaded: mapIsLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
@@ -305,12 +243,11 @@ export default function CreateEvent() {
       return;
     }
 
-    if(!eventNameState)
-
-    if (!FormValidEventSchemaParseSuccess) {
-      window.alert("Please fill in all the required fields");
-      return;
-    }
+    if (!eventNameState)
+      if (!FormValidEventSchemaParseSuccess) {
+        window.alert("Please fill in all the required fields");
+        return;
+      }
 
     if (categoriesState.length === 0) {
       window.alert("Please select a category");
@@ -494,11 +431,24 @@ export default function CreateEvent() {
             control={form.control}
             name="imageFile"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>ImageFile</FormLabel>
+              <FormItem className="flex  gap-4 items-center">
+                <div className="w-[10rem] aspect-square bg-gray-100 rounded-md flex items-center justify-center relative">
+                  {previewUrl ? (
+                    <img
+                      src={previewUrl}
+                      alt="image preview"
+                      className="h-full w-full"
+                    />
+                  ) : (
+                    <CameraIcon size={20} strokeWidth={"1px"} />
+                  )}
+                </div>
+                <FormLabel>
+                  <EditIcon size={20} className="cursor-pointer" />
+                </FormLabel>
                 <FormControl>
                   <Input
-                    className={inputStyling}
+                    className={"hidden"}
                     type="file"
                     accept="image/*"
                     // max={"10000"}

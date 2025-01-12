@@ -121,7 +121,7 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
                   <div className="font-bold text-[1rem] h-[1.5rem] w-full flex items-center justify-between">
                     <div>${type.price}</div>
                     <div
-                      className={`w-full h-[60px]  flex items-center justify-end ${
+                      className={`w-full h-[80px]  flex items-center justify-end ${
                         isCurrentTier ? "" : "hidden"
                       }`}
                     >

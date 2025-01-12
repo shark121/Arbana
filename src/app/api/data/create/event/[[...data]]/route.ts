@@ -11,134 +11,33 @@ import {
   runTransaction,
   arrayUnion,
 } from "firebase/firestore";
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-  connectStorageEmulator,
-} from "firebase/storage";
 
-import { setCache, getCache, existsInCache } from "@/lib/server_utils";
+
+import { setCache, getCache,} from "@/lib/server_utils";
+import { uploadFile } from "@/lib/server_utils";
 
 const eventCollectionRef = collection(database, "events");
 const teamsCollectionRef = collection(database, "teams");
 
-// async function addEvent(
-//   buffer: Buffer,
-//   nameID: string,
-//   fileType: string,
-//   restToJSON: Omit<createRequestType, "imageFile">,
-//   eventIdtoString: string,
-//   userID: string
-// ) {
-//   const nameIDTrim = nameID.trim();
-//   console.log(nameIDTrim, fileType);
-//   let eventData: any[] = [];
-
-//   const storageRef = ref(storage, `${nameIDTrim}.${fileType}`);
-
-//   const uploadTask = uploadBytesResumable(storageRef, buffer as unknown as Blob);
-
-//   //buffer as Blob may couse problems later , did it to avoid type error
-
-//  return uploadTask.on(
-//     "state_changed",
-//     (snapshot) => {
-//       const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-//       console.log("Upload is " + progress + "% done");
-//       switch (snapshot.state) {
-//         case "paused":
-//           console.log("Upload is paused");
-//           break;
-//         case "running":
-//           console.log("Upload is running");
-//           break;
-//       }
-//     },
-//     (error) => {
-//       console.log("an error occured while uploading the file");
-//       console.log(".........................................");
-//     },
-//     async () => {
-//      await getDownloadURL(uploadTask.snapshot.ref)
-//         .then(async (url) => {
-//           const eventUploadData = {
-//             ...restToJSON,
-//             imageUrl: url as unknown as string,
-//           };
-
-//           const eventDocRef = doc(eventCollectionRef, eventIdtoString);
-//           const userDocRef = doc(collection(database, "users"), userID);
-
-//         return await runTransaction(database, async (transaction) => {
-//             transaction.set(eventDocRef, eventUploadData);
-//             transaction.set(
-//               userDocRef,
-//               { events: arrayUnion(eventUploadData) },
-//               { merge: true }
-//             );
-//           })
-//             .then(async() => {
-//               console.log("transaction done");
-
-//            return await getCache(userID + "_events").then(async (data) => {
-//                 console.log(JSON.parse(data));
-//                 eventData = JSON.parse(data);
-//                 eventData.push(eventUploadData);
-//                 await setCache(userID + "_events", eventData);
-//                 return eventData
-//               });
-//             })
-//             .catch((error) => {
-//               console.error("Error adding document: ", error);
-//             });
-//         })
-//         .catch((error) => NextResponse.error());
-//     }
-//   );
-
-//   // return eventData;
-// }
-
-async function addEvent(
-  buffer: Buffer,
-  nameID: string,
-  fileType: string,
-  restToJSON: Omit<createRequestType, "imageFile">,
-  eventIdtoString: string,
-  userID: string
-) {
-  const nameIDTrim = nameID.trim();
-  const storageRef = ref(storage, `${nameIDTrim}.${fileType}`);
-
+async function addEvent({
+  file,
+  restToJSON,
+  eventIdtoString,
+  userID,
+}: {
+  restToJSON: Omit<createRequestType, "imageFile">;
+  eventIdtoString: string;
+  userID: string;
+  file: File;
+}) {
   try {
-    const uploadTaskPromise = new Promise((resolve, reject) => {
-      const uploadTask = uploadBytesResumable(storageRef, buffer);
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log(`Upload is ${progress}% done`);
-        },
-        (error) => {
-          console.error("Upload error: ", error);
-          reject(error);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then(resolve).catch(reject);
-        }
-      );
-    });
-
-    const downloadURL = await uploadTaskPromise;
+    const downloadURL = await uploadFile({ file });
 
     const eventUploadData = { ...restToJSON, imageUrl: downloadURL };
 
     const eventDocRef = doc(eventCollectionRef, eventIdtoString);
     const userDocRef = doc(collection(database, "users"), userID);
-    const teamsDocRef = doc(teamsCollectionRef, "teams", eventIdtoString);
+    const teamsDocRef = doc(teamsCollectionRef, eventIdtoString);
 
     const ownerPermissions = {
       [userID]: {
@@ -155,7 +54,6 @@ async function addEvent(
     };
 
     await runTransaction(database, async (transaction) => {
-      transaction.set(eventDocRef, eventUploadData);
       transaction.set(
         userDocRef,
         { events: arrayUnion(eventUploadData) },
@@ -163,6 +61,7 @@ async function addEvent(
       );
 
       transaction.set(teamsDocRef, ownerPermissions);
+      transaction.set(eventDocRef, eventUploadData);
     });
 
     const cachedEvents = JSON.parse(await getCache(userID + "_events")) || [];
@@ -191,19 +90,7 @@ export async function POST(
   const restToJSON: Omit<createRequestType, "imageFile"> =
     rest && JSON.parse(rest);
 
-  const getFileTypeStartIndex = imageFile.type.indexOf("/") + 1;
-
-  console.log(getFileTypeStartIndex, "getFileTypeStartIndex");
-
-  const fileType = imageFile.type.slice(getFileTypeStartIndex);
-
-  const bytes = await imageFile.arrayBuffer();
-
-  const buffer = Buffer.from(bytes);
-
-  const eventId = restToJSON.eventId;
-
-  const eventIdtoString = String(eventId);
+  const eventIdtoString = String(restToJSON.eventId);
 
   const userID = restToJSON.userID;
 
@@ -212,14 +99,12 @@ export async function POST(
     "restToJSON....................................................................."
   );
 
-  return await addEvent(
-    buffer,
-    eventIdtoString,
-    fileType,
+  return await addEvent({
+    file: imageFile,
     restToJSON,
     eventIdtoString,
-    userID
-  )
+    userID,
+  })
     .catch((error) => {
       console.error("Error adding document: ", error);
       return NextResponse.error();
