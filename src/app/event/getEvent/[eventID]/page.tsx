@@ -32,7 +32,7 @@ async function fetchEventData(
   console.log("getting from cache");
   await fetch(`/api/data/read/events/`, {
     method: "POST",
-    body: eventID,
+    body: JSON.stringify({eventID}),
   })
     .then(async (response) => await response.json())
     .then((data: { data: EventSchemaType }) => {

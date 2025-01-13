@@ -3,23 +3,15 @@ import { database, functions } from "@/firebase.config";
 import {
   collection,
   getDocs,
-  getDoc, 
-  doc, 
+  getDoc,
+  doc,
   loadBundle,
   namedQuery,
   Query,
 } from "firebase/firestore";
-// import { EventType } from "../../../../../../../components/ui/eventComponent";
 import { getCache, setCache, existsInCache } from "@/lib/server_utils";
 import { httpsCallable } from "firebase/functions";
 import { EventSchemaType as EventType } from "@/lib/types";
-
-// import {} from "firebase/firestore/bundle";
-
-// If you are using module bundlers.
-// import firebase from "firebase/app";
-// import "firebase/firestore";
-// import "firebase/firestore/bundle" // This line enables bundle loading as a side effect.
 
 async function fetchFromBundle() {
   const fetchEventsData = httpsCallable(functions, "createBundle");
@@ -30,54 +22,68 @@ async function fetchFromBundle() {
   });
 }
 
+// async function fetchData(eventId?: string) {
+
+//   try {
+//     const data_response = getDoc(doc(collection(database, "events"), eventId));
+
+//     console.log((await data_response).data(), "data_response............");
+
+//     return NextResponse.json({
+//       data: (await data_response).data(),
+//     });
+
+//   } catch (error) {
+//     console.error(error);
+//     return NextResponse.json({ status: 404 });
+//   }
+// }
+
+// export async function POST(req: NextRequest){
+//   const eventID = await req.json();
+//   console.log(String(eventID), "eventID.................");
+//   return await fetchData(eventID);
+// }
+
 async function fetchData(eventId?: string) {
-  let data: EventType[] = [];
-  console.log("fetching data");
-
-  if (await existsInCache("events")) {
-    console.log("data exists in cache");
-    data = await getCache("events").then((data) => {
-      console.log(data, "data from cache");
-      return JSON.parse(data) as EventType[];
-    });
-
-    if (eventId) {
-      const event = data.find((event) => event.eventId === Number(eventId));
-      if (!event) {
-
-        let data = getDoc(doc(collection(database, "events"), eventId)).then((snapshot) => {snapshot.data() as EventType});
-
-        return data;
-        // await setCache("events", data);
-      }
-      return event;
+  try {
+    if (!eventId) {
+      throw new Error("No event ID provided");
     }
 
-    
+    const docRef = doc(collection(database, "events"), eventId);
+    const dataResponse = await getDoc(docRef);
 
-    // return data;
+    if (!dataResponse.exists()) {
+      throw new Error("Document not found");
+    }
+
+    return NextResponse.json({
+      data: dataResponse.data(),
+    });
+  } catch (error) {
+    console.error("Error fetching data:", String(error));
+
+    return NextResponse.json({ error: String(error), status: 404 });
   }
-
-  //   const response = await getDocs(collection(database, "events"));
-
-  //   response.forEach((doc) => {
-  //     data.push(doc.data() as EventType);
-  //   });
-
-  data = (await fetchFromBundle()) as unknown as EventType[];
-
-  await setCache("events", data);
-
-  const event = data.find((event) => event.eventId === Number(eventId));
-  return event;
 }
 
 export async function POST(req: NextRequest) {
-  const eventID = await req.json();
-  console.log(String(eventID), "eventID.................");
-  const data_response = await fetchData(eventID);
+  try {
+    const { eventID  } = await req.json();
 
-  return NextResponse.json({
-    data: data_response,
-  });
+    console.log(`Event ID: ${eventID}`);
+
+    if (!eventID || typeof eventID !== "string") {
+      return NextResponse.json({ error: "Invalid event ID", status: 400 });
+    }
+
+    console.log(`Event ID: ${eventID}`);
+
+    return await fetchData(eventID);
+  } catch (error) {
+    console.error("Error in POST request:", String(error));
+
+    return NextResponse.json({ error: String(error), status: 500 });
+  }
 }

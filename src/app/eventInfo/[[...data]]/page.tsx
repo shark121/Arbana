@@ -52,6 +52,7 @@ import {
 import { Vibrant } from "node-vibrant/browser";
 import Verified from "@/images/svg/verified";
 import Loading from "@/app/loading";
+import SuccessAnimation from "@/animations/success"
 // import Img from "next/image";
 
 async function generatePallete(imageFile: File) {
@@ -125,6 +126,7 @@ export default function EventInfo(params: {
   const [eventNameState, setEventNameState] = useState<string>("");
   const [selected, setSelected] = useState({ id: 0, description: "" });
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [success, setSuccess] = useState<boolean>(false);
   const [selectedPlace, setSelectedPlace] = useState({
     place_id: "",
     description: "",
@@ -255,6 +257,10 @@ export default function EventInfo(params: {
       "FormValidEventSchemaParseSuccess"
     );
 
+    setIsLoading(true);
+
+    
+
     console.log(imageFileState, "imageFileState");
 
     let palette: { Vibrant: { rgb: [number, number, number] } } =
@@ -320,16 +326,15 @@ export default function EventInfo(params: {
 
     await sendUpdateRequest({ event: eventWithExtraParams })
       .catch((err) => console.log(err, "err"))
-      .catch((err) => {
-        console.log(err);
-      })
       .then(() => {
-        // window.location.href = "/myEvents";
+        setSuccess(true);
       })
       .finally(() => {
         setIsLoading(false);
       });
   };
+
+  if(success) return <SuccessAnimation navTo="/myEvents"/>
 
   if (isLoading || !mapIsLoaded) return <Loading />;
 

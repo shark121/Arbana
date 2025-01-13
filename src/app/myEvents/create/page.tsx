@@ -24,6 +24,7 @@ import {
   EventSchema,
 } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
+import SuccessAnimation from "@/animations/success";
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -45,6 +46,8 @@ import ShowPlaces from "../../../../components/components/mapComponents/showPlac
 import { useLoadScript } from "@react-google-maps/api";
 import Calendar from "../../../../components/components/calendar";
 import { CameraIcon, EditIcon } from "lucide-react";
+import { set } from "date-fns";
+// import SuccessAnimation from "@/animations/success";
 async function generatePallete(imageFile: File) {
   const imageUrl = URL.createObjectURL(imageFile);
 
@@ -107,6 +110,7 @@ export default function CreateEvent() {
   const [seatsState, setSeatsState] = useState<AvailableSeatsType[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     if (imageFileState) {
@@ -278,6 +282,8 @@ export default function CreateEvent() {
 
     event["time"] = convertTo12HourFormat(event["time"]);
 
+    setIsLoading(true);
+
     const eventWithExtraParams: EventSchemaType = {
       ...event,
       name: eventNameState,
@@ -308,20 +314,18 @@ export default function CreateEvent() {
 
     console.log(eventWithExtraParams, "eventWithExtraParams");
 
-    setIsLoading(true);
 
     await sendCreateRequest({ event: eventWithExtraParams })
       .catch((err) => console.log(err, "err"))
       .then((res: any) => {
-        if (res) {
-          console.log(res, "res");
-          window.location.href = "/myEvents";
-        }
+         setSuccess(true);
       })
       .finally(() => setIsLoading(false));
   };
 
   if (isLoading || !mapIsLoaded) return <Loading />;
+
+  if (success) return <SuccessAnimation navTo="/myEvents" />;
 
   // function SubmitTest(e: any) {
   //   console.log(e);

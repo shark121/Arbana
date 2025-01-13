@@ -55,42 +55,41 @@ export default function MyEvents() {
     setIsLoading(false);
   }, [userState]);
 
-
   setTimeout(() => {
     setLoadingBuffer(false);
-  }
-  , 500);
-
+  }, 500);
 
   if (isLoading || loadingBuffer) {
     return <Loading />;
   }
 
   return (
-    <div
-      className={`min-w-screen min-h-screen pt-2 flex items-center  flex-col ${comfortaa.className}`}
-    >
-      <div className="w-full flex items-center h-[3rem] p-2  justify-between">
-        <button className="w-[2rem] h-[2rem]" onClick={() => router.back()}>
-          <ChevronLeft size={25} color={"red"} />
-        </button>
-        <div className="text-[2rem]">My Events</div>
-        <Button
-          className="w-[6rem] h-[2.5rem] bg-primary flex items-center justify-center p-1 gap-1"
-          onClick={() => router.push("/myEvents/create")}
-        >
-          <div className="text-white">Create</div>
-          <Plus size={20} color={"white"} />
-        </Button>
-      </div>
-      {userEvents && (
-        <div className="w-full h-full p-1">
-          {userEvents.map((el, i) => (
-            <EventListComponent userEvent={el} />
-          ))}
+    userEvents && (
+      <div
+        className={`min-w-screen min-h-screen pt-2 flex items-center  flex-col ${comfortaa.className}`}
+      >
+        <div className="w-full flex items-center h-[3rem] p-2  justify-between">
+          <button className="w-[2rem] h-[2rem]" onClick={() => router.back()}>
+            <ChevronLeft size={25} color={"red"} />
+          </button>
+          <div className="text-[2rem]">My Events</div>
+          <Button
+            className="w-[6rem] h-[2.5rem] bg-primary flex items-center justify-center p-1 gap-1"
+            onClick={() => router.push("/myEvents/create")}
+          >
+            <div className="text-white">Create</div>
+            <Plus size={20} color={"white"} />
+          </Button>
         </div>
-      )}
-      {/* <ScanQRCode/> */}
-    </div>
+        {userEvents && (
+          <div className="w-full h-full p-1">
+            {userEvents.map((el, i) => (
+              <EventListComponent userEvent={el} />
+            ))}
+          </div>
+        )}
+        {/* <ScanQRCode/> */}
+      </div>
+    )
   );
 }

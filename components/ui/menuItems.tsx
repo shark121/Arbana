@@ -8,6 +8,7 @@ import { LucideLogOut, User, UserRoundCog, Tickets, CalendarCheck2 } from "lucid
 ("lucide-react");
 import { deleteCookie } from "@/lib/utils";
 import Logo from "@/images/svg/logo";
+import {auth } from "@/firebase.config"
 
 export const menuItems = [
   {
@@ -58,6 +59,7 @@ export const menuItems = [
     icon: <Logout fill={"gray"}  height="20px" width="20px"/>,
     callback: () => {
       deleteCookie("user");
+      auth.signOut();
       window.location.href = "/home";
     },
   },
