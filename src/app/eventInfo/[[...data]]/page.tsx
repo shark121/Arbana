@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { Selector } from "../../../../components/components/selector";
 import { categoriesList } from "../../../../data/categories";
-import { CameraIcon, EditIcon, Image, X } from "lucide-react";
+// import { CameraIcon, EditIcon, Image, X } from "lucide-react";
 import z from "zod";
 import { User } from "firebase/auth";
 import { AddTicket } from "../../../../components/components/events/AddTicket";
@@ -36,6 +36,8 @@ import {
   AvailableSeatsType,
 } from "@/lib/types";
 
+import AddImage from "@/images/svg/addImage";
+
 import { convertTo24Hour, getLocationCoordiantes } from "@/lib/utils";
 
 import { useForm } from "react-hook-form";
@@ -52,7 +54,7 @@ import {
 import { Vibrant } from "node-vibrant/browser";
 import Verified from "@/images/svg/verified";
 import Loading from "@/app/loading";
-import SuccessAnimation from "@/animations/success"
+import SuccessAnimation from "@/animations/success";
 // import Img from "next/image";
 
 async function generatePallete(imageFile: File) {
@@ -74,7 +76,6 @@ async function generatePallete(imageFile: File) {
 }
 
 // import Image  from "next/image";
-
 
 async function sendUpdateRequest({ event }: { event: EventSchemaType }) {
   const { imageFile, ...rest } = event;
@@ -136,13 +137,12 @@ export default function EventInfo(params: {
     libraries: ["places"],
   });
 
-
-  useEffect(()=>{
-    if(imageFileState){
+  useEffect(() => {
+    if (imageFileState) {
       const imageUrl = URL.createObjectURL(imageFileState);
       setPreviewUrl(imageUrl);
     }
-  },[imageFileState])
+  }, [imageFileState]);
 
   useEffect(() => {
     // const userInfo = JSON.parse(sessionStorage.getItem("user") as string);
@@ -259,8 +259,6 @@ export default function EventInfo(params: {
 
     setIsLoading(true);
 
-    
-
     console.log(imageFileState, "imageFileState");
 
     let palette: { Vibrant: { rgb: [number, number, number] } } =
@@ -298,9 +296,9 @@ export default function EventInfo(params: {
       locationId,
     };
 
-    if (imageFileState) {
-      eventWithExtraParams["imageFile"] = imageFileState;
-    }
+    // if (imageFileState) {
+    //   eventWithExtraParams["imageFile"] = imageFileState;
+    // }
 
     console.log(eventWithExtraParams, "eventWithExtraParams");
 
@@ -324,6 +322,8 @@ export default function EventInfo(params: {
       return;
     }
 
+    // return;
+
     await sendUpdateRequest({ event: eventWithExtraParams })
       .catch((err) => console.log(err, "err"))
       .then(() => {
@@ -334,7 +334,7 @@ export default function EventInfo(params: {
       });
   };
 
-  if(success) return <SuccessAnimation navTo="/myEvents"/>
+  if (success) return <SuccessAnimation navTo="/myEvents" />;
 
   if (isLoading || !mapIsLoaded) return <Loading />;
 
@@ -454,10 +454,20 @@ export default function EventInfo(params: {
               render={({ field }) => (
                 <FormItem className="flex  gap-4 items-center">
                   <div className="w-[10rem] aspect-square bg-gray-100 rounded-md flex items-center justify-center relative">
-                    {previewUrl ? <img src={previewUrl} alt="image preview" className="h-full w-full" /> :   <CameraIcon size={20} strokeWidth={"1px"}/>}
+                    {previewUrl ? (
+                      <img
+                        src={previewUrl}
+                        alt="image preview"
+                        className="h-full w-full"
+                      />
+                    ) : (
+                      // <CameraIcon size={20} strokeWidth={"1px"} />
+                      <AddImage size="30px"/>
+                    )}
+                    {/* <AddImage /> */}
                   </div>
                   <FormLabel>
-                    <EditIcon size={20} className="cursor-pointer" />
+                    <AddImage size="30px"/>
                   </FormLabel>
                   <FormControl>
                     <Input
