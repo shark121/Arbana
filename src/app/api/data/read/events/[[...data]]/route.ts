@@ -3,6 +3,8 @@ import { database, functions } from "@/firebase.config";
 import {
   collection,
   getDocs,
+  getDoc, 
+  doc, 
   loadBundle,
   namedQuery,
   Query,
@@ -35,13 +37,23 @@ async function fetchData(eventId?: string) {
   if (await existsInCache("events")) {
     console.log("data exists in cache");
     data = await getCache("events").then((data) => {
+      console.log(data, "data from cache");
       return JSON.parse(data) as EventType[];
     });
 
     if (eventId) {
       const event = data.find((event) => event.eventId === Number(eventId));
+      if (!event) {
+
+        let data = getDoc(doc(collection(database, "events"), eventId)).then((snapshot) => {snapshot.data() as EventType});
+
+        return data;
+        // await setCache("events", data);
+      }
       return event;
     }
+
+    
 
     // return data;
   }

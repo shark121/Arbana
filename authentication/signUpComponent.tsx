@@ -4,11 +4,13 @@ import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
 } from "firebase/auth";
-import { auth } from "../src/firebase.config";
+import { auth, database } from "../src/firebase.config";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { setCookie } from "@/lib/utils";
 import PasswordInput from "../components/ui/passwordInputType";
+import {setDoc, doc} from "firebase/firestore"
+
 import Logo from "@/images/svg/logo";
 
 async function createNewUserWithEmailAndPassword(
@@ -28,11 +30,17 @@ async function createNewUserWithEmailAndPassword(
         phoneNumber,
         photoURL,
       };
-      setCookie("user", JSON.stringify(userInfo), 1);
-      sessionStorage.setItem("user", JSON.stringify(userInfo));
-      console.log(userInfo);
+
 
       await sendEmailVerification(user).then((verification) => {
+      setCookie("user", JSON.stringify(userInfo), 1);
+
+      const userInfoWithExtraFields = {acountInfo :{name:displayName, uid, email, emailVerified:true} , events:[], tickets:[], followers:[], following:[]}
+      
+      sessionStorage.setItem("user", JSON.stringify(userInfoWithExtraFields));
+      setDoc(doc(database, "users", userInfo.uid), { userInfoWithExtraFields }, { merge: true });
+      console.log(userInfo);
+
         console.log(verification);
         console.log("email sent");
       });
@@ -64,6 +72,7 @@ export default function SignUpComponent() {
     setEmailState("");
     setPasswordState("");
   }
+  
 
   return (
     <main className="w-screen  flex flex-col items-center justify-center">

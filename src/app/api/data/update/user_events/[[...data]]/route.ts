@@ -121,11 +121,9 @@ async function addEventWithFile({
     const userDocRef = doc(collection(database, "users"), userID);
 
     await runTransaction(database, async (transaction) => {
-
       const userDocs = await transaction.get(userDocRef);
       let filteredEvents = [];
       if (userDocs.exists()) {
-
         const userData = userDocs.data();
         if (userData) {
           filteredEvents = userData.events.filter(
@@ -134,35 +132,37 @@ async function addEventWithFile({
           );
 
           filteredEvents.push(eventUploadData);
-          
-          transaction.set(
+
+          transaction.update(
             userDocRef,
-            { events: filteredEvents },
-            { merge: true }
+            { events: filteredEvents }
+            // { merge: true,}
           );
         }
       }
 
       transaction.set(eventDocRef, eventUploadData);
+
+      return filteredEvents;
+    }).then(async (filteredEvents) => {
+      const algoliaUpdateBundle = {
+        indexName: "events_index",
+        objectID: eventIdtoString,
+        attributesToUpdate: eventUploadData,
+        createIfNotExists: true,
+      };
+
+      await algoliaClient
+        .partialUpdateObject(algoliaUpdateBundle)
+        .then(() => console.log("algolia updated"))
+        .catch((error) => console.error("Error updating algolia: ", error));
+
+      // const cachedEvents = JSON.parse(await getCache(userID + "_events")) || [];
+      // cachedEvents.push(eventUploadData);
+      await setCache(userID + "_events", filteredEvents);
+
+      return filteredEvents;
     });
-
-    const algoliaUpdateBundle = {
-      indexName: "events_index",
-      objectID: eventIdtoString,
-      attributesToUpdate: eventUploadData,
-      createIfNotExists: true,
-    };
-
-    await algoliaClient
-      .partialUpdateObject(algoliaUpdateBundle)
-      .then(() => console.log("algolia updated"))
-      .catch((error) => console.error("Error updating algolia: ", error));
-
-    const cachedEvents = JSON.parse(await getCache(userID + "_events")) || [];
-    cachedEvents.push(eventUploadData);
-    await setCache(userID + "_events", cachedEvents);
-
-    return cachedEvents;
   } catch (error) {
     console.error("Error in addEvent: ", error);
     throw error;
@@ -182,21 +182,21 @@ function uploadWithoutFile({
   const userDocRef = doc(collection(database, "users"), userID);
   let eventData: any[] = [];
 
-
-
-  
   runTransaction(database, async (transaction) => {
-    
     const userDocs = await transaction.get(userDocRef);
     let filteredEvents = [];
     if (userDocs.exists()) {
       const userData = userDocs.data();
-      
+
       if (userData) {
         filteredEvents = userData.events.filter(
           (event: EventSchemaType) => String(event.eventId) !== eventIdtoString
         );
-        console.log(userData.events, filteredEvents, "filteredEvents.....................");
+        console.log(
+          userData.events,
+          filteredEvents,
+          "filteredEvents....................."
+        );
 
         // return NextResponse.json({ status: 200 });
         filteredEvents.push(restToJSON);
@@ -208,14 +208,13 @@ function uploadWithoutFile({
         );
       }
     }
-    
-    
-    console.log(filteredEvents, "filteredEvents.....................");
-    
-    transaction.set(eventDocRef, restToJSON);
 
+    console.log(filteredEvents, "filteredEvents.....................");
+
+    transaction.set(eventDocRef, restToJSON);
+    return filteredEvents;
   })
-    .then(async () => {
+    .then(async (filteredEvents) => {
       console.log("transaction done");
 
       const algoliaUpdateBundle = {
@@ -230,12 +229,12 @@ function uploadWithoutFile({
         .then(() => console.log("algolia updated"))
         .catch((error) => console.error("Error updating algolia: ", error));
 
-      getCache(userID + "_events").then((data) => {
+      // getCache(userID + "_events").then((data) => {
+      // });
         // console.log(JSON.parse(data));
-        eventData = JSON.parse(data);
-        eventData.push(restToJSON);
-        setCache(userID + "_events", eventData);
-      });
+        // eventData = JSON.parse(data);
+        // eventData.push(restToJSON);
+        setCache(userID + "_events", filteredEvents);
     })
     .catch((error) => {
       console.error("Error adding document: ", error);
