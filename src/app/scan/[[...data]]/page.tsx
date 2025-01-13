@@ -109,17 +109,18 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
 
   async function scannerInit() {
 
-  //   checkTicket({
-  //     scannedID: "5267575548",
-  //     eventID: eventID,
-  //     setProcessing: setProcessing,
-  //     setQuerying: setQuerying,
-  //     setTicketData: setTicketData,
-  //     setIdle: setIdle,
-  //   });
+    checkTicket({
+      scannedID: "2375211245",
+      eventID: eventID,
+      setProcessing: setProcessing,
+      setQuerying: setQuerying,
+      setTicketData: setTicketData,
+      setIdle: setIdle,
+      creatorID: "33",
+    });
 
     
-  // return 
+  return 
   
     setScanning(true);
     setIdle(false);
