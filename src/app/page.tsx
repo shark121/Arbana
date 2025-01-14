@@ -20,6 +20,7 @@ import {
   RefinementList,
   Pagination,
   Configure,
+  
 } from "react-instantsearch";
 import Search from "../../components/ui/searchBar";
 import AlgoSearch from "../../components/components/algosearch";
@@ -32,6 +33,9 @@ const searchClient = algoliasearch(
   "W6M4AJCW2Z",
   "d8b19e7a00ef293456a27f59f480e776"
 );
+
+
+
 
 // function CustomSearchBox(props: UseSearchBoxProps) {
 //   let divs = [];
@@ -136,7 +140,8 @@ export default function Home() {
           />
           <Hits hitComponent={Hit} className="w-full h-full" />
           <Configure hitsPerPage={40} />
-          <RefinementList attribute="name" />
+
+          <RefinementList attribute="categories" />
         </InstantSearch>
       )}
     </div>

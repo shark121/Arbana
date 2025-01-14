@@ -34,9 +34,9 @@ export default function MyEvents() {
     async function userCreatedEvents() {
       await fetch(`/api/data/read/user_events/`, {
         method: "POST",
-        // headers: {
-        //   "Content-Type": "apli/plain",
-        // },
+        headers: {
+          "Content-Type": "text/plain",
+        },
         body: JSON.stringify({ uid: userState.uid }),
       })
         .then((response) => response.json())
@@ -48,7 +48,8 @@ export default function MyEvents() {
           console.error(error);
         });
     }
-    if (userState) {
+    if (userState.uid) {
+      console.log("user state", userState);
       userCreatedEvents();
     }
 
@@ -57,7 +58,7 @@ export default function MyEvents() {
 
   setTimeout(() => {
     setLoadingBuffer(false);
-  }, 500);
+  }, 5000);
 
   if (isLoading || loadingBuffer) {
     return <Loading />;
