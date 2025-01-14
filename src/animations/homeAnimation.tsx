@@ -48,7 +48,7 @@ const StackedCarousel = () => {
   };
 
   return (
-    <div className="relative flex items-center justify-center h-[25rem] sm:h-[20rem] w-full">
+    <div className="relative flex items-center justify-center h-[20rem] w-full">
       <AnimatePresence>
         {cards.map((card, index) => (
           <motion.div
