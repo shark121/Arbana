@@ -28,3 +28,43 @@ export default function TicketSVG({
   </svg>
   );
 }
+
+
+
+export const ColoredTicket = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    xmlSpace="preserve"
+    id="Capa_1"
+    fill="#000"
+    version="1.1"
+    viewBox="0 0 370 370"
+    height={"100%"}
+    width={"100%"}
+  >
+    <g id="SVGRepo_iconCarrier">
+      <g id="XMLID_1040_">
+        <path
+          id="XMLID_1041_"
+          fill="#6DA8D6"
+          d="M335 185c0-20.397 15.27-37.216 35-39.678V75H0v70.322c19.73 2.462 35 19.281 35 39.678s-15.27 37.216-35 39.678V295h370v-70.322c-19.73-2.462-35-19.281-35-39.678"
+        ></path>
+        <path id="XMLID_44_" fill="#C1E8E6" d="M65 130h240v110H65z"></path>
+        <path
+          id="XMLID_1044_"
+          fill="#2974A8"
+          d="M370 145.322V75H185v220h185v-70.322c-19.73-2.462-35-19.281-35-39.678s15.27-37.216 35-39.678"
+        ></path>
+        <path
+          id="XMLID_1047_"
+          fill="#8EC8F0"
+          d="M185 130v65h20v20h-20v25h120V130z"
+        ></path>
+        <path id="XMLID_37_" fill="#6DA8D6" d="M95 195h40v20H95z"></path>
+        <path id="XMLID_34_" fill="#2974A8" d="M165 195h40v20h-40z"></path>
+        <path id="XMLID_3_" fill="#2974A8" d="M235 195h40v20h-40z"></path>
+      </g>
+    </g>
+  </svg>
+);
+

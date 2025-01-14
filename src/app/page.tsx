@@ -7,6 +7,7 @@ import { EventSchemaType as EventType } from "@/lib/types";
 import Loading from "./loading";
 import { liteClient as algoliasearch } from "algoliasearch/lite";
 import ScannerComponent from "../../components/components/scannerComponent";
+import HomeAnimation from "@/animations/homeAnimation";
 
 import Cookies from "js-cookie";
 import {
@@ -20,7 +21,6 @@ import {
   RefinementList,
   Pagination,
   Configure,
-  
 } from "react-instantsearch";
 import Search from "../../components/ui/searchBar";
 import AlgoSearch from "../../components/components/algosearch";
@@ -28,14 +28,12 @@ import Verified from "@/images/svg/verified";
 import SheetComponent from "../../components/components/sheet";
 import { useScroll } from "framer-motion";
 import { get } from "https";
+import HomeComponents from "../../components/components/homeComponent";
 
 const searchClient = algoliasearch(
   "W6M4AJCW2Z",
   "d8b19e7a00ef293456a27f59f480e776"
 );
-
-
-
 
 // function CustomSearchBox(props: UseSearchBoxProps) {
 //   let divs = [];
@@ -120,6 +118,7 @@ export default function Home() {
   const [value, setValue] = useState<EventType | null>(null);
   const [statusChanged, setStatusChanged] = useState(false);
   const [scannerState, setScannerState] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   const { scrollYProgress, scrollY } = useScroll();
   // const {toast} = useToast()
 
@@ -128,20 +127,23 @@ export default function Home() {
   return (
     <div className="flex flex-col relative items-center bg-white justify-center h-full w-full transition-all duration-300 ease-in-out">
       {scannerState ? (
-        <ScannerComponent
-        setScannerState={setScannerState}
-        />
-      ) : (
+        <ScannerComponent setScannerState={setScannerState} />
+      ) :
+       (
         <InstantSearch searchClient={searchClient} indexName="events_index">
           <AlgoSearch
             statusState={statusChanged}
             setStatusChanged={setStatusChanged}
             setScannerState={setScannerState}
+            searchState={isSearching}
+            setSearchState={setIsSearching}
+            scannerState={scannerState}
           />
-          <Hits hitComponent={Hit} className="w-full h-full" />
-          {/* <div>Hello</div>
-          <Configure hitsPerPage={40} /> */}
-
+          {isSearching ? (
+            <Hits hitComponent={Hit} className="w-full h-full" />
+          ) : (
+            <HomeComponents setScannerState={setScannerState} setIsSearching={setIsSearching}/>
+          )}
           <RefinementList attribute="categories" />
         </InstantSearch>
       )}

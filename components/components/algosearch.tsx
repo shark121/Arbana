@@ -7,7 +7,7 @@ import {
 import Verified from "@/images/svg/verified";
 import SheetComponent from "../../components/components/sheet";
 import { motion as m, useScroll, useMotionValue } from "framer-motion";
-import {QrCodeIcon} from "lucide-react"
+import { ChevronLeft, QrCodeIcon } from "lucide-react";
 
 import { useEffect } from "react";
 
@@ -91,11 +91,17 @@ export default function AlgoSearch({
   statusState,
   setStatusChanged,
   setScannerState,
+  scannerState,
+  setSearchState,
+  searchState,
   ...props
 }: {
   statusState: boolean;
   setStatusChanged: React.Dispatch<React.SetStateAction<boolean>>;
   setScannerState: React.Dispatch<React.SetStateAction<boolean>>;
+  setSearchState: React.Dispatch<React.SetStateAction<boolean>>;
+  scannerState: boolean;
+  searchState: boolean;
 } & UseSearchBoxProps) {
   console.log(props);
   const { query, refine, clear } = useSearchBox(props);
@@ -126,8 +132,6 @@ export default function AlgoSearch({
 
     refine(newQuery);
   }
-
-
 
   //  return (
   //   <div className="relative w-[250px] sm:w-[500px] h-[50px] sm:h-[60px] py-1 px-3 rounded-full bg-gray-100 flex items-center justify-center  ">
@@ -180,12 +184,24 @@ export default function AlgoSearch({
   //       </form>
   //     </div>
   //  )
-  
+
   return (
-    <div
-      className="flex items-center z-10 h-[4rem] justify-between sticky top-2 w-full px-4"
-    >
-      <button onClick={()=>setScannerState((state)=>!state)}><QrCodeIcon color="red" size={30}/></button>
+    <div className="flex items-center z-10 h-[4rem] justify-between sticky top-2 w-full px-4">
+      {searchState || scannerState ? (
+        <button
+        className="flex items-center justify-center "
+          onClick={() => {
+            setSearchState(false);
+            setScannerState(false);
+          }}
+        >
+          <ChevronLeft color="red" size={35} />
+        </button>
+      ) : (
+        <button onClick={() => setScannerState((state) => !state)}>
+          <QrCodeIcon color="red" size={30} />
+        </button>
+      )}
       <div className="relative w-[250px] sm:w-[500px] h-[50px] sm:h-[60px] py-1 px-3 rounded-full bg-gray-100 flex items-center justify-center  ">
         <form
           action=""
@@ -200,6 +216,8 @@ export default function AlgoSearch({
               inputRef.current.blur();
             }
             document.body.style.zoom = "100%";
+
+            setSearchState(true);
 
             //   window.resizeTo(window.screen.availWidth , window.screen.availHeight)
           }}
@@ -229,7 +247,7 @@ export default function AlgoSearch({
               setQuery(event.currentTarget.value);
             }}
             autoFocus
-            onClick={()=>setScannerState(false)}
+            onClick={() => setScannerState(false)}
           />
           <button type="submit" className="absolute right-3">
             <Verified height="30px" width="30px" bgfill="#ED191D" />

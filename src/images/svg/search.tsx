@@ -8,6 +8,7 @@ export default function SearhSVG({height, width, fill}:{height?:string, width?:s
       height={height ?? "100%"}
       fill={fill ?? "#000000"}
       version="1.1"
+      
       viewBox="0 0 488.4 488.4"
       xmlSpace="preserve"
     >
@@ -15,3 +16,40 @@ export default function SearhSVG({height, width, fill}:{height?:string, width?:s
     </svg>
   );
 }
+
+
+
+export const ColoredSearch = ({size}:{size?:string}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="icon"
+    viewBox="0 0 1024 1024"
+    height={size ?? "100%"}
+    width={size ?? "100%"}
+  >
+    <g id="SVGRepo_iconCarrier">
+      <path
+        fill="#616161"
+        d="m622.4 682.453 60.33-60.309 256.406 256.405-60.33 60.31z"
+      ></path>
+      <path
+        fill="#616161"
+        d="M85.333 426.667a341.333 341.333 0 1 0 682.667 0 341.333 341.333 0 1 0-682.667 0"
+      ></path>
+      <path
+        fill="#37474F"
+        d="m692.267 753.92 60.309-60.33 185.515 185.514-60.331 60.33z"
+      ></path>
+      <path
+        fill="#64B5F6"
+        d="M149.333 426.667a277.333 277.333 0 1 0 554.667 0 277.333 277.333 0 1 0-554.667 0"
+      ></path>
+      <path
+        fill="#BBDEFB"
+        d="M573.867 302.933c-36.267-42.666-89.6-68.266-147.2-68.266s-110.934 25.6-147.2 68.266c-8.534 8.534-6.4 23.467 2.133 29.867 8.533 8.533 23.467 6.4 29.867-2.133 29.866-34.134 70.4-53.334 115.2-53.334s85.333 19.2 115.2 53.334c4.266 4.266 10.666 8.533 17.066 8.533 4.267 0 10.667-2.133 12.8-4.267 8.534-8.533 8.534-23.466 2.134-32"
+      ></path>
+    </g>
+  </svg>
+);
+
+// export default SvgIcon;
