@@ -139,7 +139,8 @@ export default function Home() {
             setScannerState={setScannerState}
           />
           <Hits hitComponent={Hit} className="w-full h-full" />
-          <Configure hitsPerPage={40} />
+          {/* <div>Hello</div>
+          <Configure hitsPerPage={40} /> */}
 
           <RefinementList attribute="categories" />
         </InstantSearch>

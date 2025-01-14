@@ -19,6 +19,7 @@ import { User } from "firebase/auth";
 import { generateRandomId } from "@/lib/utils";
 import SheetComponent from "../../../../../components/components/sheet";
 import { ArrowLeft, ChevronLeft } from "lucide-react";
+import { motion as m } from "framer-motion";
 import Verified from "@/images/svg/verified";
 import Loading from "@/app/loading";
 
@@ -64,7 +65,8 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
   }, []);
 
   useEffect(() => {
-    eventState && setValueState({ name: eventState?.availableSeats[0].tier ?? "" });
+    eventState &&
+      setValueState({ name: eventState?.availableSeats[0].tier ?? "" });
     eventState && setCurrentTier(eventState?.availableSeats[0].tier ?? "");
     eventState && (eventState?.availableSeats[0].price ?? 1);
     eventState && setIsLoading(false);
@@ -91,21 +93,28 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
             setCurrentTier(type.tier);
             setCurrentPrice(type.price);
           }}
-          className={`relative flex flex-col transition-all duration-300 ease-in-out delay-100 px-4 items-start  gap-4 w-[90%]  rounded-xl shadow-sm ${
+          className={`relative flex flex-col transition-all duration-300 bg-white ease-in-out delay-100 p-2 items-start shadow-sm gap-4 w-[90%]  rounded-xl ${
             isCurrentTier ? "scale-105" : ""
           } `}
         >
+          {/* <div className="absolute inset-0 bg-black -z-10 translate-x-2 translate-y-2 rounded-lg" /> */}
+
           <div
             className={`h-[3rem] w-full top items-center justify-start flex rounded-t-2xl`}
           >
-            <div className="font-bold text-[1.1rem] flex justify-between items-center w-full">
-              <div className="h-full w-[2rem] items-center justify-center">
+            <div className="font-bold text-[1rem] flex justify-between items-center w-full">
+              <div className="h-full w-full items-center justify-center">
                 {type.tier}
               </div>
               <div>
                 {" "}
                 {isCurrentTier ? (
-                  <Verified height="30px" width="30px" bgfill="red" />
+                  <m.div
+                    initial={{ opacity: 0, x: 20, rotate: 60 }}
+                    animate={{ opacity: 1, x: 0, transition: { delay: 0.3 }, rotate: 0 }}
+                  >
+                    <Verified height="30px" width="30px" bgfill="red" />
+                  </m.div>
                 ) : (
                   <></>
                 )}
@@ -118,20 +127,26 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
                 <div className="font-thin flex flex-col gap-2 w-full text-xs">
                   <div className="text-gray-500 ">{`${convertedStartDate}   •   ${convertedEndDate}`}</div>
                   <div className="text-gray-500 ">{eventState?.location}</div>
-                  <div className="font-bold text-[1rem] h-[1.5rem] w-full flex items-center justify-between">
+                  <div className="font-bold text-[1rem] w-full flex items-center justify-between">
                     <div>${type.price}</div>
-                    <div
-                      className={`w-full h-[80px]  flex items-center justify-end ${
-                        isCurrentTier ? "" : "hidden"
-                      }`}
-                    >
-                      <Counter
-                        max={999}
-                        id={eventID}
-                        defaultValue={defaultValueState}
-                        setDefaultValue={setDefaultValueState}
-                      />
-                    </div>
+                    {isCurrentTier ? (
+                      <div
+                        // initial={{ opacity: 0, y: 100 }}
+                        // animate={{
+                        //   opacity: 1,
+                        //   y: 0,
+                        //   transition: { delay: 0.5 },
+                        // }}
+                        className={`w-full h-[30px] flex items-center justify-end`}
+                      >
+                        <Counter
+                          max={999}
+                          id={eventID}
+                          defaultValue={defaultValueState}
+                          setDefaultValue={setDefaultValueState}
+                        />
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               </div>

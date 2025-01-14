@@ -36,7 +36,7 @@ export default function Autocomplete({
         <div className="relative mt-1 ">
           <div className="relative w-full  h-full  bg-gray-100 overflow-hidden rounded-lg">
             <Combobox.Input
-              className="w-full bg-gray-100 h-14 border-none p-2 pl-3 pr-10 text-sm leading-5 text-gray-900  outline-none focus:ring-0"
+              className="w-full bg-gray-100 text-[16px] h-14 border-none p-2 pl-3 pr-10 text-sm leading-5 text-gray-900  outline-none focus:ring-0"
               displayValue={() => {
                 return selectedPlace?.description;
               }}
