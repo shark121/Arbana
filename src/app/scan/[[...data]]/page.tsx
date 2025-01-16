@@ -3,7 +3,13 @@ import { Button } from "@/components/ui/button";
 import QrCodeScanner from "../../../../components/components/qrcodeScanner";
 import { useState, useEffect } from "react";
 import SheetComponent from "../../../../components/components/sheet";
-import { ArrowLeftIcon, ScanBarcodeIcon, EllipsisIcon, ChevronLeft, QrCode } from "lucide-react";
+import {
+  ArrowLeftIcon,
+  ScanBarcodeIcon,
+  EllipsisIcon,
+  ChevronLeft,
+  QrCode,
+} from "lucide-react";
 import ToastComponent from "../../../../components/components/toast";
 import { comfortaa } from "@/app/page";
 import ScannerSVG from "@/images/svg/scanner";
@@ -13,22 +19,6 @@ import { useToast } from "@/hooks/use-toast";
 import { StringToBoolean } from "class-variance-authority/types";
 import { useRouter } from "next/navigation";
 import { EventSchemaType } from "@/lib/types";
-
-function displayResult({ scans }: { scans: number | null }) {
-
-  if (scans === null) {
-    window.alert("invalid ticket");
-  }
-
-  if (scans == 1) {
-    window.alert("ticket verified");
-  }
-
-  if (scans == 0) {
-    window.alert("ticket has no available scans");
-  }
-
-}
 
 export default function ScanQRCode(params: { params: { data: string[] } }) {
   const eventID = params.params.data[0];
@@ -45,17 +35,35 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
   const router = useRouter();
   const { toast } = useToast();
 
+  function displayResult({ scans }: { scans: number | null }) {
+    if (scans === null) {
+      // window.alert("invalid ticket");
+      toast({ description: "invalid ticket", variant: "destructive" });
+    }
+
+    if (scans == 1) {
+      // window.alert("ticket verified");
+      toast({ description: "ticket verified" });
+    }
+
+    if (scans == 0) {
+      // window.alert("ticket has no available scans");
+      toast({
+        description: "ticket has no available scans",
+        variant: "destructive",
+      });
+    }
+  }
 
   useEffect(() => {
-     const eventData = sessionStorage.getItem(eventID);
+    const eventData = sessionStorage.getItem(eventID);
 
-     if(!eventData){
+    if (!eventData) {
       //  router.push("/app/events")
-       console.log("no event data")
-     }else{
-        setEventData(JSON.parse(eventData));
-     }
-     
+      console.log("no event data");
+    } else {
+      setEventData(JSON.parse(eventData));
+    }
   }, []);
 
   async function checkTicket({
@@ -65,7 +73,6 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
     setQuerying,
     setTicketData,
     setIdle,
-
   }: {
     scannedID: string;
     eventID: string;
@@ -76,8 +83,6 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
     // creatorID: string;
   }) {
     setProcessing(false);
-
-    toast({ description: "Hello toast" });
 
     setQuerying(true);
 
@@ -108,20 +113,18 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
   let count = 0;
 
   async function scannerInit() {
+    //   checkTicket({
+    //     scannedID: "2375211245",
+    //     eventID: eventID,
+    //     setProcessing: setProcessing,
+    //     setQuerying: setQuerying,
+    //     setTicketData: setTicketData,
+    //     setIdle: setIdle,
+    //     creatorID: "33",
+    //   });
 
-  //   checkTicket({
-  //     scannedID: "2375211245",
-  //     eventID: eventID,
-  //     setProcessing: setProcessing,
-  //     setQuerying: setQuerying,
-  //     setTicketData: setTicketData,
-  //     setIdle: setIdle,
-  //     creatorID: "33",
-  //   });
+    // return
 
-    
-  // return 
-  
     setScanning(true);
     setIdle(false);
     const qrCodeReader = new Html5Qrcode("qr-code-reader", true);
@@ -135,7 +138,7 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
 
         setProcessing(true);
 
-      checkTicket({
+        checkTicket({
           scannedID: res as string,
           eventID: eventID,
           setProcessing: setProcessing,
@@ -156,9 +159,7 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
       className={` ${comfortaa.className}  w-screen h-screen flex flex-col items-center`}
     >
       <div className="flex justify-between h-[4rem] w-full p-4 z-10 bg-none">
-        <button className="h-full aspect-square"
-        onClick={()=>router.back()}
-        >
+        <button className="h-full aspect-square" onClick={() => router.back()}>
           <ChevronLeft color="red" />
         </button>
         <div className="text-[2rem]">Scanner</div>

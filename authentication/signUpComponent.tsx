@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { setCookie } from "@/lib/utils";
 import PasswordInput from "../components/ui/passwordInputType";
-import {setDoc, doc} from "firebase/firestore"
+import { setDoc, doc, collection } from "firebase/firestore";
 
 import Logo from "@/images/svg/logo";
 
@@ -31,15 +31,24 @@ async function createNewUserWithEmailAndPassword(
         photoURL,
       };
 
-
       await sendEmailVerification(user).then((verification) => {
-      setCookie("user", JSON.stringify(userInfo), 1);
+        setCookie("user", JSON.stringify(userInfo), 1);
 
-      const userInfoWithExtraFields = {acountInfo :{name:displayName, uid, email, emailVerified:true} , events:[], tickets:[], followers:[], following:[]}
-      
-      sessionStorage.setItem("user", JSON.stringify(userInfoWithExtraFields));
-      setDoc(doc(database, "users", userInfo.uid), { userInfoWithExtraFields }, { merge: true });
-      console.log(userInfo);
+        const userInfoWithExtraFields = {
+          accountInfo: { name: displayName, uid, email, emailVerified: true, },
+          events: [],
+          tickets: [],
+          followers: [],
+          following: [],
+        };
+
+        sessionStorage.setItem("user", JSON.stringify(userInfoWithExtraFields));
+        setDoc(
+          doc(collection(database, "users"), userInfo.uid),
+          userInfoWithExtraFields ,
+          { merge: true }
+        );
+        console.log(userInfo);
 
         console.log(verification);
         console.log("email sent");
@@ -72,10 +81,9 @@ export default function SignUpComponent() {
     setEmailState("");
     setPasswordState("");
   }
-  
 
   return (
-    <main className="w-screen  flex flex-col items-center justify-center">
+    <div className="w-screen  flex flex-col items-center justify-center">
       {/* <div>Logo</div> */}
       <Logo />
       <div className="w-[20rem]  flex flex-col items-center justify-center gap-4">
@@ -85,11 +93,14 @@ export default function SignUpComponent() {
           ref={emailRef}
           onChange={(e) => setEmailState(() => e.target.value)}
         />
-        <PasswordInput ref={passwordRef} setPasswordState={setPasswordState} />
+        <PasswordInput
+          passwordState={passwordState}
+          setPasswordState={setPasswordState}
+        />
 
         <PasswordInput
-          ref={confirmPasswordRef}
-          setPasswordState={setPasswordState}
+          passwordState={confirmPasswordState}
+          setPasswordState={setConfirmPasswordState}
         />
 
         {/* <Input
@@ -106,6 +117,6 @@ export default function SignUpComponent() {
         /> */}
         <Button onClick={(e) => handleOnclick(e)}>Submit</Button>
       </div>
-    </main>
+    </div>
   );
 }

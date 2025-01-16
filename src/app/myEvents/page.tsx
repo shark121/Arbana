@@ -14,6 +14,7 @@ import EventListComponent from "../../../components/components/events/eventCompo
 import { comfortaa } from "../page";
 import Loading from "../loading";
 import Cookies from "js-cookie";
+import EmptyComponent from "../../../components/components/emptyComponent";
 
 export default function MyEvents() {
   const [userID, setUserID] = useState();
@@ -65,11 +66,11 @@ export default function MyEvents() {
   }
 
   return (
-    userEvents && (
+    userState && (
       <div
         className={`min-w-screen min-h-screen pt-2 flex items-center  flex-col ${comfortaa.className}`}
       >
-        <div className="w-full flex items-center h-[3rem] p-2  justify-between">
+        <div className="w-full flex items-center h-[3rem] p-2  justify-between z-10">
           <button className="w-[2rem] h-[2rem]" onClick={() => router.back()}>
             <ChevronLeft size={25} color={"red"} />
           </button>
@@ -82,7 +83,7 @@ export default function MyEvents() {
             <Plus size={20} color={"white"} />
           </Button>
         </div>
-        {userEvents && (
+        {userEvents && userEvents.length == 0  ? <EmptyComponent header="You have no events" subHeader="Events You create will appear here"/> : userEvents && (
           <div className="w-full h-full p-1">
             {userEvents.map((el, i) => (
               <EventListComponent userEvent={el} />

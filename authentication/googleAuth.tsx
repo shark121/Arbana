@@ -1,25 +1,32 @@
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import {
+  getAuth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  getAdditionalUserInfo,
+} from "firebase/auth";
 import GoogleSVG from "../public/images/Google__G__logo.svg.png";
 import { auth } from "../src/firebase.config";
 import Image from "next/image";
-import { set } from "firebase/database";
 import { setCookie } from "@/lib/utils";
+import { setDoc, doc, collection } from "firebase/firestore";
+import { database } from "@/firebase.config";
 
 const provider = new GoogleAuthProvider();
 
 async function triggerPopup() {
   return signInWithPopup(auth, provider)
     .then((result) => {
-
       // This gives you a Google Access Token. You can use it to access the Google API.
 
       console.log("used pop up...........................");
       const credential = GoogleAuthProvider.credentialFromResult(result);
       const token = credential && credential.accessToken;
 
+      console.log(result);
+
       // The signed-in user info.
       // const user = result.user;
-     
+
       const {
         uid,
         email,
@@ -39,9 +46,40 @@ async function triggerPopup() {
         phoneNumber,
         providerData,
       };
+
+      const userInfo = {
+        uid,
+        email,
+        emailVerified,
+        displayName,
+        phoneNumber,
+        photoURL,
+      };
       setCookie("user", JSON.stringify(user), 1);
       sessionStorage.setItem("user", JSON.stringify(user));
-      window.location.href = "/";
+      // window.location.href = "/";
+
+      const userInfoWithExtraFields = {
+        accountInfo: { name: displayName, uid, email, emailVerified: true },
+        events: [],
+        tickets: [],
+        followers: [],
+        following: [],
+      };
+
+      const additionalUserInfo = result ? getAdditionalUserInfo(result) : null;
+      if (result && additionalUserInfo && additionalUserInfo.isNewUser) {
+        setDoc(
+          doc(collection(database, "users"), userInfo.uid),
+          userInfoWithExtraFields ,
+          { merge: true }
+        );
+        
+        sessionStorage.setItem("user", JSON.stringify(userInfoWithExtraFields));
+      }
+
+     
+      console.log(userInfo);
       //   console.log(user);
       return user;
       // ...

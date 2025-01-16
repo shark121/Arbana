@@ -10,6 +10,8 @@ import jsPDF from "jspdf";
 import QRcode from "qrcode";
 import Image from "next/image";
 import {ChevronRight} from "lucide-react"
+import {EventsPieChart} from "@/charts/eventSalesPie"
+import dynamic from "next/dynamic";
 
 const domain = process.env.NEXT_PUBLIC_DOMAIN;
 
@@ -23,6 +25,10 @@ export default function EventOptions({
   const [isReady, setIsReady] = useState(false);
   const [qrCode, setQrCode] = useState<string>();
   const router = useRouter();
+
+  // const  = dynamic(() => import('../components/header'), {
+  //   loading: () => <p>Loading...</p>,
+  // })
 
   const pdf = new jsPDF({ format: "c5" });
 
@@ -61,6 +67,10 @@ export default function EventOptions({
   const labelStyling = "text-[0.7rem] text-gray-500 mb-1";
   const borderStyling =
     "border-b-[1px] border-gray-100 mb-2 text-[0.8rem] text-gray-700";
+
+
+    // return <EventsPieChart/>
+
   return (
     <div className={`${comfortaa.className} min-w-screen min-h-screen p-2`}>
       <div className="h-[3rem] w-full flex justify-between items-center mb-4">

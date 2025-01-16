@@ -17,10 +17,11 @@ export function middleware(request: NextRequest, event: NextFetchEvent) {
 
   if (
     request.nextUrl.pathname.startsWith("/myEvents") ||
-    request.nextUrl.pathname.startsWith("/tickets")
+    request.nextUrl.pathname.startsWith("/tickets")  ||
+    request.nextUrl.pathname.startsWith("/account") 
   ) {
     if (!request.cookies.get("user"))
-      return NextResponse.redirect(origin + "/home");
+      return NextResponse.redirect(origin + `/home?redirect=true&path=${request.nextUrl.pathname}`);
   }
 
   if (request.nextUrl.pathname.startsWith("/ticket")) {

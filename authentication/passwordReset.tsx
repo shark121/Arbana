@@ -14,7 +14,7 @@ export default function PasswordReset() {
   }
 
   return (
-    <main className=" flex flex-col items-center justify-center">
+    <div className=" flex flex-col items-center justify-center">
       <div>Logo</div>
       <div className="w-[20rem]  flex flex-col items-center justify-center gap-4">
         <Input
@@ -25,6 +25,6 @@ export default function PasswordReset() {
         />
         <Button onClick={(e) => handleOnclick(e)}>Submit</Button>
       </div>
-    </main>
+    </div>
   );
 }

@@ -6,6 +6,7 @@ import Loading from "@/app/loading";
 import TicketsListComponents from "../../../components/components/tickets/ticketsListComponent";
 import { comfortaa } from "../../app/page";
 import SheetComponent from "../../../components/components/sheet";
+import EmptyComponent from "../../../components/components/emptyComponent";
 // import { getCookie } from "@/lib/utils";
 // import { connectStorageEmulator } from "firebase/storage";
 import Cookies from "js-cookie";
@@ -26,13 +27,13 @@ export default function GetTicket() {
   useEffect(() => {
     // const userJSON = JSON.parse(sessionStorage.getItem("user") as string);
     const userJSON = JSON.parse(Cookies.get("user") as string);
-    console.log(userJSON.uid)
+    console.log(userJSON.uid);
 
     setUserState(userJSON);
   }, []);
 
   async function handleDelete(ticket: TicketSchemaType) {
-    console.log("hadling delete........")
+    console.log("hadling delete........");
     const data = new FormData();
     data.append("ticketData", JSON.stringify(ticket));
     await fetch("/api/data/update/tickets/", {
@@ -44,8 +45,6 @@ export default function GetTicket() {
 
     setTickets(tickets.filter((el) => el.ticketID !== ticket.ticketID));
   }
-
- 
 
   useEffect(() => {
     console.log(userState?.uid);
@@ -140,13 +139,9 @@ export default function GetTicket() {
     setIsLoading(false);
   }, [tickets]);
 
-
-
   setTimeout(() => {
     setLoadingBuffer(false);
-  }
-  , 500);
-
+  }, 500);
 
   if (isLoading || loadingBuffer) {
     return <Loading />;
@@ -161,12 +156,15 @@ export default function GetTicket() {
     <div
       className={`min-h-screen w-screen ${comfortaa.className} bg-gray-50 flex items-center flex-col`}
     >
-      <div className="w-screen flex items-center justify-between p-4 h-[3rem] text-[2rem] text-gray-900">
+      <div className="w-screen flex items-center justify-between p-4 h-[3rem] text-[2rem] text-gray-900 z-10">
         <div>My Tickets</div>
         <SheetComponent />
       </div>
       <div className="w-full h-full flex flex-wrap gap-4 items-center justify-center">
-        {tickets &&
+        {tickets && tickets.length == 0 ? (
+          <EmptyComponent header="You have no tickets" subHeader="Purchased tickets will appear here"/>
+        ) : (
+          tickets &&
           tickets.map((el, i) => (
             <div>
               <TicketsListComponents
@@ -178,7 +176,8 @@ export default function GetTicket() {
                 tickets={tickets}
               />
             </div>
-          ))}
+          ))
+        )}
       </div>
     </div>
   );

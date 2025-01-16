@@ -6,10 +6,10 @@ import { LegacyRef } from "react";
 
 export default function PasswordInput({
   setPasswordState,
-  ref,
+  passwordState,
 }: {
   setPasswordState: React.Dispatch<React.SetStateAction<string>>;
-  ref: LegacyRef<HTMLInputElement> | undefined;
+  passwordState: string;
 }) {
   const [isOpen, setIsOpen] = useState<boolean>();
 
@@ -20,7 +20,6 @@ export default function PasswordInput({
         onChange={(e) => setPasswordState(e.target.value)}
         className="outline-none"
         placeholder="password"
-        ref={ref}
       />
       <div className="h-14 aspect-square flex items-center justify-center" onClick={() => setIsOpen(!isOpen)}>
         {isOpen ? <Eye /> : <EyeOff />}

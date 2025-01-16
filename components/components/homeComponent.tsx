@@ -1,5 +1,5 @@
 import HomeAnimation from "@/animations/homeAnimation";
-import { QrCodeIcon } from "lucide-react";
+import { ArrowRightIcon, QrCodeIcon } from "lucide-react";
 import { ColoredSearch } from "@/images/svg/search";
 
 export default function HomeComponents({
@@ -28,14 +28,17 @@ export default function HomeComponents({
             Scan QR
           </button>{" "}
           <button
-            className="py-2 px-10 outline outline-gray-100 outine-[1px] m-2 text-black rounded-full flex  items-center justify-center gap-2"
+            className="py-2 px-10  outline outline-gray-100 outine-[1px] m-2 text-black rounded-full flex  items-center justify-center gap-2"
             onClick={() => {
               setScannerState(false);
               setIsSearching(true);
             }}
           >
-            Search
-            <ColoredSearch size={"20px"} />
+            Get Started
+            <div className="flex items-center justify-center h-full rounded-full bg-gray-100 aspect-square">
+              <ArrowRightIcon size={20} />
+            </div>
+            {/* <ColoredSearch size={"20px"} /> */}
           </button>
         </div>
       </div>

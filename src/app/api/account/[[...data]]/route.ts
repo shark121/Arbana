@@ -15,10 +15,15 @@ export async function GET(
 ) {
   const { data } = context.params;
   const userId = data[0];
+
   const userDocRef = doc(accountCollectionRef, userId);
+
   const accountInfo = await getDoc(userDocRef).then((docSnap) => {
     if (docSnap.exists()) {
+      // console.log(docSnap.data().accountInfo, "docSnap.data().accountInfo");
+      console.log(docSnap.data(), "docSnap.");
       return docSnap.data().accountInfo;
+
     }
   });
 
@@ -32,22 +37,24 @@ export async function PATCH(req: NextRequest) {
   const restToJSON = JSON.parse(rest);
   const uid = restToJSON.uid;
 
-  if (restToJSON.shouldUpdateEmail) {
-    const email = restToJSON.email;
-    const user = auth.currentUser;
+  console.log(restToJSON, uid,  "restToJSON");
 
-    if (!user) return NextResponse.json({ status: 401 });
+  // if (restToJSON.shouldUpdateEmail) {
+  //   const email = restToJSON.email;
+  //   const user = auth.currentUser;
 
-    await sendEmailVerification(user)
-      .then(async() => {
-        console.log("email sent");
-        // const updateEmailResponse = await updateEmail({ email, uid });
-        // console.log(updateEmailResponse, "updateEmailResponse");
-      })
-      .catch((error) => {
-        console.error("Error in sending email", error);
-      });
-  }
+  //   if (!user) return NextResponse.json({ status: 401 });
+
+  //   await sendEmailVerification(user)
+  //     .then(async() => {
+  //       console.log("email sent");
+  //       // const updateEmailResponse = await updateEmail({ email, uid });
+  //       // console.log(updateEmailResponse, "updateEmailResponse");
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error in sending email", error);
+  //     });
+  // }
 
   if (imageFile) {
     const downloadURL = await uploadFile({ file: imageFile });

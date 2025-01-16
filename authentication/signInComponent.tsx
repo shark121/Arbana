@@ -33,20 +33,24 @@ export default function SignInComponent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const emailRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
+  const [passwordState, setPasswordState] = useState(""); 
+  // const passwordRef = useRef<HTMLInputElement>(null);
 
   function handleOnclick(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     emailAndPasswordSignIn(email, password);
 
     emailRef?.current?.value ? (emailRef.current.value = "") : null;
-    passwordRef?.current?.value ? (passwordRef.current.value = "") : null;
+    // passwordRef?.current?.value ? (passwordRef.current.value = "") : null;
 
     setEmail("");
     setPassword("");
   }
 
+
+  // return <div></div>
+
   return (
-    <main className=" flex flex-col items-center justify-center text-black">
+    <div className=" flex flex-col items-center justify-center text-black">
       <div>
         <Logo />
       </div>
@@ -58,14 +62,7 @@ export default function SignInComponent() {
           onChange={(e) => setEmail(() => e.target.value)}
           className="text-black"
         />
-        {/* <Input
-          type="password"
-          placeholder="password"
-          ref={passwordRef}
-          onChange={(e) => setPassword(() => e.target.value)}
-          className="text-black"
-        /> */}
-        <PasswordInput ref={passwordRef} setPasswordState={setPassword} />
+        <PasswordInput passwordState={passwordState} setPasswordState={setPassword} />
         <button
           className="w-full h-14 bg-black/90 rounded-lg text-white"
           onClick={(e) => handleOnclick(e)}
@@ -77,12 +74,11 @@ export default function SignInComponent() {
           <div>or</div>
           <div className="w-[40%] h-[1px] outline-[5px] bg-black"></div>
 
-          {/* <div className="w-[40%] h-10 outline-[5px] bg-black"></div> */}
         </div>
         <div>
           <GoogleAuth />
         </div>
       </div>
-    </main>
+    </div>
   );
 }

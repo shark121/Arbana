@@ -13,14 +13,19 @@ export const CreatorSchema = z.object({
     .string()
     .optional()
     .refine(
-      (mobile) => mobile && mobile.startsWith("+233") && mobile.length == 13
+      (mobile) => mobile && mobile.length == 10
     ),
   imageUrl: z.string().url().optional(),
   location: z.string().optional(),
   verified: z.boolean().default(false),
   bio: z.string().optional().describe("A short biography of the creator"),
   socialMediaLinks: z
-    .array(z.string().url())
+    .object({
+      twitter: z.string().url(),
+      facebook: z.string().url(),
+      instagram: z.string().url(),
+      linkedin: z.string().url(),
+    })
     .optional()
     .describe("Links to the creator's social media profiles"),
 });
@@ -88,7 +93,7 @@ const TicketSchema = z.object({
   eventID: z.string().min(1, "Event ID is required"),
   tier: z.string().min(1, "Tier is required"),
   price: z.number().min(0, "Price must be a positive number"),
-  quantity : z.number().min(1, "Quantity must be a positive number"), 
+  quantity: z.number().min(1, "Quantity must be a positive number"),
   imageUrl: z.string().url("Must be a valid URL"),
   scans: z.number().min(0, "Scans must be a non-negative number"),
   uid: z
@@ -113,7 +118,7 @@ const TicketSchema = z.object({
     })
     .optional()
     .describe("The coordinates of the ticket"),
-  
+
   // status: z
   //   .enum(["active", "used", "cancelled"])
   //   .describe("The current status of the ticket"),
@@ -192,7 +197,7 @@ export const EventSchema = z
       })
       .optional()
       .describe("The coordinates of the ticket"),
-    locationId : z.string(),
+    locationId: z.string(),
   })
   .strict();
 //   .refine((data) => new Date(data.startDate) < new Date(data.endDate), {
@@ -207,8 +212,6 @@ export const EventSchema = z
 
 export type AvailableSeatsType = z.infer<typeof AvailableSeatsSchema>;
 
-
-
 export const PermissionsTypeSchema = z.object({
   canEdit: z.boolean(),
   canDelete: z.boolean().optional(),
@@ -218,7 +221,9 @@ export const PermissionsTypeSchema = z.object({
   canViewStats: z.boolean(),
 });
 
-
 export type PermissionsSchemaType = z.infer<typeof PermissionsTypeSchema>;
 
-export type TeamDataType =  Record<string, { info: CreatorSchemaType; permissions: PermissionsSchemaType }>;
+export type TeamDataType = Record<
+  string,
+  { info: CreatorSchemaType; permissions: PermissionsSchemaType }
+>;

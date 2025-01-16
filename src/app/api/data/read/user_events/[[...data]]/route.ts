@@ -28,7 +28,9 @@ async function getUserEvents(userID: string) {
     if (doc.exists()) {
       await setCache(userEvents, doc.data().events);
       await setCache(userBookings, doc.data().tickets);
-      return doc.data().events;
+
+      return doc.data().events || [];
+      
     } else {
       return null;
     }
