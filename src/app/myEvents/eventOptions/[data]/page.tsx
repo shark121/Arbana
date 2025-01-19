@@ -9,22 +9,25 @@ import { COLORSMAP } from "../../../../../data/colors";
 import jsPDF from "jspdf";
 import QRcode from "qrcode";
 import Image from "next/image";
-import {ChevronRight} from "lucide-react"
-import {EventsPieChart} from "@/charts/eventSalesPie"
+import { ChevronRight } from "lucide-react";
+import { EventsPieChart } from "@/charts/eventSalesPie";
+import Cookies from "js-cookie";
 import dynamic from "next/dynamic";
 
 const domain = process.env.NEXT_PUBLIC_DOMAIN;
 
-export default function EventOptions({
-  params,
-}: {
-  params: { data: string };
-}) {
+const DynamicStatic = dynamic(
+  () => import("@/charts/eventSalesPie").then((mod) => mod.EventsPieChart),
+  { ssr: false, loading: () => <p>Getting Statistics...</p> }
+);
+
+export default function EventOptions({ params }: { params: { data: string } }) {
   const eventID = params.data;
   const [eventState, setEventState] = useState<EventType>();
   const [isReady, setIsReady] = useState(false);
   const [qrCode, setQrCode] = useState<string>();
   const router = useRouter();
+  const [userInfoState, setUserInfoState] = useState<any>();
 
   // const  = dynamic(() => import('../components/header'), {
   //   loading: () => <p>Loading...</p>,
@@ -53,6 +56,10 @@ export default function EventOptions({
       sessionStorage.getItem(eventID) &&
       JSON.parse(sessionStorage.getItem(eventID)!);
     setEventState(event);
+
+    const userInfo = JSON.parse(Cookies.get("user") || "");
+    console.log(userInfo);
+    setUserInfoState(userInfo);
   }, []);
 
   useEffect(() => {
@@ -68,8 +75,9 @@ export default function EventOptions({
   const borderStyling =
     "border-b-[1px] border-gray-100 mb-2 text-[0.8rem] text-gray-700";
 
+  // return <EventsPieChart/>
 
-    // return <EventsPieChart/>
+  // return <DynamicStatic  eventId="31922" userId="h4tLf5B8YFdGB05pbIesB0EuDxj2"/>
 
   return (
     <div className={`${comfortaa.className} min-w-screen min-h-screen p-2`}>
@@ -86,6 +94,10 @@ export default function EventOptions({
           <Edit size={20} color={"#ffffff"} />
         </Button>
       </div>
+      {userInfoState && (
+        <DynamicStatic eventId={eventID} userId={userInfoState.uid} />
+      )}
+
       {eventState && (
         <div>
           {/* <div className="relative w-full h-[8rem] flex items-center justify-center">
@@ -119,7 +131,7 @@ export default function EventOptions({
             <div>{eventState.description}</div>
           </div>
           <div className={borderStyling}>
-            <div className={labelStyling}>Categories</div>
+            <div className={labelStyling}>Tiers</div>
             {eventState.availableSeats.map((el) => (
               <div>
                 <div className="w-full flex items-center justify-center">
@@ -141,16 +153,18 @@ export default function EventOptions({
             ))}
           </div>
           <div className={borderStyling}>
-            <div className={labelStyling}>Tiers</div>
+            <div className={labelStyling}>Categories</div>
             <div className="flex">
               {eventState.categories.map((el) => (
                 <div className="m-1">{el}</div>
-              ))}
+              )) || "No Categories"}
             </div>
           </div>
           <div
             className="w-full h-[2.5rem] hover:bg-gray-200  border-b-[1px] border-gray-100 text-gray-700 text-[0.85rem] flex items-center cursor-pointer justify-between"
-            onClick={() => window.location.href = `/myEvents/eventOptions/${eventID}/team`}
+            onClick={() =>
+              (window.location.href = `/myEvents/eventOptions/${eventID}/team`)
+            }
           >
             <div>Team</div>
             <ChevronRight size={20} color={"red"} />

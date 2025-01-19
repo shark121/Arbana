@@ -21,52 +21,49 @@ export default function MyEvents() {
   const [isLoading, setIsLoading] = useState(true);
   const [userState, setUserState] = useState<User>({} as User);
   const [loadingBuffer, setLoadingBuffer] = useState(true);
-  const [userEvents, setUserEvents] = useState<EventType[]>([]);
+  const [userEvents, setUserEvents] = useState<EventType[] | null>([]);
   const router = useRouter();
   const userDocsRef = collection(database, "users");
 
   useEffect(() => {
-    // const userJSON = JSON.parse(sessionStorage.getItem("user") as string);
-    const userJSON = JSON.parse(Cookies.get("user") as string);
-    setUserState(userJSON);
-  }, []);
+    const userJSON = JSON.parse((Cookies.get("user") as string) || "");
+    userJSON && setUserState(userJSON);
 
-  useEffect(() => {
-    async function userCreatedEvents() {
-      await fetch(`/api/data/read/user_events/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "text/plain",
-        },
-        body: JSON.stringify({ uid: userState.uid }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log(data);
+    fetch(`/api/data/read/user_events/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain",
+      },
+      body: JSON.stringify({ uid: userJSON.uid }),
+    })
+      .then((response) => response.json())
+      .then((data: { data: EventType[] }) => {
+
+        if (data.data.length == 0) {
+          setUserEvents(null);
+        } else {
           setUserEvents(data.data);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    }
-    if (userState.uid) {
-      console.log("user state", userState);
-      userCreatedEvents();
-    }
+        }
+
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    // }
 
     setIsLoading(false);
-  }, [userState]);
+  }, []);
 
   setTimeout(() => {
     setLoadingBuffer(false);
-  }, 5000);
+  }, 500);
 
-  if (isLoading || loadingBuffer) {
+  if (isLoading || loadingBuffer || !userState) {
     return <Loading />;
   }
 
   return (
-    userState && (
+    (userEvents || userEvents == null) && (
       <div
         className={`min-w-screen min-h-screen pt-2 flex items-center  flex-col ${comfortaa.className}`}
       >
@@ -83,12 +80,19 @@ export default function MyEvents() {
             <Plus size={20} color={"white"} />
           </Button>
         </div>
-        {userEvents && userEvents.length == 0  ? <EmptyComponent header="You have no events" subHeader="Events You create will appear here"/> : userEvents && (
-          <div className="w-full h-full p-1">
-            {userEvents.map((el, i) => (
-              <EventListComponent userEvent={el} />
-            ))}
-          </div>
+        {userEvents == null ? (
+          <EmptyComponent
+            header="You have no events"
+            subHeader="Events You create will appear here"
+          />
+        ) : (
+          userEvents && (
+            <div className="w-full h-full p-1">
+              {userEvents.map((el, i) => (
+                <EventListComponent userEvent={el} key={i}/>
+              ))}
+            </div>
+          )
         )}
         {/* <ScanQRCode/> */}
       </div>

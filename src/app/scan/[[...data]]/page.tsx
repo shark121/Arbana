@@ -4,25 +4,25 @@ import QrCodeScanner from "../../../../components/components/qrcodeScanner";
 import { useState, useEffect } from "react";
 import SheetComponent from "../../../../components/components/sheet";
 import {
-  ArrowLeftIcon,
-  ScanBarcodeIcon,
   EllipsisIcon,
   ChevronLeft,
   QrCode,
 } from "lucide-react";
-import ToastComponent from "../../../../components/components/toast";
 import { comfortaa } from "@/app/page";
-import ScannerSVG from "@/images/svg/scanner";
-import { Html5Qrcode } from "html5-qrcode";
-import Loading from "@/app/loading";
+import { Html5Qrcode, Html5QrcodeScanner } from "html5-qrcode";
 import { useToast } from "@/hooks/use-toast";
-import { StringToBoolean } from "class-variance-authority/types";
 import { useRouter } from "next/navigation";
-import { EventSchemaType } from "@/lib/types";
+import Cookies from "js-cookie";
+import { EventSchemaType, scanResultType} from "@/lib/types";
+import { functions } from "@/firebase.config";
+import { httpsCallable } from "firebase/functions";
+import ScanAnimation from "@/animations/scan";
+
+
+const scanTicket = httpsCallable(functions, "scanTicket");
 
 export default function ScanQRCode(params: { params: { data: string[] } }) {
   const eventID = params.params.data[0];
-  const [file, setFile] = useState<File | null>(null);
   const [eventData, setEventData] = useState<EventSchemaType>();
   const [errorState, setErrorState] = useState<any>();
   const [started, setStarted] = useState<boolean>(false);
@@ -30,33 +30,36 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
   const [idle, setIdle] = useState<boolean>(true);
   const [scannedID, setscannedID] = useState<string>("");
   const [processingState, setProcessing] = useState<boolean>(false);
+  const [userState, setUserState] = useState<any>();
   const [queryingState, setQuerying] = useState<boolean>(false);
   const [ticketData, setTicketData] = useState<any>();
   const router = useRouter();
   const { toast } = useToast();
 
-  function displayResult({ scans }: { scans: number | null }) {
+
+  function displayResult({scans, quantity}:scanResultType) {
+    // console.log(scans, quantity);
     if (scans === null) {
-      // window.alert("invalid ticket");
       toast({ description: "invalid ticket", variant: "destructive" });
     }
 
-    if (scans == 1) {
-      // window.alert("ticket verified");
+    if ( scans && scans > 0) {
       toast({ description: "ticket verified" });
     }
 
     if (scans == 0) {
-      // window.alert("ticket has no available scans");
       toast({
         description: "ticket has no available scans",
-        variant: "destructive",
+        variant: "destructive",        
       });
     }
   }
 
   useEffect(() => {
     const eventData = sessionStorage.getItem(eventID);
+    const userInfo = JSON.parse(Cookies.get("user") || "");
+
+    setUserState(userInfo);
 
     if (!eventData) {
       //  router.push("/app/events")
@@ -66,6 +69,8 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
     }
   }, []);
 
+
+
   async function checkTicket({
     scannedID,
     eventID,
@@ -73,6 +78,7 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
     setQuerying,
     setTicketData,
     setIdle,
+    userID,
   }: {
     scannedID: string;
     eventID: string;
@@ -80,50 +86,68 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
     setQuerying: React.Dispatch<React.SetStateAction<boolean>>;
     setTicketData: React.Dispatch<React.SetStateAction<any>>;
     setIdle: React.Dispatch<React.SetStateAction<boolean>>;
-    // creatorID: string;
+    userID: string;
   }) {
-    setProcessing(false);
+    try {
+      setProcessing(false);
+      setQuerying(true);
 
-    setQuerying(true);
+      if (userID !== eventData?.creator?.uid) {
+        console.log("user not creator");
+        // Handle scanning ticket if the userID doesn't match creator ID
+        const response = await scanTicket({
+          eventId: eventID,
+          ticketID: scannedID,
+          userId: userID,
+        }) as {data : scanResultType}
 
-    return fetch("/api/data/read/scan", {
-      method: "POST",
-      body: JSON.stringify({ ticketID: scannedID, eventID }),
-    })
-      .then((res) => {
-        setQuerying(false);
-        setIdle(true);
-        console.log(res);
-        return res.json();
-      })
-      .then((data) => {
-        setTicketData(data);
-        setQuerying(false);
-        // window.alert(data)
-        displayResult(data);
-        setErrorState(String(data.scans));
-        console.log(data, "this is the data");
-      })
-      .catch((error) => {
-        console.log(error);
-        window.alert(error);
-      });
+        console.log(response.data, "response from cloud function");
+        
+        if(response.data.scans !== null || undefined) displayResult({scans : response.data.scans, quantity : response.data.quantity});
+
+      } else {
+        // Handle fetching ticket scan data
+        const response = await fetch("/api/data/read/scan", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ticketID: scannedID, eventID }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch data: ${response.statusText}`);
+        }
+
+        const res = await response.json();
+        setTicketData(res.data);
+        displayResult(res.data);
+        setErrorState(String(res.data.scans));
+        console.log("Ticket data:", res);
+      }
+    } catch (error) {
+      console.error("Error in checkTicket:", error);
+      window.alert("An unexpected error occurred");
+    } finally {
+      setQuerying(false);
+      setIdle(true);
+    }
   }
 
-  let count = 0;
+  // let count = 0;
 
   async function scannerInit() {
-    //   checkTicket({
-    //     scannedID: "2375211245",
-    //     eventID: eventID,
-    //     setProcessing: setProcessing,
-    //     setQuerying: setQuerying,
-    //     setTicketData: setTicketData,
-    //     setIdle: setIdle,
-    //     creatorID: "33",
-    //   });
+    // checkTicket({
+    //   scannedID: "0544016639",
+    //   eventID: eventID,
+    //   setProcessing: setProcessing,
+    //   setQuerying: setQuerying,
+    //   setTicketData: setTicketData,
+    //   setIdle: setIdle,
+    //   userID: userState?.uid,
+    // });
 
-    // return
+    // return;
 
     setScanning(true);
     setIdle(false);
@@ -145,25 +169,29 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
           setQuerying: setQuerying,
           setTicketData: setTicketData,
           setIdle: setIdle,
+          userID: userState?.uid,
           // creatorID: eventData?.creator.uid
         });
       })
       .catch((error) => {
         setScanning(false);
-        setErrorState(String(error) + count);
+        // setErrorState(String(error) + count);
       });
   }
 
   return (
     <div
-      className={` ${comfortaa.className}  w-screen h-screen flex flex-col items-center`}
+      className={` text-gray-700 w-screen h-screen flex flex-col items-center`}
     >
       <div className="flex justify-between h-[4rem] w-full p-4 z-10 bg-none">
         <button className="h-full aspect-square" onClick={() => router.back()}>
           <ChevronLeft color="red" />
         </button>
-        <div className="text-[2rem]">Scanner</div>
+        {/* <div className="text-[2rem]">Scanner</div> */}
         <SheetComponent />
+      </div>
+      <div>
+      <p className="font-bold text-[2rem] text-center text-wrap ">Click 'Scan' when you're ready to scan ticket.</p>
       </div>
       <div
         id="qr-code-reader"
@@ -177,7 +205,8 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
         } items-center justify-center h-[400px] w-[400px]`}
       >
         {idle ? (
-          <QrCode height={"40%"} width={"40%"} strokeWidth="1px" />
+          // <QrCode height={"40%"} width={"40%"} strokeWidth="1px" />
+          <ScanAnimation />
         ) : null}
         {processingState ? <EllipsisIcon height={"40%"} width={"40%"} /> : null}
         {queryingState ? <EllipsisIcon height={"40%"} width={"40%"} /> : null}
@@ -193,7 +222,7 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
         Scan
       </Button>
       {/* <div className=" h-[2px] w-[200px]">{errorState}</div>
-      <div className=" h-[2px] w-[200px] mt-4">{scannedID}</div>
+      <div className=" h-[2px] w-[200px] mt-4">{scannedID}</div>x
       <div className=" h-[2px] w-[200px]">{ticketData && ticketData.scans}</div> */}
     </div>
   );

@@ -1,31 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { database } from "@/firebase.config";
 import { collection, doc, getDoc } from "firebase/firestore";
-import { getCache, setCache, existsInCache } from "@/lib/server_utils";
+import { getCache, setCache, setMultipleCache } from "@/lib/server_utils";
 
-
-// let hits = 0
 
 async function getUserTickets(userID: string) {
   const userBookings = userID + "_bookings";
   const userEvents = userID + "_events";
   const userDocRef = doc(collection(database, "users"), userID);
+  const userBookingsData = await getCache(userBookings) || null;
 
-  if (await existsInCache(userBookings) ) {
-    console.log("booking data exists in cache");
-    return getCache(userBookings).then((data) => {
-      // console.log(JSON.parse(data));
-      return JSON.parse(data);
-    });
+  if (userBookingsData) {
+    return JSON.parse(userBookingsData);
   }
-    
 
   const userInfo = await getDoc(userDocRef).then(async (doc) => {
     if (doc.exists()) {
-      await setCache(userBookings, doc.data().tickets);
-      await setCache(userEvents, doc.data().events)
-      // console.log(doc.data());
-
+      // await setMultipleCache([userEvents, doc.data().events, userBookings, doc.data().tickets] )
+      setCache(userBookings, doc.data().tickets);
+      
       return doc.data().tickets;
     } else {
       return null;
@@ -47,3 +40,4 @@ export async function GET(
 
   return NextResponse.json({ res: userTicktets });
 }
+

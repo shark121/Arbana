@@ -52,6 +52,9 @@ async function createNewUserWithEmailAndPassword(
 
         console.log(verification);
         console.log("email sent");
+
+        setTimeout(()=>window.history.back(),1000)
+
       });
     })
     .catch((error) => {

@@ -4,13 +4,8 @@ import QrCodeScanner from "./qrcodeScanner";
 import { useState, useEffect } from "react";
 import SheetComponent from "./sheet";
 import {
-  ArrowLeftIcon,
-  ScanBarcodeIcon,
-  EllipsisIcon,
-  QrCodeIcon,
   ChevronLeft,
 } from "lucide-react";
-// import ToastComponent from "../../../../components/components/toast";
 import { comfortaa } from "@/app/page";
 import ScannerSVG from "@/images/svg/scanner";
 import { Html5Qrcode } from "html5-qrcode";
@@ -19,7 +14,8 @@ import { useToast } from "@/hooks/use-toast";
 import { StringToBoolean } from "class-variance-authority/types";
 import { useRouter } from "next/navigation";
 import { set } from "date-fns";
-// import { AppRouterInstance } from "next/navigation";
+import ScanAnimation from "@/animations/scan";
+
 export default function ScannerComponent({
   setScannerState,
 }: {
@@ -130,7 +126,7 @@ export default function ScannerComponent({
         } items-center justify-center h-[400px] w-[400px]`}
       >
         {idle ? (
-          <QrCodeIcon height={"40%"} width={"40%"} strokeWidth="1px" />
+          <ScanAnimation />
         ) : null}
         {processingState ? (
           <div className="absolute top-0 left-0 bottom-0 right-0">

@@ -32,55 +32,8 @@ export const CreatorSchema = z.object({
 
 export type CreatorSchemaType = z.infer<typeof CreatorSchema>;
 
-// export type TicketType = {
-//   name: string;
-//   startDate: string;
-//   endDate: string;
-//   eventID: string;
-//   tier: string;
-//   price: number;
-//   imageUrl: string;
-//   scans: number;
-//   uid: string;
-//   createdAt: Date;
-//   transactionID: string;
-//   ticketID: string;
-// };
-
-// export type EventType = {
-//   eventId: number;
-//   name: string;
-//   startDate: string;
-//   endDate: string;
-//   time: string;
-//   location: string;
-//   description: string;
-//   availableSeats: TicketType[];
-//   level?: string;
-//   categories: string[];
-//   imageUrl: string;
-//   creatorMailAdress?: string | null | undefined;
-//   createdAt?: string;
-//   fallBackMailAdress?: string;
-//   userID: string;
-// };
-
 export type EventSchemaType = z.infer<typeof EventSchema>;
 
-// export const TicketSchema = z.object({
-//   name: z.string(),
-//   startDate: z.date(),
-//   endDate: z.date(),
-//   eventID: z.string(),
-//   tier: z.string(),
-//   price: z.number(),
-//   imageUrl: z.string(),
-//   scans: z.number(),
-//   uid: z.string(),
-//   createdAt: z.date(),
-//   transactionID: z.string(),
-//   ticketID: z.string(),
-// });
 
 const TicketSchema = z.object({
   name: z.string().min(1, "Ticket name is required"),
@@ -227,3 +180,14 @@ export type TeamDataType = Record<
   string,
   { info: CreatorSchemaType; permissions: PermissionsSchemaType }
 >;
+
+
+const scanResultSchema = z.object({
+  scans: z.number().nullish(),
+  quantity: z.number().nullish(),
+  err: z.string().optional().nullish(),
+  ticketData: TicketSchema.nullish(),
+})
+
+
+export type scanResultType = z.infer<typeof scanResultSchema>

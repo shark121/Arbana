@@ -39,13 +39,13 @@ export default function AlertDialogComp({
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction>
-            <Button
+            <div
               // variant=""
-              className="bg-red-500 text-white font-bold w-full h-full"
+              className="#bg-red-500 text-white font-bold w-full h-full cursor-pointer"
               onClick={callback}
             >
               Delete
-            </Button>
+            </div>
             {/* Continue */}
           </AlertDialogAction>
         </AlertDialogFooter>

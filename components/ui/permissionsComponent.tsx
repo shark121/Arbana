@@ -5,7 +5,7 @@ import {
   TeamDataType,
 } from "@/lib/types";
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
-import { ChevronsUpDown, X } from "lucide-react";
+import { ChevronsUpDown, X, DeleteIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { UserCog2Icon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -16,6 +16,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import AlertDialogComp from "../components/deleteAlertPopover";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -23,17 +24,20 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { connectStorageEmulator } from "firebase/storage";
 
 export function PermissionsComponent({
   user,
   permissionsTray,
   setUpdatedPermissions,
   updatedPermissions,
+  handleDelete
 }: {
   user: { permissions: PermissionsSchemaType; info: CreatorSchemaType };
   permissionsTray: TeamDataType;
   setUpdatedPermissions: React.Dispatch<React.SetStateAction<string[]>>;
   updatedPermissions: string[];
+  handleDelete: (uid:string) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [allowEditChecked, setAllowEditChecked] = useState(
@@ -73,6 +77,8 @@ export function PermissionsComponent({
   }, [allowEditChecked, allowScanChecked, allowViewStatsChecked]);
 
   console.log(allowEditChecked);
+
+  
 
   return (
     <Collapsible
@@ -117,6 +123,23 @@ export function PermissionsComponent({
             }
           />
         </div>
+        {/* <div className="w-full flex items-center justify-center">
+          <Button
+            className="w-full sm:w-30"
+            variant={"outline"}
+            onClick={handleDelete}
+          >
+            <DeleteIcon size={20} />
+          </Button>
+        </div> */}
+        <div className="w-full flex items-center justify-center cursor-pointer">
+          <AlertDialogComp
+            displayText="Delete"
+            heading="Delete Team Member"
+            description="Are you sure you want to delete this team member?"
+            callback={()=>handleDelete(user.info.uid)}
+          />
+        </div>
       </CollapsibleContent>
     </Collapsible>
   );
@@ -159,8 +182,8 @@ export function PermissionsPopover({
                 onClick={() => setOpenState(false)}
               />
             </div>
-            <p className="text-sm text-muted-foreground">
-              Describe permissions for the new team member
+            <p className="text-sm text-muted-foreground text-red-500">
+              New team member must be an active user of the platform
             </p>
           </div>
           <div className="grid gap-2">

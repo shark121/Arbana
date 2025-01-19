@@ -16,27 +16,6 @@ export function setCookie(data: string, values: string, days: number) {
   document.cookie = `${data}=${values}; expires=${expires.toUTCString()}; path=/`;
 }
 
-// Example usage:
-// setCookie('username', 'john_doe', 7); // Sets a cookie named 'username' with value 'john_doe' that expires in 7 days
-
-// export function getCookie(name: string): object | null {
-//   const cookieString = document.cookie;
-//   const cookies = cookieString.split("; ");
-
-//   for (const cookie of cookies) {
-//     const [cookieName, cookieValue] = cookie.split("=");
-//     if (cookieName === name) {
-//       try {
-//         return JSON.parse(decodeURIComponent(cookieValue));
-//       } catch (error) {
-//         console.error(`Failed to parse cookie "${name}":`, error);
-//         return null;
-//       }
-//     }
-//   }
-
-//   return null; 
-// }
 
 
 export function getCookie(name: string): Record<string, string> | null {

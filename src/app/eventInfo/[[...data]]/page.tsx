@@ -304,21 +304,29 @@ export default function EventInfo(params: {
 
     if (!FormValidEventSchemaParseSuccess) {
       window.alert("Please fill in all the required fields");
+      setIsLoading(false);
+
       return;
     }
 
     if (!eventWithExtraParams.userID) {
       window.alert("Please login to create an event");
+      setIsLoading(false);
+
       return;
     }
 
     if (categoriesState.length === 0) {
-      window.alert("Please select a category");
+      window.alert("Please select a genre");
+      setIsLoading(false);
+
       return;
     }
 
     if (seatsState.length === 0) {
       window.alert("Please add a ticket tier");
+      setIsLoading(false);
+
       return;
     }
 

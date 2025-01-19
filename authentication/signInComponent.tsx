@@ -9,32 +9,47 @@ import { setCookie } from "@/lib/utils";
 import Image from "next/image";
 import Logo from "@/images/svg/logo";
 import PasswordInput from "../components/ui/passwordInputType";
-
-export async function emailAndPasswordSignIn(email: string, password: string) {
-  await signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      // Signed in
-      const user = userCredential.user;
-      console.log(user);
-      setCookie("user", JSON.stringify(user), 7);
-      sessionStorage.setItem("user", JSON.stringify(user));
-      window.location.href = "/";
-      // ...
-    })
-    .catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      console.log(error);
-      // window.alert("there was an error signing in ");
-    });
-}
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
 export default function SignInComponent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const emailRef = useRef<HTMLInputElement>(null);
-  const [passwordState, setPasswordState] = useState(""); 
+  const [passwordState, setPasswordState] = useState("");
+  const { toast } = useToast();
   // const passwordRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+
+  async function emailAndPasswordSignIn(email: string, password: string) {
+    await signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+        console.log(user);
+        setCookie("user", JSON.stringify(user), 7);
+        sessionStorage.setItem("user", JSON.stringify(user));
+
+        toast({ description: "Signed in successfully" });
+        // window.location.href = "/";
+        // router.back();
+
+        setTimeout(()=>window.history.back(),1000)
+
+        // ...
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(error);
+        toast({
+          description: "Please verify your credentials and try again",
+          variant: "destructive",
+        });
+
+        // window.alert("there was an error signing in ");
+      });
+  }
 
   function handleOnclick(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     emailAndPasswordSignIn(email, password);
@@ -45,7 +60,6 @@ export default function SignInComponent() {
     setEmail("");
     setPassword("");
   }
-
 
   // return <div></div>
 
@@ -62,7 +76,10 @@ export default function SignInComponent() {
           onChange={(e) => setEmail(() => e.target.value)}
           className="text-black"
         />
-        <PasswordInput passwordState={passwordState} setPasswordState={setPassword} />
+        <PasswordInput
+          passwordState={passwordState}
+          setPasswordState={setPassword}
+        />
         <button
           className="w-full h-14 bg-black/90 rounded-lg text-white"
           onClick={(e) => handleOnclick(e)}
@@ -73,7 +90,6 @@ export default function SignInComponent() {
           <div className="w-[40%] h-[1px] outline-[5px] bg-black"></div>
           <div>or</div>
           <div className="w-[40%] h-[1px] outline-[5px] bg-black"></div>
-
         </div>
         <div>
           <GoogleAuth />

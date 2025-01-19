@@ -10,6 +10,12 @@ import Image from "next/image";
 import { setCookie } from "@/lib/utils";
 import { setDoc, doc, collection } from "firebase/firestore";
 import { database } from "@/firebase.config";
+import { useToast } from "@/hooks/use-toast";
+// import {useRouter} from "next/navigation";
+
+
+export default function GoogleAuth() {
+  const { toast } = useToast();
 
 const provider = new GoogleAuthProvider();
 
@@ -55,6 +61,7 @@ async function triggerPopup() {
         phoneNumber,
         photoURL,
       };
+
       setCookie("user", JSON.stringify(user), 1);
       sessionStorage.setItem("user", JSON.stringify(user));
       // window.location.href = "/";
@@ -81,7 +88,12 @@ async function triggerPopup() {
      
       console.log(userInfo);
       //   console.log(user);
+      toast({ description: "signed in successfully" });
+
+      setTimeout(()=>window.history.back(),1000)
+
       return user;
+
       // ...
     })
     .catch((error) => {
@@ -102,7 +114,7 @@ function handleOnClick() {
   });
 }
 
-export default function GoogleAuth() {
+  
   return (
     <button
       className="h-10 w-[15rem] flex items-center justify-center gap-4 rounded relative my-3 bg-gray-100"

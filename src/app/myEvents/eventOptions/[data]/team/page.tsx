@@ -11,63 +11,7 @@ import {
 } from "../../../../../../components/ui/permissionsComponent";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-// import { comparePermisssions} from "@/lib/utils";
 import Loading from "@/app/loading";
-
-// const info: {
-//   users: TeamDataType;
-// } = {
-//   users: {
-//     user_12345: {
-//       info: {
-//         name: "John Doe",
-//         email: "johndoe@example.com",
-//         uid: "user_12345",
-//         verified: true,
-//       },
-//       permissions: {
-//         canEdit: true,
-//         canDelete: true,
-//         canView: true,
-//         canScan: true,
-//         canAddToTeam: true,
-//         canViewStats: true,
-//       },
-//     },
-//     user_67890: {
-//       info: {
-//         name: "Jane Smith",
-//         email: "janesmith@example.com",
-//         uid: "user_67890",
-//         verified: true,
-//       },
-//       permissions: {
-//         canEdit: true,
-//         canDelete: false,
-//         canView: true,
-//         canScan: true,
-//         canAddToTeam: false,
-//         canViewStats: true,
-//       },
-//     },
-//     user_54321: {
-//       info: {
-//         name: "Alex Johnson",
-//         email: "alexjohnson@example.com",
-//         uid: "user_54321",
-//         verified: true,
-//       },
-//       permissions: {
-//         canEdit: false,
-//         canDelete: false,
-//         canView: true,
-//         canScan: false,
-//         canAddToTeam: false,
-//         canViewStats: false,
-//       },
-//     },
-//   },
-// };
 
 export default function Team({ params }: { params: { data: string } }) {
   const eventId = params.data;
@@ -96,8 +40,6 @@ export default function Team({ params }: { params: { data: string } }) {
   }, []);
 
   async function handleSubmitChanges() {
-    // console.log(permissionsTray);
-
     const updatedPermissionsObject: TeamDataType = {};
 
     /// Check for updated permissions
@@ -158,6 +100,25 @@ export default function Team({ params }: { params: { data: string } }) {
     console.log("Add Team Member");
   }
 
+ async function handleDelete(uid: string) {
+    // setPermissionsTray({})
+    if (!permissionsTray) return;
+    const currentTray: TeamDataType = {};
+
+    for (let key in permissionsTray) {
+      if (permissionsTray[key].info.uid !== uid) {
+        currentTray[key] = permissionsTray[key];
+      }
+    }
+    
+   
+    await fetch(`/api/team/${eventId}/${uid}`, {
+      method: "DELETE",
+    }).then((response) => console.log("deleted", uid));
+
+    setPermissionsTray(currentTray);
+  }
+
   if (!permissionsTray) return <Loading />;
 
   return (
@@ -181,6 +142,7 @@ export default function Team({ params }: { params: { data: string } }) {
                 key={permissionsTray[user].info.uid}
                 setUpdatedPermissions={setUpdatedPermissions}
                 updatedPermissions={updatedPermissions}
+                handleDelete={handleDelete}
               />
             );
           })}

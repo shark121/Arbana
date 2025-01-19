@@ -2,13 +2,17 @@
 
 import { liteClient as algoliasearch } from "algoliasearch/lite";
 import { createClient } from "redis";
-import { getDoc, collection, doc, runTransaction, arrayUnion, } from "firebase/firestore";
+import {
+  getDoc,
+  collection,
+  doc,
+  runTransaction,
+  arrayUnion,
+} from "firebase/firestore";
 import { database, storage } from "@/firebase.config";
-import {CreatorSchemaType} from "@/lib/types"
+import { CreatorSchemaType } from "@/lib/types";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { generateRandomId } from "./utils";
-
-
 
 const redisClient = createClient({
   password: process.env.REDIS_PASSWORD as string,
@@ -40,11 +44,7 @@ async () => await redisClient.configSet("notify-keyspace-events", "Ex");
 export async function getCache(key: string) {
   return await redisClient
     .get(key)
-    .then((data) => {
-      //   console.log(data);
-      data = String(data);
-      return data;
-    })
+    .then((data) => data)
     .catch((err) => {
       console.log(err);
       return err;
@@ -57,6 +57,7 @@ export async function setCache(key: string, value: any, ttl?: number) {
   await redisClient
     .setEx(key, time, JSON.stringify(value))
     .then((data) => {
+      console.log("cache set")
       return data;
     })
     .catch((err) => {
@@ -72,7 +73,7 @@ export const existsInCache = async (key: string) => {
     })
     .catch((err) => {
       console.log(err);
-      return false;
+      return null;
     });
 };
 
@@ -84,7 +85,17 @@ export const deleteFromCache = async (key: string) => {
     })
     .catch((err) => {
       console.log(err);
-      return false;
+      return null;
+    });
+};
+
+export const setMultipleCache = async (data: { key: string; value: any }[]) => {
+  return await redisClient
+    .mSet(data.flatMap(({ key, value }) => [key, JSON.stringify(value)]))
+    .then((res) => res)
+    .catch((err) => {
+      console.log(err);
+      return null;
     });
 };
 
@@ -100,7 +111,7 @@ export async function setRedisTriggerEvent(
     await redisClient.set(key, value, { EX: ttlInSeconds });
 
     // await redisClient.set(`${key}_`, data, { EX: ttlInSeconds + 5 });
-  
+
     await redisClient.set(`${key}_`, data);
 
     console.log(`Key "${key}" set with TTL of ${ttlInSeconds} seconds.`);
@@ -140,8 +151,13 @@ export async function sendMessage() {}
 //   process.env.ALGOLIA_SEARCH_KEY as string
 // );
 
-
-export async function uploadFile({file, nameID}:{file: File, nameID?: string}) {
+export async function uploadFile({
+  file,
+  nameID,
+}: {
+  file: File;
+  nameID?: string;
+}) {
   nameID = nameID ?? `img_${generateRandomId(5)}`;
 
   const getFileTypeStartIndex = file.type.indexOf("/") + 1;
@@ -179,10 +195,8 @@ export async function uploadFile({file, nameID}:{file: File, nameID?: string}) {
     });
 
     return await uploadTaskPromise;
-
   } catch (error) {
     console.error("Error in addEvent: ", error);
     throw error;
   }
-  
 }

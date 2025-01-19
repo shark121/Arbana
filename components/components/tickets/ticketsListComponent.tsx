@@ -17,8 +17,8 @@ export default function TicketsListComponent({
   ticketData: TicketSchemaType;
   handleTicketOnclick: (ticket: TicketSchemaType) => void;
   handleDelete: (ticket: TicketSchemaType) => void;
-  setTickets: React.Dispatch<React.SetStateAction<TicketSchemaType[]>>;
-  tickets: TicketSchemaType[];
+  setTickets: React.Dispatch<React.SetStateAction<TicketSchemaType[] | undefined>>;
+  tickets: TicketSchemaType[] | undefined;
 }) {
   return (
     <div className="w-full min-h-[7.5rem] flex items-center justify-between px-2">

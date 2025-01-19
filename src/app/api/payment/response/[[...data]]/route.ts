@@ -10,11 +10,10 @@ import {
 import { database } from "@/firebase.config";
 import { TicketSchemaType } from "@/lib/types";
 import {
-  existsInCache,
   getCache,
-  setCache,
   invokeSubscriberCallback,
   deleteFromCache,
+  setCache,
 } from "@/lib/server_utils";
 
 const bookingsCollection = collection(database, "bookings");
@@ -23,10 +22,9 @@ const userCollection = collection(database, "users");
 export async function POST(req: NextRequest) {
   const { reference, eventId, ticketId, trxref, userId } = await req.json();
 
-  
-    await invokeSubscriberCallback((message) => {
-      console.log(message, "payment ttl data pos updated...............");
-    });
+  await invokeSubscriberCallback((message) => {
+    console.log(message, "payment ttl data pos updated...............");
+  });
 
   const ticeketDoc = doc(bookingsCollection, eventId);
 
@@ -41,7 +39,7 @@ export async function POST(req: NextRequest) {
           const data = document.data();
 
           if (data[ticketId]) {
-            data[ticketId].scans += 1;
+            data[ticketId].scans = data[ticketId].quantity;
             data[ticketId].reference = reference;
             data[ticketId].trxref = trxref;
 
@@ -55,27 +53,23 @@ export async function POST(req: NextRequest) {
 
             console.log("user document found");
 
-            if (await existsInCache(userId + "_bookings")) {
-              console.log("booking data exists in cache");
-
-              let currentCache = await getCache(userId + "_bookings").then(
-                (currentCache) => JSON.parse(currentCache)
+            if (userId.indexOf("anon_") === -1) {
+              console.log(
+                "user is signed in, updating ticket data in cache..."
               );
 
-              currentCache.push(data[ticketId]);
+              const currerntCache = await getCache(userId + "_bookings");
+              const currentCacheJSON = JSON.parse(currerntCache) || [];
+              currentCacheJSON.push(data[ticketId]);
+              setCache(userId + "_bookings", currentCacheJSON);
 
-              await setCache(userId + "_bookings", currentCache);
-            } else {
-              console.log("booking data does not exist in cache");
-              await setCache(userId + "_bookings", [data[ticketId]]);
             }
 
             transaction.set(ticeketDoc, data, { merge: true });
 
             console.log("booking document updated");
 
-
-            await deleteFromCache(reference)
+            await deleteFromCache(reference);
             await deleteFromCache(`${reference}_`).then((res) => {
               console.log("deleted from cache after successful payment");
             });

@@ -6,17 +6,14 @@ import {
   doc,
   runTransaction,
   arrayUnion,
+  getDoc,
+  writeBatch,
+  arrayRemove,
+  FieldValue
 } from "firebase/firestore";
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-  connectStorageEmulator,
-} from "firebase/storage";
 import { setCache, getCache, existsInCache } from "@/lib/server_utils";
 import { algoliasearch } from "algoliasearch";
-import { EventSchemaType } from "@/lib/types";
+import { AvailableSeatsType, EventSchemaType } from "@/lib/types";
 import { uploadFile } from "@/lib/server_utils";
 
 const algoliaClient = algoliasearch(
@@ -26,146 +23,147 @@ const algoliaClient = algoliasearch(
 
 const eventCollectionRef = collection(database, "events");
 
-// async function addEventWithFile(
-//   buffer: Buffer,
-//   nameID: string,
-//   fileType: string,
-//   restToJSON: Omit<createRequestType, "imageFile">,
-//   eventIdtoString: string,
-//   userID: string
-// ) {
-//   const nameIDTrim = nameID.trim();
-//   console.log(nameIDTrim, fileType);
-//   let eventData: any[] = [];
 
-//   const storageRef = ref(storage, `${nameIDTrim}.${fileType}`);
-//   const uploadTask = uploadBytesResumable(
-//     storageRef,
-//     buffer as unknown as Blob
-//   );
-//   uploadTask.on(
-//     "state_changed",
-//     (snapshot) => {
-//       const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-//       console.log("Upload is " + progress + "% done");
-//       switch (snapshot.state) {
-//         case "paused":
-//           console.log("Upload is paused");
-//           break;
-//         case "running":
-//           console.log("Upload is running");
-//           break;
-//       }
-//     },
-//     (error) => {
-//       console.log("an error occured while uploading the file");
-//       console.log(".........................................");
-//     },
-//    async () => {
-//       await getDownloadURL(uploadTask.snapshot.ref)
-//         .then(async (url) => {
-//           const eventUploadData = {
-//             ...restToJSON,
-//             imageUrl: url as unknown as string,
-//           };
-
-//           const eventDocRef = doc(eventCollectionRef, eventIdtoString);
-//           const userDocRef = doc(collection(database, "users"), userID);
-
-//         await  runTransaction(database, async (transaction) => {
-//             transaction.set(eventDocRef, eventUploadData);
-//             transaction.set(
-//               userDocRef,
-//               { events: arrayUnion(eventUploadData) },
-//               { merge: true }
-//             );
-//           })
-//             .then(async () => {
-//               console.log("transaction done");
-
-//               await getCache(userID + "_events").then((data) => {
-//                 console.log(JSON.parse(data));
-//                 eventData = JSON.parse(data);
-//                 eventData.push(eventUploadData);
-//                 setCache(userID + "_events", eventData);
-//               });
-//             })
-//             .catch((error) => {
-//               console.error("Error adding document: ", error);
-//             });
-//         })
-//         .catch((error) => NextResponse.error());
-//     }
-//   );
-
-//   return eventData;
-// }
-
-async function addEventWithFile({
+async function UpdateEvent({
   file,
   restToJSON,
   eventIdtoString,
   userID,
 }: {
-  file: File;
+  file?: File;
   restToJSON: Omit<createRequestType, "imageFile">;
   eventIdtoString: string;
   userID: string;
-}) {
+})  :Promise<{err: string | null, status: number
+}>{
+
+
   try {
-    const downloadURL = await uploadFile({ file });
 
-    const eventUploadData = { ...restToJSON, imageUrl: downloadURL };
+    const downloadURL = file && await uploadFile({ file });
 
-    const eventDocRef = doc(eventCollectionRef, eventIdtoString);
-    const userDocRef = doc(collection(database, "users"), userID);
+    console.log(downloadURL, "downloadURL");
+
+    const eventUploadData = file  ? { ...restToJSON, imageUrl: downloadURL } : restToJSON
+
+    const teamData  = (await getDoc(doc(collection(database, "teams"), eventIdtoString))).data()
+     
+    const teamMembers = teamData ? Object.keys(teamData) : []
+
+    const batch = writeBatch(database);
+
+    const previousEventState = (await getDoc(doc(collection(database, "users"), userID))).data()
+
+    const allUserEvents = previousEventState && previousEventState.events as EventSchemaType[]
+
+    console.log(allUserEvents, "allUserEvents");
+
+    const targetEvent = allUserEvents && allUserEvents.find((event) => (String(event.eventId) === eventIdtoString))
+
+
 
     await runTransaction(database, async (transaction) => {
-      const userDocs = await transaction.get(userDocRef);
-      let filteredEvents = [];
-      if (userDocs.exists()) {
-        const userData = userDocs.data();
-        if (userData) {
-          filteredEvents = userData.events.filter(
-            (event: EventSchemaType) =>
-              String(event.eventId) !== eventIdtoString
-          );
+      transaction.get(doc(collection(database, "events"), eventIdtoString)).then((eventDoc) => {
+        if (eventDoc.exists()) {
+          const eventData = eventDoc.data();
 
-          filteredEvents.push(eventUploadData);
+          console.log(eventData, "event data");
 
-          transaction.update(
-            userDocRef,
-            { events: filteredEvents }
-            // { merge: true,}
-          );
+          const oldAvailableSeats = eventData.availableSeats as AvailableSeatsType[]
+
+          const oldMap = new Map(oldAvailableSeats.map((item) => [item.tier, item]));
+
+          eventData.availableSeats = eventUploadData.availableSeats.map((item) => oldMap.get(item.tier) || item);
+
+          transaction.set(doc(collection(database, "events"), eventIdtoString), {
+             ...eventUploadData,
+          });  
+         
+        } else {
+          console.log("Event does not exist in the database");
         }
-      }
+      })
+    })
 
-      transaction.set(eventDocRef, eventUploadData);
+    for (let member of teamMembers) {
+      if(!(targetEvent && targetEvent)) return {status: 404, err: "targetEvent not found"}
+      
+      batch.update(doc(collection(database, "users"), member), {  
+        events: arrayRemove(targetEvent),
+      });
 
-      return filteredEvents;
-    }).then(async (filteredEvents) => {
-      const algoliaUpdateBundle = {
-        indexName: "events_index",
-        objectID: eventIdtoString,
-        attributesToUpdate: eventUploadData,
-        createIfNotExists: true,
-      };
+      batch.update(doc(collection(database, "users"), member), {
+        events: arrayUnion(eventUploadData),
+      });
+      
+    }
 
-      await algoliaClient
-        .partialUpdateObject(algoliaUpdateBundle)
-        .then(() => console.log("algolia updated"))
-        .catch((error) => console.error("Error updating algolia: ", error));
+    batch.update(doc(eventCollectionRef, eventIdtoString), eventUploadData);  
 
-      // const cachedEvents = JSON.parse(await getCache(userID + "_events")) || [];
-      // cachedEvents.push(eventUploadData);
-      await setCache(userID + "_events", filteredEvents);
+    batch.commit()
 
-      return filteredEvents;
-    });
+    const algoliaUpdateBundle = {
+      indexName: "events_index",
+      objectID: eventIdtoString,
+      attributesToUpdate: eventUploadData,
+      createIfNotExists: true,
+    };
+
+    await algoliaClient
+      .partialUpdateObject(algoliaUpdateBundle)
+      .then(() => console.log("algolia updated"))
+      .catch((error) => console.error("Error updating algolia: ", error));
+
+      
+     return {status: 200, err:null}
+    // await runTransaction(database, async (transaction) => {
+
+
+    //   const userDocRef = doc(collection(database, "users"), userID);
+
+    //   const userDocs = await transaction.get(userDocRef);
+
+    //   let filteredEvents = [];
+
+    //   if (userDocs.exists()) {
+
+    //     const userData = userDocs.data();
+    //     if (userData) {
+    //       filteredEvents = userData.events.filter(
+    //         (event: EventSchemaType) =>
+    //           String(event.eventId) !== eventIdtoString
+    //       );
+
+    //       filteredEvents.push(eventUploadData);
+
+    //       transaction.update(
+    //         userDocRef,
+    //         { events: filteredEvents }
+    //       );
+    //     }
+
+
+    //   }
+
+    //   transaction.set(eventDocRef, eventUploadData);
+
+    //   return filteredEvents;
+    // }).then(async (filteredEvents) => {
+      
+     
+
+    //   // const cachedEvents = JSON.parse(await getCache(userID + "_events")) || [];
+    //   // cachedEvents.push(eventUploadData);
+    //   await setCache(userID + "_events", filteredEvents);
+
+    //   return filteredEvents;
+    // });
+  
+  
   } catch (error) {
     console.error("Error in addEvent: ", error);
-    throw error;
+    return { status: 500, err:String(error) };
+    // throw error;
   }
 }
 
@@ -234,6 +232,7 @@ function uploadWithoutFile({
         // console.log(JSON.parse(data));
         // eventData = JSON.parse(data);
         // eventData.push(restToJSON);
+
         setCache(userID + "_events", filteredEvents);
     })
     .catch((error) => {
@@ -256,19 +255,19 @@ export async function POST(
 
   const userID = restToJSON.userID;
 
-  if (!collectedData.get("imageFile")) {
-    uploadWithoutFile({
-      restToJSON,
-      eventIdtoString,
-      userID,
-    });
+  // if (!collectedData.get("imageFile")) {
+  //   uploadWithoutFile({
+  //     restToJSON,
+  //     eventIdtoString,
+  //     userID,
+  //   });
 
-    return NextResponse.json({ response: "success" });
-  }
+  //   return NextResponse.json({ response: "success" });
+  // }
 
-  const imageFile = collectedData.get("imageFile") as File;
+  const imageFile = collectedData.get("imageFile") as File || null;
 
-  await addEventWithFile({
+  const response = await UpdateEvent({
     file: imageFile,
     restToJSON,
     eventIdtoString,
@@ -278,6 +277,6 @@ export async function POST(
     .then((eventData) => {
       console.log(eventData, ".......");
     });
-
-  return NextResponse.json({ response: "success" });
+   
+  return NextResponse.json({ response });
 }

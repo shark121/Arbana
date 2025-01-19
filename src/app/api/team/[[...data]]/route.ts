@@ -5,6 +5,8 @@ import {
   collection,
   getDoc,
   doc,
+  updateDoc,
+  deleteField,
 } from "firebase/firestore";
 import { database, functions } from "@/firebase.config";
 import { BatteryCharging } from "lucide-react";
@@ -29,7 +31,7 @@ export async function GET(
     }
   });
 
-//   return NextResponse.json({ stats: 200 });
+  //   return NextResponse.json({ stats: 200 });
 }
 
 export async function PATCH(req: NextRequest) {
@@ -71,6 +73,27 @@ export async function POST(req: NextRequest) {
       console.log(result);
       return NextResponse.json({ stats: 200 });
     });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ stats: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest, context: { params: { data: string[] } }) {
+
+  try {
+    const eventId = context.params.data[0];
+    const uid = context.params.data[1];
+
+    console.log(eventId, uid);
+
+    const teamsDocRef = doc(teamCollectionRef, eventId);
+
+    updateDoc(teamsDocRef, {
+      [uid]: deleteField(),
+    });
+
+    return NextResponse.json({ stats: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ stats: 500 });

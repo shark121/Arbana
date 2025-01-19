@@ -35,6 +35,10 @@ export default function Home() {
 
   // return <div></div>
 
+  // function navigateToPrev(){
+  //   window.history.back();
+  // }
+
   return (
     <div className="flex flex-col items-center justify-center m-0 p-0 h-[100vh] w-[100wv] overflow-hidden ">
       {hasAccount ? <SignInComponent /> : <SignUpComponent />}

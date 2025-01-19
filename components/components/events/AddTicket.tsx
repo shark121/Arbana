@@ -57,7 +57,7 @@ export function AddTicket({
             setIsAddingNewTicket={setIsAddingNewTicket}
           />
         ) : (
-          <Button onClick={() => setIsAddingNewTicket(true)}>Add New Tier</Button>
+          <Button type="button" onClick={() => setIsAddingNewTicket(true)}>Add New Tier</Button>
         )}
         {seatsState.map((el, i) => {
           return (

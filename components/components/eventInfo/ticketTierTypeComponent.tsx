@@ -117,6 +117,7 @@ export function AddNewTicket({
 
       />
       <Button
+      type="button"
         onClick={() => {
           setSeatsState((seatsState) => [
             ...seatsState,
