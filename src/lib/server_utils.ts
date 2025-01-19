@@ -44,7 +44,6 @@ async () => await redisClient.configSet("notify-keyspace-events", "Ex");
 export async function getCache(key: string) {
   return await redisClient
     .get(key)
-    .then((data) => data)
     .catch((err) => {
       console.log(err);
       return err;
@@ -68,9 +67,6 @@ export async function setCache(key: string, value: any, ttl?: number) {
 export const existsInCache = async (key: string) => {
   return await redisClient
     .exists(key)
-    .then((res) => {
-      return res;
-    })
     .catch((err) => {
       console.log(err);
       return null;
@@ -80,9 +76,6 @@ export const existsInCache = async (key: string) => {
 export const deleteFromCache = async (key: string) => {
   return await redisClient
     .del(key)
-    .then((res) => {
-      return res;
-    })
     .catch((err) => {
       console.log(err);
       return null;
@@ -92,7 +85,6 @@ export const deleteFromCache = async (key: string) => {
 export const setMultipleCache = async (data: { key: string; value: any }[]) => {
   return await redisClient
     .mSet(data.flatMap(({ key, value }) => [key, JSON.stringify(value)]))
-    .then((res) => res)
     .catch((err) => {
       console.log(err);
       return null;

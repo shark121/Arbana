@@ -130,9 +130,7 @@ export default function CreateEvent() {
   });
 
   useEffect(() => {
-    // const userInfo = JSON.parse(sessionStorage.getItem("user") as string);
     const userInfo = JSON.parse(Cookies.get("user") as string);
-    // console.log(userInfo, "userInfo................");
     setUserInfoState(userInfo);
   }, []);
 

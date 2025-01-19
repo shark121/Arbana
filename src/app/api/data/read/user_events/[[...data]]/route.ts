@@ -8,7 +8,12 @@ import {
   setDoc,
   runTransaction,
 } from "firebase/firestore";
-import { getCache, setCache, existsInCache, setMultipleCache } from "@/lib/server_utils";
+import {
+  getCache,
+  setCache,
+  existsInCache,
+  setMultipleCache,
+} from "@/lib/server_utils";
 
 async function getUserEvents(userID: string) {
   if (!userID) return null;
@@ -19,15 +24,17 @@ async function getUserEvents(userID: string) {
 
   console.log(JSON.parse(userEventsData), "userEventsData");
 
-  if(userEventsData) return JSON.parse(userEventsData);
+  if (userEventsData) return JSON.parse(userEventsData);
 
   const userDocRef = doc(collection(database, "users"), userID);
 
   const eventsInfo = await getDoc(userDocRef).then(async (doc) => {
     if (doc.exists()) {
-     
-      if (!doc.data()?.events)  await setMultipleCache([ userEvents, doc.data().events,userBookings, doc.data().tickets,]);
-
+      if (doc.data()?.events)
+        await setMultipleCache([
+          { key: userEvents, value: doc.data().events },
+          { key: userBookings, value: doc.data().tickets },
+        ]);
 
       return doc.data().events || [];
     } else {

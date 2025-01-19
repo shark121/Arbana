@@ -1,3 +1,4 @@
+import { group } from "console";
 import { min } from "date-fns";
 import { Vibrant } from "node-vibrant/browser";
 import { use } from "react";
@@ -83,6 +84,7 @@ export const AvailableSeatsSchema = z.object({
   tier: z.string(),
   price: z.number(),
   quantity: z.number(),
+  groupNumber: z.number().nullish().optional(),
 });
 
 export const PaleteSchema = z.object({

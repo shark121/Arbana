@@ -111,7 +111,12 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
                 {isCurrentTier ? (
                   <m.div
                     initial={{ opacity: 0, x: 20, rotate: 60 }}
-                    animate={{ opacity: 1, x: 0, transition: { delay: 0.3 }, rotate: 0 }}
+                    animate={{
+                      opacity: 1,
+                      x: 0,
+                      transition: { delay: 0.3 },
+                      rotate: 0,
+                    }}
                   >
                     <Verified height="30px" width="30px" bgfill="red" />
                   </m.div>
@@ -131,12 +136,6 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
                     <div>${type.price}</div>
                     {isCurrentTier ? (
                       <div
-                        // initial={{ opacity: 0, y: 100 }}
-                        // animate={{
-                        //   opacity: 1,
-                        //   y: 0,
-                        //   transition: { delay: 0.5 },
-                        // }}
                         className={`w-full h-[30px] flex items-center justify-end`}
                       >
                         <Counter
