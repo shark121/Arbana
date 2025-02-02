@@ -160,9 +160,10 @@ export default function Booking({ params }: { params: {} }) {
         body: ticketFormData,
       }
     )
-      .then(async (response) => {
-        let responseObject = await response.json();
-        const textresponse = responseObject.response;
+      .then(async (res) => {
+        let responseObject = await res.json();
+        // too many responses :(
+        const transactionData = JSON.parse(responseObject.response.response).response.data 
 
         console.log(responseObject);
 
@@ -174,21 +175,16 @@ export default function Booking({ params }: { params: {} }) {
           return "error";
         }
 
-        console.log(responseObject.response);
+        console.log(transactionData, "textresponse");
 
         const ticketWithID: TicketSchemaType = {
           ...ticketState,
-          transactionID: textresponse,
+          transactionID: transactionData.reference,
         } as TicketSchemaType;
-
+        
         sessionStorage.setItem("ticket", JSON.stringify(ticketWithID));
 
-        const verificationID = generateRandomId(10);
-        sessionStorage.setItem("verificationID", verificationID);
-        let parsedResponse = JSON.parse(textresponse);
-
-        // window.location.href = `/ticket/${responseObject.response}/${verificationID}`;
-        window.location.href = parsedResponse.response.data.authorization_url;
+        window.location.href = transactionData.authorization_url;
       })
       .catch((error) => {
         console.log(error);

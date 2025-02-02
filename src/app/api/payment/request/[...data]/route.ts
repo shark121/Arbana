@@ -3,7 +3,7 @@ import dotenv, { config } from "dotenv";
 import { doc, collection } from "firebase/firestore";
 import { database, functions } from "@/firebase.config";
 import { TicketSchemaType } from "@/lib/types";
-// import { startPaymentProcess } from "../../route.utils";
+import { startPaymentProcess } from "../../route.utils";
 import {httpsCallable} from "firebase/functions";
 
 
@@ -12,8 +12,8 @@ export async function POST(
   context: { params: { data: string[] } }
 ) {
   try {
-    const startPaymentProcess = httpsCallable(functions, "startPaymentProcess");
-    
+    // const startPaymentProcess = httpsCallable(functions, "startPaymentProcess");
+
     const ticketFormData = await req.formData();
     const provider = context.params.data[0];
     const amount = Math.ceil(Number(context.params.data[1]));
@@ -30,8 +30,10 @@ export async function POST(
       amount,
       provider,
       ticketData,
-      domain : process.env.NEXT_PUBLIC_DOMAIN
+      // domain : process.env.NEXT_PUBLIC_DOMAIN
     });
+
+    console.log(response, "response");
     
     return NextResponse.json({ type: "data", response });
   } catch (error) {

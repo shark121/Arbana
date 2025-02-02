@@ -13,7 +13,6 @@ import {
   invokeSubscriberCallback,
   getCache,
 } from "@/lib/server_utils";
-import {httpsCallable} from "firebase/functions"
 
 /// to future me and anyone supposed to work on this code apart from me..... I am indeed truly sorry,  I was not very wise ...
 

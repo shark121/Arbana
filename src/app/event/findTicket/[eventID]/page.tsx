@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 // import { EventType } from "../../../../../components/ui/eventComponent";
 import {
   EventSchemaType,
@@ -22,6 +22,8 @@ import { ArrowLeft, ChevronLeft } from "lucide-react";
 import { motion as m } from "framer-motion";
 import Verified from "@/images/svg/verified";
 import Loading from "@/app/loading";
+import { SignInAlert } from "../../../../../components/ui/signInAlert";
+import { set } from "date-fns";
 
 const comfortaa = Comfortaa({
   subsets: ["latin"],
@@ -43,6 +45,7 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
   const [userInfoState, setUserInfoState] = useState<User>();
   const [loadingBuffer, setLoadingBuffer] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [alertOpen, setAlertOpen] = useState<boolean>(false);
   const router = useRouter();
   const eventID = params.params.eventID;
 
@@ -55,7 +58,6 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
   useEffect(() => {
     const eventData = sessionStorage.getItem(eventID);
     eventData && setEventState(JSON.parse(eventData));
-    // const userInformation = sessionStorage.getItem("user");
     const userInformation = Cookies.get("user");
 
     if (userInformation)
@@ -87,77 +89,84 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
     const isCurrentTier = type.tier === currentTier;
     return (
       eventState && (
-        <div
-          key={i}
-          onClick={() => {
-            setCurrentTier(type.tier);
-            setCurrentPrice(type.price);
-          }}
-          className={`relative flex flex-col transition-all duration-300 bg-white ease-in-out delay-100 p-2 items-start shadow-sm gap-4 w-[90%]  rounded-xl ${
-            isCurrentTier ? "scale-105" : ""
-          } `}
-        >
-          {/* <div className="absolute inset-0 bg-black -z-10 translate-x-2 translate-y-2 rounded-lg" /> */}
-
+        <>
           <div
-            className={`h-[3rem] w-full top items-center justify-start flex rounded-t-2xl`}
+            key={i}
+            onClick={() => {
+              setCurrentTier(type.tier);
+              setCurrentPrice(type.price);
+            }}
+            className={`relative flex flex-col transition-all duration-300 bg-white ease-in-out delay-100 p-2 items-start shadow-sm gap-4 w-[90%]  rounded-xl ${
+              isCurrentTier ? "scale-105" : ""
+            } `}
           >
-            <div className="font-bold text-[1rem] flex justify-between items-center w-full">
-              <div className="h-full w-full items-center justify-center">
-                {type.tier}
-              </div>
-              <div>
-                {" "}
-                {isCurrentTier ? (
-                  <m.div
-                    initial={{ opacity: 0, x: 20, rotate: 60 }}
-                    animate={{
-                      opacity: 1,
-                      x: 0,
-                      transition: { delay: 0.3 },
-                      rotate: 0,
-                    }}
-                  >
-                    <Verified height="30px" width="30px" bgfill="red" />
-                  </m.div>
-                ) : (
-                  <></>
-                )}
-              </div>
-            </div>
-          </div>
-          <div className="w-full #h-[4.5rem]">
-            <div className="#h-[4rem] flex relative w-full">
-              <div className="p-x w-full flex  flex-col justify-start items-start h-full">
-                <div className="font-thin flex flex-col gap-2 w-full text-xs">
-                  <div className="text-gray-500 ">{`${convertedStartDate}   •   ${convertedEndDate}`}</div>
-                  <div className="text-gray-500 ">{eventState?.location}</div>
-                  <div className="font-bold text-[1rem] w-full flex items-center justify-between">
-                    <div>${type.price}</div>
-                    {isCurrentTier ? (
-                      <div
-                        className={`w-full h-[30px] flex items-center justify-end`}
-                      >
-                        <Counter
-                          max={999}
-                          id={eventID}
-                          defaultValue={defaultValueState}
-                          setDefaultValue={setDefaultValueState}
-                        />
-                      </div>
-                    ) : null}
-                  </div>
+            {/* <div className="absolute inset-0 bg-black -z-10 translate-x-2 translate-y-2 rounded-lg" /> */}
+
+            <div
+              className={`h-[3rem] w-full top items-center justify-start flex rounded-t-2xl`}
+            >
+              <div className="font-bold text-[1rem] flex justify-between items-center w-full">
+                <div className="h-full w-full items-center justify-center">
+                  {type.tier}
+                </div>
+                <div>
+                  {" "}
+                  {isCurrentTier ? (
+                    <m.div
+                      initial={{ opacity: 0, x: 20, rotate: 60 }}
+                      animate={{
+                        opacity: 1,
+                        x: 0,
+                        transition: { delay: 0.3 },
+                        rotate: 0,
+                      }}
+                    >
+                      <Verified height="30px" width="30px" bgfill="red" />
+                    </m.div>
+                  ) : (
+                    <></>
+                  )}
                 </div>
               </div>
             </div>
-            <div className=""></div>
+            <div className="w-full #h-[4.5rem]">
+              <div className="#h-[4rem] flex relative w-full">
+                <div className="p-x w-full flex  flex-col justify-start items-start h-full">
+                  <div className="font-thin flex flex-col gap-2 w-full text-xs">
+                    <div className="text-gray-500 ">{`${convertedStartDate}   •   ${convertedEndDate}`}</div>
+                    <div className="text-gray-500 ">{eventState?.location}</div>
+                    <div className="font-bold text-[1rem] w-full flex items-center justify-between">
+                      <div>${type.price}</div>
+                      {isCurrentTier ? (
+                        <div
+                          className={`w-full h-[30px] flex items-center justify-end`}
+                        >
+                          <Counter
+                            max={999}
+                            id={eventID}
+                            defaultValue={defaultValueState}
+                            setDefaultValue={setDefaultValueState}
+                          />
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className=""></div>
+            </div>
           </div>
-        </div>
+        </>
       )
     );
   });
 
   function handleOnClick(eventID: string, tier: string, price: number) {
+    //ask to sign in if user is not signed in or sign in anonymously
+     
+    setAlertOpen(true);
+    return
+
     const ticeketData: Omit<TicketSchemaType, "transactionID"> = {
       name: eventState!.name,
       startDate: eventState!.startDate,
@@ -171,10 +180,10 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
       createdAt: new Date().toISOString(),
       uid: userInfoState?.uid || "anon_" + generateRandomId(6),
       ticketID: generateRandomId(10),
-      groupNumber: eventState?.availableSeats.find(el => el.tier === tier)?.groupNumber  ?? 1
+      groupNumber:
+        eventState?.availableSeats.find((el) => el.tier === tier)
+          ?.groupNumber ?? 1,
     };
-    
-
 
     sessionStorage.setItem("ticket", JSON.stringify(ticeketData));
     window.location.href = `/booking/${eventID}`;
@@ -187,9 +196,11 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
   if (isLoading || loadingBuffer) return <Loading />;
 
   return (
+    <>
+    <SignInAlert isOpen={alertOpen} setIsOpen={setAlertOpen}/>
     <div
       className={`flex flex-col h-screen w-screen justicfy-start items-center gap-4 bg-blue-50/15 ${comfortaa.className} `}
-    >
+      >
       <div className="relative font-bold flex items-center justify-between p-2 h-[5rem] w-full text-[1.4rem] ">
         <div className="" onClick={() => router.back()}>
           <ChevronLeft color={"red"} />
@@ -208,5 +219,6 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
         </Button>
       )}
     </div>
+          </>
   );
 }
