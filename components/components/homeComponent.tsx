@@ -14,7 +14,7 @@ export default function HomeComponents({
       <HomeAnimation />
       <div className="w-full flex flex-col items-center justify-center">
         <div className="text-[2rem] text-gray-800 text-center flex items-center justify-center font-bold">
-          Discover Events, Book Your Spot, Enjoy the Moment!
+          Discover Options, Secure Your Spot, Enjoy the Experience!
         </div>
         <div className="text-[1rem] text-gray-600 text-center flex items-center justify-center">
           <button

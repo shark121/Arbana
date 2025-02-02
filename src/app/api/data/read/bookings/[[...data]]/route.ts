@@ -8,11 +8,11 @@ async function getUserTickets(userID: string) {
   const userBookings = userID + "_bookings";
   const userEvents = userID + "_events";
   const userDocRef = doc(collection(database, "users"), userID);
-  const userBookingsData = await getCache(userBookings) || null;
+  // const userBookingsData = await getCache(userBookings) || null;
 
-  if (userBookingsData) {
-    return JSON.parse(userBookingsData);
-  }
+  // if (userBookingsData) {
+  //   return JSON.parse(userBookingsData);
+  // }
 
   const userInfo = await getDoc(userDocRef).then(async (doc) => {
     if (doc.exists()) {
@@ -20,9 +20,7 @@ async function getUserTickets(userID: string) {
       setCache(userBookings, doc.data().tickets);
       
       return doc.data().tickets;
-    } else {
-      return null;
-    }
+    } 
   });
 
   return userInfo ? userInfo : null;

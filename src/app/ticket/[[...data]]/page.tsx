@@ -16,6 +16,8 @@ import { taintObjectReference } from "next/dist/server/app-render/entry-base";
 import { useRouter } from "next/router";
 import Verified from "@/images/svg/verified";
 import Loading from "@/app/loading";
+import { useSearchParams } from "next/navigation";
+
 
 export default function Ticket({ params }: { params: { data: string[] } }) {
   const [qrCode, setQrCode] = useState<string>();
@@ -25,6 +27,8 @@ export default function Ticket({ params }: { params: { data: string[] } }) {
   const [isLoading, setIsLoading ] = useState<boolean>(true)
   const [loadingBuffer, setLoadingBuffer] = useState<boolean>(true)
   const [eventState, setEventState] = useState<EventType>(); //
+  const searchParams = useSearchParams();
+
   const [ticketState, setTicketState] = useState<{
     name: string;
     date: string;
@@ -50,12 +54,21 @@ export default function Ticket({ params }: { params: { data: string[] } }) {
     pdf.save("ticket.pdf");
   }
 
-  const ticketID = params.data[1];
 
   useEffect(() => {
-    console.log();
-    const ticket = sessionStorage.getItem("ticket");
-    let parsedTicket = ticket && JSON.parse(ticket);
+    let parsedTicket = JSON.parse(sessionStorage.getItem("ticket") || ""); 
+
+    const allTickets = JSON.parse(sessionStorage.getItem("tickets") || "[]");  
+    
+    const arrayAlreadyContainsTicket = allTickets.some(
+      (el: { ticketID: string }) => el.ticketID == parsedTicket?.ticketID
+    );
+
+    if(!arrayAlreadyContainsTicket && parsedTicket) {
+      allTickets.push(parsedTicket);
+      sessionStorage.setItem("tickets", JSON.stringify(allTickets));
+    }
+    
     setTicketState(parsedTicket);
     console.log(parsedTicket);
   }, []);

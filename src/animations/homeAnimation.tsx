@@ -18,7 +18,7 @@ const StackedCarousel = () => {
     { id: 4, title: "Card 2", color: "bg-green-500", element: <PartyComponent/> },
     // { id: 5, title: "Card 3", color: "bg-red-500", element: <WineGlassSVG/> },
   ]);
-  
+    
 
   const greysMap = {
     0: "white",
@@ -41,10 +41,12 @@ const StackedCarousel = () => {
   }, []);
 
   const rotateCards = () => {
+
     setCards((prevCards) => {
       const [firstCard, ...rest] = prevCards;
       return [...rest, firstCard];
     });
+
   };
 
   return (

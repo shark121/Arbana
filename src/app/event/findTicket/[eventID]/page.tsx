@@ -171,7 +171,10 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
       createdAt: new Date().toISOString(),
       uid: userInfoState?.uid || "anon_" + generateRandomId(6),
       ticketID: generateRandomId(10),
+      groupNumber: eventState?.availableSeats.find(el => el.tier === tier)?.groupNumber  ?? 1
     };
+    
+
 
     sessionStorage.setItem("ticket", JSON.stringify(ticeketData));
     window.location.href = `/booking/${eventID}`;

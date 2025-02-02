@@ -72,6 +72,7 @@ const TicketSchema = z.object({
     })
     .optional()
     .describe("The coordinates of the ticket"),
+  groupNumber: z.number().optional().describe("The group number of the ticket"),
 
   // status: z
   //   .enum(["active", "used", "cancelled"])

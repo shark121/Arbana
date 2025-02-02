@@ -23,14 +23,29 @@ export default function GetTicket() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const userJSON = JSON.parse(Cookies.get("user") as string);
-    console.log(userJSON.uid);
-    setUserState(userJSON);
+    const userJSON = JSON.parse(Cookies.get("user") || "{}");
 
-    userJSON.uid && fetchTickets({ userID: userJSON.uid }).then((data) => {
-      // console.log(data.res);
-      setTickets(data.res);
-    });
+    const userExists = Object.keys(userJSON).length > 0;
+
+    if (userExists) {
+      setUserState(userJSON);
+
+      userJSON.uid &&
+        fetchTickets({ userID: userJSON.uid }).then((data) => {
+          console.log(data);
+          setTickets([...data.res].reverse());
+        });
+    } else {
+      const ticketsJSON = JSON.parse(
+        sessionStorage.getItem("tickets") as "[]"
+      ) as TicketSchemaType[];
+
+      if (ticketsJSON) {
+        setTickets(ticketsJSON);
+      } else {
+        setTickets([]);
+      }
+    }
   }, []);
 
   async function handleDelete(ticket: TicketSchemaType) {
@@ -44,9 +59,13 @@ export default function GetTicket() {
 
     console.log("handle delete...............");
 
-   tickets && setTickets(tickets.filter((el) => el.ticketID !== ticket.ticketID));
+    tickets &&
+      setTickets(tickets.filter((el) => el.ticketID !== ticket.ticketID));
+    sessionStorage.setItem(
+      "tickets",
+      JSON.stringify(tickets?.filter((el) => el.ticketID !== ticket.ticketID))
+    );
   }
-
 
   useEffect(() => {
     const ticketNames = tickets && tickets.map((el) => el.name);
@@ -68,32 +87,37 @@ export default function GetTicket() {
   }
 
   return (
-   tickets && <div
-      className={`min-h-screen w-screen ${comfortaa.className} bg-gray-50 flex items-center flex-col`}
-    >
-      <div className="w-screen flex items-center justify-between p-4 h-[3rem] text-[2rem] text-gray-900 z-10">
-        <div>My Tickets</div>
-        <SheetComponent />
+    tickets && (
+      <div
+        className={`min-h-screen w-screen ${comfortaa.className} bg-gray-50 flex items-center flex-col`}
+      >
+        <div className="w-screen flex items-center justify-between p-4 h-[3rem] text-[2rem] text-gray-900 z-10">
+          <div>My Tickets</div>
+          <SheetComponent />
+        </div>
+        <div className="w-full h-full flex flex-wrap gap-4 items-center justify-center">
+          {tickets && tickets.length == 0 ? (
+            <EmptyComponent
+              header="You have no tickets"
+              subHeader="Purchased tickets will appear here"
+            />
+          ) : (
+            tickets &&
+            tickets.map((el, i) => (
+              <div>
+                <TicketsListComponents
+                  handleDelete={handleDelete}
+                  key={el.ticketID}
+                  ticketData={el}
+                  handleTicketOnclick={handleTicketOnclick}
+                  setTickets={setTickets}
+                  tickets={tickets}
+                />
+              </div>
+            ))
+          )}
+        </div>
       </div>
-      <div className="w-full h-full flex flex-wrap gap-4 items-center justify-center">
-        {tickets && tickets.length == 0 ? (
-          <EmptyComponent header="You have no tickets" subHeader="Purchased tickets will appear here"/>
-        ) : (
-          tickets &&
-          tickets.map((el, i) => (
-            <div>
-              <TicketsListComponents
-                handleDelete={handleDelete}
-                key={el.ticketID}
-                ticketData={el}
-                handleTicketOnclick={handleTicketOnclick}
-                setTickets={setTickets}
-                tickets={tickets}
-              />
-            </div>
-          ))
-        )}
-      </div>
-    </div>
+    )
   );
 }

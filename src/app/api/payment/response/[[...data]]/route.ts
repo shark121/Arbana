@@ -15,7 +15,6 @@ import {
   deleteFromCache,
   setCache,
 } from "@/lib/server_utils";
-import { group } from "console";
 
 const bookingsCollection = collection(database, "bookings");
 const userCollection = collection(database, "users");
@@ -40,7 +39,7 @@ export async function POST(req: NextRequest) {
           const data = document.data();
 
           if (data[ticketId]) {
-            data[ticketId].scans = data[ticketId].availableSeats.groupNumber ? data[ticketId].quantity * data[ticketId].groupNumber : data[ticketId].quantity;
+            data[ticketId].scans = data[ticketId]?.groupNumber ? data[ticketId].quantity * data[ticketId].groupNumber : data[ticketId].quantity;
             data[ticketId].reference = reference;
             data[ticketId].trxref = trxref;
 

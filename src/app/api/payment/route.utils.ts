@@ -6,13 +6,14 @@ import {
   runTransaction,
   arrayUnion,
 } from "firebase/firestore";
-import { NextRequest, NextResponse } from "next/server";
+import {functions} from "@/firebase.config"
 import { EventSchemaType as EventType } from "@/lib/types";
 import {
   setRedisTriggerEvent,
   invokeSubscriberCallback,
   getCache,
 } from "@/lib/server_utils";
+import {httpsCallable} from "firebase/functions"
 
 /// to future me and anyone supposed to work on this code apart from me..... I am indeed truly sorry,  I was not very wise ...
 
@@ -145,16 +146,9 @@ export async function createTicketEntry(
 
   console.log(ticketData, transactionID);
 
-  // const ticketeventID = ticketEntry.eventID
-
   ticketEntry.scans = 0;
 
   return await runTransaction(database, async (transaction) => {
-    // transaction.set(
-    //   doc(collection(database, "users"), ticketEntry.uid),
-    //   { tickets: arrayUnion(ticketEntry) },
-    // )
-
     console.log(ticketEntry, "ticketEntry.............");
 
     transaction.set(

@@ -1,4 +1,4 @@
-"use server";
+import "server-only";
 
 import { liteClient as algoliasearch } from "algoliasearch/lite";
 import { createClient } from "redis";

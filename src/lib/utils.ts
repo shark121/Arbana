@@ -1,10 +1,8 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { createClient } from "redis";
 import dotenv from "dotenv";
 import Cookies from "js-cookie";
 
-export const vars = dotenv.config({ path: "../.env" });
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -147,7 +145,14 @@ export function convertTo24Hour(timeStr:string) {
 }
 
 
+function setClientCache({pathToServer, key, value}:{pathToServer: string | undefined, key: string, value: any
+}){ 
+  pathToServer && fetch(pathToServer, {
+    method: "POST",
+    body: JSON.stringify({key, value})
+  })
 
+}
 
 
 

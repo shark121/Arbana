@@ -16,21 +16,9 @@ import { TicketSchemaType } from "@/lib/types";
 import { ChevronLeft } from "lucide-react";
 import { COLORSMAP } from "../../../../data/colors";
 import SheetComponent from "../../../../components/components/sheet";
-import { setCache, getCache, existsInCache } from "@/lib/server_utils";
 import Loading from "@/app/loading";
 
-async function updateCache({
-  ticket,
-  quantity,
-}: {
-  ticket: TicketSchemaType;
-  quantity: number;
-}) {
-  const currentState = getCache("ticket");
 
-  if (await existsInCache("ticket")) {
-  }
-}
 
 const Providers = [
   { label: "MTN", value: "MTN" },

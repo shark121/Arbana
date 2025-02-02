@@ -8,16 +8,8 @@ export function middleware(request: NextRequest, event: NextFetchEvent) {
   const protocol = request.headers.get("x-forwarded-proto") || "http";
   const domain = `${protocol}://${host}`;
 
-  // console.log(
-  //   request.headers.get("host"),
-  //   request.headers.get("referer"),
-  //   request.headers.get("origin"),
-  //   ".................................."
-  // );
-
   if (
     request.nextUrl.pathname.startsWith("/myEvents") ||
-    request.nextUrl.pathname.startsWith("/tickets")  ||
     request.nextUrl.pathname.startsWith("/account") 
   ) {
     if (!request.cookies.get("user"))
@@ -58,7 +50,6 @@ export function middleware(request: NextRequest, event: NextFetchEvent) {
 
     return NextResponse.redirect(
       domain + `/ticket/${ticketId}`
-      //   new URL( process.env.NEXT_PUBLIC_DOMAIN + `/ticket/${ticketId}`)
     );
   }
 }
