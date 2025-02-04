@@ -1,4 +1,4 @@
-# Next.js Event Ticket Marketplace
+# Arbana Event Ticket Marketplace
 
 ## Overview
 The **Next.js Event Ticket Marketplace** is a modern web application for buying and selling event tickets securely and efficiently. Built with **Next.js, React, Redis, Firebase, and TypeScript**, this platform provides a seamless experience for users looking to purchase or sell tickets online.
