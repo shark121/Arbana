@@ -4,6 +4,9 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Head from "next/head";
 import { Toaster } from "@/components/ui/toaster";
+import React, { createContext, useState, useContext, ReactNode } from "react";
+import { User } from "firebase/auth";
+import { UserProvider, useUserContext } from "@/contexts/userContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,13 +21,32 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [user, setUser] = useState<User | null>(null);
+
   return (
     <html lang="en">
-      <body className={inter.className}>
-        {/* {children} */}
-        <main>{children}</main>
-        <Toaster />
-      </body>
+      <UserProvider>
+        <body className={inter.className}>
+          <main>{children}</main>
+          <Toaster />
+        </body>
+      </UserProvider>
     </html>
   );
 }
+
+// export default function Layout({ children }: LayoutProps) {
+
+//   return (
+//     <html lang="en">
+//       <UserProvider>
+//         <body className={inter.className}>
+//           <UserContext.Provider value={{ user, setUser }}>
+//             <main>{children}</main>
+//             <Toaster />
+//           </UserContext.Provider>
+//         </body>
+//       </UserProvider>
+//     </html>
+//   );
+// }

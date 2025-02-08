@@ -15,15 +15,17 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { convertDate } from "../../getEvent/[eventID]/page";
 import Image from "next/image";
-import { User } from "firebase/auth";
+import { getIdTokenResult, User } from "firebase/auth";
 import { generateRandomId } from "@/lib/utils";
 import SheetComponent from "../../../../../components/components/sheet";
 import { ArrowLeft, ChevronLeft } from "lucide-react";
 import { motion as m } from "framer-motion";
 import Verified from "@/images/svg/verified";
 import Loading from "@/app/loading";
+import { auth } from "@/firebase.config";
+import { onAuthStateChanged, signInAnonymously } from "firebase/auth";
+import { useContext } from "react";
 import { SignInAlert } from "../../../../../components/ui/signInAlert";
-import { set } from "date-fns";
 
 const comfortaa = Comfortaa({
   subsets: ["latin"],
@@ -42,33 +44,35 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
   const [defaultValueState, setDefaultValueState] = useState(1);
   const [currentTier, setCurrentTier] = useState<string>("");
   const [currentPrice, setCurrentPrice] = useState<number>(1);
-  const [userInfoState, setUserInfoState] = useState<User>();
+  let [userInfoState, setUserInfoState] = useState<User>();
   const [loadingBuffer, setLoadingBuffer] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
   const router = useRouter();
   const eventID = params.params.eventID;
 
-  const tierMap = eventState?.availableSeats.map((seat) => ({
-    name: seat.tier,
-  }));
-
-  const [valueState, setValueState] = useState<{ name: string }>();
+  function signIn() {
+    window.location.href = "/home";
+  }
 
   useEffect(() => {
     const eventData = sessionStorage.getItem(eventID);
     eventData && setEventState(JSON.parse(eventData));
     const userInformation = Cookies.get("user");
 
+    console.log(eventData);
+
     if (userInformation)
       setUserInfoState(JSON.parse(userInformation as string));
 
     console.log(eventData);
+    eventData && setCurrentTier(eventState?.availableSeats[0].tier ?? "");
+    eventData && (eventState?.availableSeats[0].price ?? 1);
+    eventData && setIsLoading(false);
   }, []);
 
   useEffect(() => {
-    eventState &&
-      setValueState({ name: eventState?.availableSeats[0].tier ?? "" });
+    // console.log(eventData);
     eventState && setCurrentTier(eventState?.availableSeats[0].tier ?? "");
     eventState && (eventState?.availableSeats[0].price ?? 1);
     eventState && setIsLoading(false);
@@ -91,7 +95,7 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
       eventState && (
         <>
           <div
-            key={i}
+            key={type.tier}
             onClick={() => {
               setCurrentTier(type.tier);
               setCurrentPrice(type.price);
@@ -161,32 +165,59 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
     );
   });
 
-  function handleOnClick(eventID: string, tier: string, price: number) {
+  function handleOnClick(user?: User) {
     //ask to sign in if user is not signed in or sign in anonymously
-     
-    setAlertOpen(true);
-    return
+   console.log("invoked")
+   userInfoState  =  userInfoState ?? user  ;
+
+    if (!userInfoState) {
+      setAlertOpen(true);
+      console.log("no user info");
+      return;
+    }
+
+
+    if (!eventState) return;
 
     const ticeketData: Omit<TicketSchemaType, "transactionID"> = {
-      name: eventState!.name,
-      startDate: eventState!.startDate,
-      endDate: eventState!.endDate,
-      imageUrl: eventState!.imageUrl,
+      name: eventState.name,
+      startDate: eventState.startDate,
+      endDate: eventState.endDate,
+      imageUrl: eventState.imageUrl,
       eventID,
-      tier,
-      price,
+      tier: currentTier,
+      price: currentPrice,
       scans: defaultValueState,
       quantity: defaultValueState,
       createdAt: new Date().toISOString(),
-      uid: userInfoState?.uid || "anon_" + generateRandomId(6),
+      uid: userInfoState?.uid ,
       ticketID: generateRandomId(10),
       groupNumber:
-        eventState?.availableSeats.find((el) => el.tier === tier)
+        eventState?.availableSeats.find((el) => el.tier === currentTier)
           ?.groupNumber ?? 1,
     };
 
     sessionStorage.setItem("ticket", JSON.stringify(ticeketData));
     window.location.href = `/booking/${eventID}`;
+  }
+
+  async function continueWithoutSignIn() {
+    await signInAnonymously(auth)
+      .then(async (res) => {
+        console.log(res);
+        const userInfo = {
+          uid: res.user.uid,
+          token: await res.user.getIdTokenResult(),
+        };
+        console.log(userInfo);
+        const userString = JSON.stringify(userInfo);
+        Cookies.set("user", userString);
+        setUserInfoState(res.user);
+        return res.user;
+      })
+      .then((user) => {
+        handleOnClick(user);
+      });
   }
 
   setTimeout(() => {
@@ -195,30 +226,32 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
 
   if (isLoading || loadingBuffer) return <Loading />;
 
+
   return (
-    <>
-    <SignInAlert isOpen={alertOpen} setIsOpen={setAlertOpen}/>
-    <div
-      className={`flex flex-col h-screen w-screen justicfy-start items-center gap-4 bg-blue-50/15 ${comfortaa.className} `}
+    <div>
+      <SignInAlert
+        isOpen={alertOpen}
+        setIsOpen={setAlertOpen}
+        continueCallback={continueWithoutSignIn}
+        signInCallback={signIn}
+      />
+      <div
+        className={`flex flex-col h-screen w-screen justicfy-start items-center gap-4 bg-blue-50/15 ${comfortaa.className} `}
       >
-      <div className="relative font-bold flex items-center justify-between p-2 h-[5rem] w-full text-[1.4rem] ">
-        <div className="" onClick={() => router.back()}>
-          <ChevronLeft color={"red"} />
+        <div className="relative font-bold flex items-center justify-between p-2 h-[5rem] w-full text-[1.4rem] ">
+          <div className="" onClick={() => router.back()}>
+            <ChevronLeft color={"red"} />
+          </div>
+          <div>Choose Ticket</div>
+          <SheetComponent />
         </div>
-        <div>Choose Ticket</div>
-        <SheetComponent />
+        {TicketTypes}
+        {eventState && (
+          <Button onClick={() => eventState && handleOnClick()}>
+            Purchase
+          </Button>
+        )}
       </div>
-      {TicketTypes}
-      {eventState && (
-        <Button
-          onClick={() =>
-            eventState && handleOnClick(eventID, currentTier, currentPrice)
-          }
-        >
-          Purchase
-        </Button>
-      )}
     </div>
-          </>
   );
 }

@@ -11,110 +11,120 @@ import { setCookie } from "@/lib/utils";
 import { setDoc, doc, collection } from "firebase/firestore";
 import { database } from "@/firebase.config";
 import { useToast } from "@/hooks/use-toast";
-// import {useRouter} from "next/navigation";
-
+import Cookies from "js-cookie";
+import { useUserContext } from "@/contexts/userContext";
+import {User} from "firebase/auth";
+import { set } from "date-fns";
 
 export default function GoogleAuth() {
   const { toast } = useToast();
+  const { setUser } = useUserContext();
 
-const provider = new GoogleAuthProvider();
+  const provider = new GoogleAuthProvider();
 
-async function triggerPopup() {
-  return signInWithPopup(auth, provider)
-    .then((result) => {
-      // This gives you a Google Access Token. You can use it to access the Google API.
+  async function triggerPopup() {
 
-      console.log("used pop up...........................");
-      const credential = GoogleAuthProvider.credentialFromResult(result);
-      const token = credential && credential.accessToken;
+    return signInWithPopup(auth, provider)
+      .then(async (result) => {
+        // This gives you a Google Access Token. You can use it to access the Google API.
 
-      console.log(result);
+        console.log("used pop up...........................");
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        // const token = credential && credential.accessToken;
+        const token = await result.user.getIdTokenResult();
+        console.log(token)
 
-      // The signed-in user info.
-      // const user = result.user;
+        setUser(result.user);
 
-      const {
-        uid,
-        email,
-        emailVerified,
-        photoURL,
-        displayName,
-        phoneNumber,
-        providerData,
-      } = result.user;
+        console.log(result);
 
-      const user = {
-        uid,
-        email,
-        emailVerified,
-        photoURL,
-        displayName,
-        phoneNumber,
-        providerData,
-      };
+        // The signed-in user info.
+        // const user = result.user;
 
-      const userInfo = {
-        uid,
-        email,
-        emailVerified,
-        displayName,
-        phoneNumber,
-        photoURL,
-      };
+        const {
+          uid,
+          email,
+          emailVerified,
+          photoURL,
+          displayName,
+          phoneNumber,
+          providerData,
+        } = result.user;
 
-      setCookie("user", JSON.stringify(user), 1);
-      sessionStorage.setItem("user", JSON.stringify(user));
-      // window.location.href = "/";
+        const user = {
+          uid,
+          email,
+          emailVerified,
+          photoURL,
+          displayName,
+          phoneNumber,
+          providerData,
+        };
 
-      const userInfoWithExtraFields = {
-        accountInfo: { name: displayName, uid, email, emailVerified: true },
-        events: [],
-        tickets: [],
-        followers: [],
-        following: [],
-      };
+        const userInfo = { ...user, token };
 
-      const additionalUserInfo = result ? getAdditionalUserInfo(result) : null;
-      if (result && additionalUserInfo && additionalUserInfo.isNewUser) {
-        setDoc(
-          doc(collection(database, "users"), userInfo.uid),
-          userInfoWithExtraFields ,
-          { merge: true }
-        );
-        
-        sessionStorage.setItem("user", JSON.stringify(userInfoWithExtraFields));
-      }
 
-     
-      console.log(userInfo);
-      //   console.log(user);
-      toast({ description: "signed in successfully" });
+        Cookies.set("user", JSON.stringify(userInfo), {secure:true, sameSite:"strict", expires : new Date(token.expirationTime)});
 
-      setTimeout(()=>window.history.back(),1000)
+    
+        const userInfoWithExtraFields = {
+          accountInfo: { name: displayName, uid, email, emailVerified: true },
+          events: [],
+          tickets: [],
+          followers: [],
+          following: [],
+        };
 
-      return user;
+        const additionalUserInfo = result
+          ? getAdditionalUserInfo(result)
+          : null;
+        if (result && additionalUserInfo && additionalUserInfo.isNewUser) {
+          setDoc(
+            doc(collection(database, "users"), userInfo.uid),
+            userInfoWithExtraFields,
+            { merge: true }
+          );
 
-      // ...
-    })
-    .catch((error) => {
-      // Handle Errors here.
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      // The email of the user's account used.
-      const email = error.customData.email;
-      // The AuthCredential type that was used.
-      const credential = GoogleAuthProvider.credentialFromError(error);
-      // ...
-    });
-}
+          sessionStorage.setItem(
+            "user",
+            JSON.stringify(userInfoWithExtraFields)
+          );
+        }
 
-function handleOnClick() {
-  triggerPopup().then((result) => {
-    console.log(result);
-  });
-}
+        console.log(userInfo);
+        //   console.log(user);
+        toast({ description: "signed in successfully" });
 
-  
+        setTimeout(()=>window.location.href="/",1000)
+
+        return user;
+
+        // ...
+      })
+      .catch((error) => {
+        // Handle Errors here.
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // The email of the user's account used.
+        const email = error.customData.email;
+        // The AuthCredential type that was used.
+        const credential = GoogleAuthProvider.credentialFromError(error);
+
+        toast({
+          description: error.message,
+          variant: "destructive",
+        });
+        // ...
+      });
+  }
+
+  function handleOnClick() {
+    triggerPopup()
+      .then((result) => {
+        console.log(result);
+      })
+  }
+
   return (
     <button
       className="h-10 w-[15rem] flex items-center justify-center gap-4 rounded relative my-3 bg-gray-100"

@@ -5,6 +5,7 @@ import { getAuth  } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 import { getFirestore, initializeFirestore } from "firebase/firestore";
 import { getFunctions } from "firebase/functions";
+import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -28,6 +29,17 @@ export const functions = getFunctions(app);
 export const database = initializeFirestore(app, {
   experimentalForceLongPolling: true,
 });
+
+
+// const appCheck = initializeAppCheck(app, {
+//   provider: new ReCaptchaV3Provider("6Lch0N4lAAAAACh4r3uJw9b8q1qvSg8y7aUeH5q8"),
+//   isTokenAutoRefreshEnabled: true,
+// });
+
+
+
+
+
 // const app = initializeApp(firebaseConfig);
 
 // const analytics = getAnalytics(app);

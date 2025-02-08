@@ -10,57 +10,44 @@ import { Button } from "@/components/ui/button";
 import { setCookie } from "@/lib/utils";
 import PasswordInput from "../components/ui/passwordInputType";
 import { setDoc, doc, collection } from "firebase/firestore";
-
+import { toast } from "@/hooks/use-toast";
 import Logo from "@/images/svg/logo";
 
 async function createNewUserWithEmailAndPassword(
   email: string,
   password: string
 ) {
-  await createUserWithEmailAndPassword(auth, email, password)
+  createUserWithEmailAndPassword(auth, email, password)
     .then(async (userCredential) => {
-      const user = userCredential.user;
-      const { uid, email, emailVerified, displayName, phoneNumber, photoURL } =
-        userCredential.user;
-      const userInfo = {
-        uid,
-        email,
-        emailVerified,
-        displayName,
-        phoneNumber,
-        photoURL,
-      };
-
-      await sendEmailVerification(user).then((verification) => {
-        setCookie("user", JSON.stringify(userInfo), 1);
-
-        const userInfoWithExtraFields = {
-          accountInfo: { name: displayName, uid, email, emailVerified: true, },
-          events: [],
-          tickets: [],
-          followers: [],
-          following: [],
-        };
-
-        sessionStorage.setItem("user", JSON.stringify(userInfoWithExtraFields));
-        setDoc(
-          doc(collection(database, "users"), userInfo.uid),
-          userInfoWithExtraFields ,
-          { merge: true }
-        );
-        console.log(userInfo);
-
-        console.log(verification);
-        console.log("email sent");
-
-        setTimeout(()=>window.history.back(),1000)
-
-      });
+      sendEmailVerification(userCredential.user)
+        .then(() => {
+          console.log("Email verification sent");
+          toast({
+            description: "Email verification sent",
+            variant: "default",
+          });
+        })
+        .catch((error) => {
+          console.error(error.code);
+        });
     })
     .catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
+      console.error(error.code);
       console.log(error);
+      console.error(error.message);
+      if (error.code.includes("email-already-in-use")) {
+        toast({
+          description: "Email already in use",
+          variant: "destructive",
+        });
+      }else{
+
+        toast({
+          description: "An error occured",
+          variant: "destructive",
+        });
+      }
+      // ..
     });
 }
 
@@ -68,32 +55,28 @@ export default function SignUpComponent() {
   const [emailState, setEmailState] = useState("");
   const [passwordState, setPasswordState] = useState("");
   const [confirmPasswordState, setConfirmPasswordState] = useState("");
-  const emailRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
-  const confirmPasswordRef = useRef<HTMLInputElement>(null);
 
-  function handleOnclick(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
-    createNewUserWithEmailAndPassword(emailState, passwordState);
-
-    emailRef?.current?.value ? (emailRef.current.value = "") : null;
-    passwordRef?.current?.value ? (passwordRef.current.value = "") : null;
-    confirmPasswordRef?.current?.value
-      ? (confirmPasswordRef.current.value = "")
-      : null;
-
-    setEmailState("");
-    setPasswordState("");
+  async function handleOnclick() {
+    if (passwordState !== confirmPasswordState) {
+      toast({ description: "Passwords do not match", variant: "destructive" });
+      return;
+    }
+    await createNewUserWithEmailAndPassword(emailState, passwordState);
   }
 
   return (
-    <div className="w-screen  flex flex-col items-center justify-center">
-      {/* <div>Logo</div> */}
+    <form
+      className="w-screen  flex flex-col items-center justify-center"
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleOnclick();
+      }}
+    >
       <Logo />
       <div className="w-[20rem]  flex flex-col items-center justify-center gap-4">
         <Input
           type="email"
           placeholder="Email"
-          ref={emailRef}
           onChange={(e) => setEmailState(() => e.target.value)}
         />
         <PasswordInput
@@ -105,21 +88,8 @@ export default function SignUpComponent() {
           passwordState={confirmPasswordState}
           setPasswordState={setConfirmPasswordState}
         />
-
-        {/* <Input
-          type="password"
-          placeholder="Password"
-          ref={passwordRef}
-          onChange={(e) => setPasswordState(() => e.target.value)}
-        />
-        <Input
-          type="password"
-          placeholder="Confirm Password"
-          ref={confirmPasswordRef}
-          onChange={(e) => setPasswordState(() => e.target.value)}
-        /> */}
-        <Button onClick={(e) => handleOnclick(e)}>Submit</Button>
+        <Button type="submit">Submit</Button>
       </div>
-    </div>
+    </form>
   );
 }

@@ -7,12 +7,18 @@ export function middleware(request: NextRequest, event: NextFetchEvent) {
   const host = request.headers.get("host");
   const protocol = request.headers.get("x-forwarded-proto") || "http";
   const domain = `${protocol}://${host}`;
+  
+  const allowedDomains = ["localhost:3000", "arbana.vercel.app", "localhost:3001"];
+
+  if (!allowedDomains.includes(host as string)) return NextResponse.json({ message: "Domain not allowed" }, { status: 400 });
+
+  console.log(request.cookies.get("user")?.value, "user cookie");
 
   if (
     request.nextUrl.pathname.startsWith("/myEvents") ||
     request.nextUrl.pathname.startsWith("/account") 
   ) {
-    if (!request.cookies.get("user"))
+    if (!request.cookies.get("user") || request.cookies.get("user") && request.cookies.get("user")?.value.indexOf("email") == -1)
       return NextResponse.redirect(origin + `/home?redirect=true&path=${request.nextUrl.pathname}`);
   }
 

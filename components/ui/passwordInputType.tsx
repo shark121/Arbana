@@ -14,6 +14,7 @@ export default function PasswordInput({
   const [isOpen, setIsOpen] = useState<boolean>();
 
   return (
+    
     <div className="flex h-14 bg-gray-100 rounded-lg w-full">
       <Input
         type={isOpen ? "text" : "password"}

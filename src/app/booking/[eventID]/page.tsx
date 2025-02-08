@@ -17,8 +17,13 @@ import { ChevronLeft } from "lucide-react";
 import { COLORSMAP } from "../../../../data/colors";
 import SheetComponent from "../../../../components/components/sheet";
 import Loading from "@/app/loading";
+import { auth, functions } from "@/firebase.config";
+import Cookies from "js-cookie";
+import { httpsCallable } from "firebase/functions";
 
-
+const startPaymentProcess = httpsCallable(functions, "startPaymentProcess", {
+  limitedUseAppCheckTokens: true,
+});
 
 const Providers = [
   { label: "MTN", value: "MTN" },
@@ -34,7 +39,7 @@ export default function Booking({ params }: { params: {} }) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [defaultValue, setDefaultValue] = useState<number>(1);
-  const [loadingBuffer , setLoadingBuffer] = useState<boolean>(true);
+  const [loadingBuffer, setLoadingBuffer] = useState<boolean>(true);
   const [total, setTotal] = useState<number>(0);
   const [ticketState, setTicketState] = useState<Omit<
     TicketSchemaType,
@@ -127,8 +132,10 @@ export default function Booking({ params }: { params: {} }) {
   }
 
   useEffect(() => {
+    console.log(auth.currentUser, "user");
     console.log(providerState);
     const ticket = sessionStorage.getItem("ticket") as string;
+
     let parsedTicket = JSON.parse(ticket) as Omit<
       TicketSchemaType,
       "transactionID"
@@ -150,55 +157,67 @@ export default function Booking({ params }: { params: {} }) {
     price = price ?? 0;
     phoneNumber = phoneNumber ?? 200000;
 
-    const ticketFormData = new FormData();
-    ticketFormData.append("ticket", JSON.stringify(ticketState));
+    const userCookies = Cookies.get("user");
 
-    await fetch(
-      `/api/payment/request/${phoneNumber}/${provider}/${total}`,
-      {
-        method: "POST",
-        body: ticketFormData,
-      }
-    )
-      .then(async (res) => {
-        let responseObject = await res.json();
-        // too many responses :(
-        const transactionData = JSON.parse(responseObject.response.response).response.data 
+    if (!userCookies) return;
 
-        console.log(responseObject);
+    const idToken = JSON.parse(userCookies).token.token;
+    console.log(idToken, "idToken");
 
-        if (responseObject.type === "error") {
-          setText(responseObject.response);
-          setHeaderText("There was a problem with your request");
-          setIsLoading(false);
-          setIsOpen(true);
-          return "error";
-        }
+    if (!idToken) return;
 
-        console.log(transactionData, "textresponse");
+    // return
+
+    // const ticketFormData = new FormData();
+    // ticketFormData.append("ticket", JSON.stringify(ticketState));
+
+    // await fetch(
+    //   `/api/payment/request/${phoneNumber}/${provider}/${total}`,
+    //   {
+    //     method: "POST",
+    //     body: ticketFormData,
+    //   }
+    // )
+    await startPaymentProcess({
+      provider,
+      amount: 1,
+      idToken,
+      ticketData: ticketState,
+      domain: process.env.NEXT_PUBLIC_DOMAIN,
+    })
+      .then(async (responseObject:{data:any}) => {
+
+        const transactionData = responseObject.data.response.response.data
+        console.log(transactionData, "transactionData");
+        
 
         const ticketWithID: TicketSchemaType = {
           ...ticketState,
           transactionID: transactionData.reference,
         } as TicketSchemaType;
-        
+
         sessionStorage.setItem("ticket", JSON.stringify(ticketWithID));
 
         window.location.href = transactionData.authorization_url;
       })
       .catch((error) => {
-        console.log(error);
-        setText(String(error));
-        setIsLoading(false);
+        // setText(error);
         setHeaderText("Payment failed");
+        setText(
+          "There was a problem with your request. Please try again later."
+        );
+        setIsLoading(false);
+        setIsOpen(true);
+
+        console.log(error);
+
         return "error";
       });
   }
-  
+
   setTimeout(() => {
     setLoadingBuffer(false);
-  }
-  , 500);
+  }, 500);
 
   if (isLoading || loadingBuffer) return <Loading />;
 
@@ -210,8 +229,7 @@ export default function Booking({ params }: { params: {} }) {
         <div className="" onClick={() => router.back()}>
           <ChevronLeft height="30px" width="30px" color={"red"} />
         </div>
-        <div>Order Details
-        </div>
+        <div>Order Details</div>
         <SheetComponent />
       </div>
       {ticketState && (
@@ -225,9 +243,12 @@ export default function Booking({ params }: { params: {} }) {
         />
       )}
       {ticketState && (
-        <OrderSummary price={ticketState.price} quantity={ticketState.quantity} />
+        <OrderSummary
+          price={ticketState.price}
+          quantity={ticketState.quantity}
+        />
       )}
-
+      <div id="recaptcha"></div>
       <div className="relative -z-10">
         <DialogComponent
           isOpen={isOpen}

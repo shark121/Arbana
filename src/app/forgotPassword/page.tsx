@@ -6,7 +6,6 @@ import { auth } from "../../firebase.config";
 import { useState } from "react";
 import Logo from "@/images/svg/logo";
 import { useToast } from "@/hooks/use-toast";
-import SuccessAnimation from "@/animations/success";
 
 async function SendPasswordReset(email: string) {
   await sendPasswordResetEmail(auth, email)
@@ -30,9 +29,10 @@ export default function forgotPassword() {
     console.log(email);
     await SendPasswordReset(email)
       .then(() => {
-        // toast({description: "Reset email sent"});
+        toast({description: "Reset email sent"});
         setEmailSent(true);
         console.log("email sent");
+        window.location.href = "/home";
       })
       .catch((error) => {
         toast({
@@ -43,10 +43,14 @@ export default function forgotPassword() {
       });
   }
 
-  if (emailSent) return <SuccessAnimation navTo="/home" />;
 
   return (
-    <div className="h-screen w-screen flex flex-col justify-center items-center gap-4">
+    <form className="h-screen w-screen flex flex-col justify-center items-center gap-4"
+    onSubmit={(e) => {
+      e.preventDefault();
+      handleOnClick(email);
+    }}
+    >
       <Logo />
       {/* <div>Logo</div> */}
       <div className="text-center">
@@ -59,10 +63,12 @@ export default function forgotPassword() {
           placeholder="example@gmail.com"
           onChange={(e) => setEmail((email) => e.target.value)}
         />
-        <Button className="my-4" onClick={async () => handleOnClick(email)}>
+        <Button className="my-4" 
+        type="submit"
+        >
           Submit
         </Button>
       </div>
-    </div>
+    </form>
   );
 }
