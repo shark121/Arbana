@@ -217,6 +217,8 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
       })
       .then((user) => {
         handleOnClick(user);
+      }).catch((error) => {
+        console.log(error);
       });
   }
 

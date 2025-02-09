@@ -162,6 +162,14 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
 
         setProcessing(true);
 
+        console.log("Scanned ID:", res);
+        if (!res) {
+          setProcessing(false);
+          setIdle(true);
+          toast({ description: "Couldn't read QR", variant: "destructive" });
+          return;
+        }
+
         checkTicket({
           scannedID: res as string,
           eventID: eventID,
