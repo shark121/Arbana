@@ -194,3 +194,40 @@ export async function uploadFile({
 }
 
 
+export async function verifyPayment(reference:string) {
+  const secretKey = process.env.PAYSTACK_SECRET_KEY; // Your Paystack secret key
+
+  if (!secretKey) {
+    throw new Error("Paystack secret key must be defined.");
+  }
+
+  const url = `https://api.paystack.co/transaction/verify/${reference}`;
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${secretKey}`, 
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json(); 
+      throw new Error(`Paystack API error: ${response.status} - ${errorData.message || response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    if (data.status && data.data.status === 'success') {
+      // Payment successful!
+      console.log("Payment verified successfully:", data.data);
+      return data.data; 
+    } else {
+      console.error("Payment verification failed:", data);
+      return null; 
+    }
+
+  } catch (error) {
+    console.error("Error verifying payment:", error);
+    throw error; 
+  }
+}

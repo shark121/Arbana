@@ -10,7 +10,7 @@ import { categoriesList } from "../../../../data/categories";
 import { CategoriesComponent } from "../../../../components/components/events/categoriesComponent";
 import { X } from "lucide-react";
 import { z } from "zod";
-import { User } from "firebase/auth";
+import { LocalUserType } from "@/lib/types";
 import { AddTicket } from "../../../../components/components/events/AddTicket";
 import TicketTierType, {
   AddNewTicket,
@@ -73,11 +73,18 @@ export const inputStyling =
 
 export type createRequestType = Omit<RequestType, "imageUrl">;
 
-async function sendCreateRequest({ event }: { event: createRequestType }) {
+async function sendCreateRequest({
+  event,
+  authInfo,
+}: {
+  event: createRequestType;
+  authInfo: { uid: string; authToken: string };
+}) {
   const { imageFile, ...rest } = event;
   const requestFormData = new FormData();
   imageFile && requestFormData.append("imageFile", imageFile);
   requestFormData.append("rest", JSON.stringify(rest));
+  requestFormData.append("authInfo", JSON.stringify(authInfo));
 
   console.log(event, "requestFormData");
 
@@ -102,7 +109,8 @@ export default function CreateEvent() {
   const [chosenCategoriesList, setChosenCategoriesList] =
     useState<JSX.Element[]>();
   const [imageFileState, setImageFileState] = useState<File | null>(null);
-  const [userInfoState, setUserInfoState] = useState<User>();
+  //should correct the userInfo type
+  const [userInfoState, setUserInfoState] = useState<LocalUserType>();
   const [locationDataState, setLocationDataState] = useState();
   const [startDateState, setStartDateState] = useState<Date | undefined>();
   const [endDateState, setEndDateState] = useState<Date | undefined>();
@@ -162,27 +170,6 @@ export default function CreateEvent() {
       })
     );
   }, [categoriesState]);
-
-  // function CategoriesComponent({ currentItem }: { currentItem: string }) {
-  //   function handleOnClick() {
-  //     const newCategories = categoriesState?.filter(
-  //       (category) => category !== currentItem
-  //     );
-  //     setCategoriesState(newCategories);
-  //   }
-
-  //   return (
-  //     <Button variant={"outline"} className="m-4">
-  //       {currentItem}{" "}
-  //       <X
-  //         onClick={handleOnClick}
-  //         height={"15px"}
-  //         width={"15px"}
-  //         className="mx-3"
-  //       />
-  //     </Button>
-  //   );
-  // }
 
   const FormValidEventSchema = z.object({
     // name: z.string(),
@@ -312,11 +299,13 @@ export default function CreateEvent() {
 
     console.log(eventWithExtraParams, "eventWithExtraParams");
 
-
-    await sendCreateRequest({ event: eventWithExtraParams })
+    await sendCreateRequest({
+      event: eventWithExtraParams,
+      authInfo: { uid: userInfoState?.uid!, authToken: userInfoState?.token! },
+    })
       .catch((err) => console.log(err, "err"))
       .then((res: any) => {
-         setSuccess(true);
+        setSuccess(true);
       })
       .finally(() => setIsLoading(false));
   };

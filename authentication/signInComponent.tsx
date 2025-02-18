@@ -23,19 +23,7 @@ export default function SignInComponent() {
     await signInWithEmailAndPassword(auth, email, password)
       .then(async (userCredential) => {
         
-        const token = await userCredential.user.getIdTokenResult();
-
-        const {
-          uid,
-          email,
-          emailVerified,
-          photoURL,
-          displayName,
-          phoneNumber,
-          providerData,
-        } = userCredential.user;
-
-        if (emailVerified === false) {
+        if (userCredential.user.emailVerified === false) {
           toast({
             description: "Please verify your email before signing in",
             variant: "destructive",
@@ -45,22 +33,7 @@ export default function SignInComponent() {
           
         }
 
-        const user = {
-          uid,
-          email,
-          emailVerified,
-          photoURL,
-          displayName,
-          phoneNumber,
-          providerData,
-        };
-
-        const userInfo = { ...user, token };
-        Cookies.set("user", JSON.stringify(userInfo), {
-          secure: true,
-          sameSite: "strict",
-          expires: new Date(token.expirationTime),
-        });
+        
         
         toast({ description: "Signed in successfully" });
         setTimeout(()=>window.location.href="/", 1000)

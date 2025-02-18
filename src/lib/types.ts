@@ -1,8 +1,5 @@
-import { group } from "console";
-import { min } from "date-fns";
-import { Vibrant } from "node-vibrant/browser";
-import { use } from "react";
 import { z } from "zod";
+import {User} from "firebase/auth"
 
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -194,3 +191,37 @@ const scanResultSchema = z.object({
 
 
 export type scanResultType = z.infer<typeof scanResultSchema>
+
+export type LocalUserType =  User & {token: string}
+
+
+export type UserInfo = {
+  uid: string;
+  email: string | null;
+  emailVerified: boolean;
+  photoURL: string | null;
+  displayName: string | null;
+  phoneNumber: string | null;
+  providerData: any; // Consider typing this further if possible
+};
+
+export type UserInfoWithToken = UserInfo & {
+  token: any; // Consider typing this further if possible (e.g., IdTokenResult)
+};
+
+export type AdditionalUserInfo = {
+  isNewUser: boolean;
+};
+
+export type UserData = {
+  accountInfo: {
+    name: string | null;
+    uid: string;
+    email: string | null;
+    emailVerified: boolean;
+  };
+  events: any[]; // Consider typing these arrays further
+  tickets: any[];
+  followers: any[];
+  following: any[];
+};

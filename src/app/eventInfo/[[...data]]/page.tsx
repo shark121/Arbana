@@ -17,7 +17,7 @@ import { Selector } from "../../../../components/components/selector";
 import { categoriesList } from "../../../../data/categories";
 // import { CameraIcon, EditIcon, Image, X } from "lucide-react";
 import z from "zod";
-import { User } from "firebase/auth";
+import {LocalUserType} from "@/lib/types"
 import { AddTicket } from "../../../../components/components/events/AddTicket";
 import { CategoriesComponent } from "../../../../components/components/events/categoriesComponent";
 import Calendar from "../../../../components/components/calendar";
@@ -77,18 +77,19 @@ async function generatePallete(imageFile: File) {
 
 // import Image  from "next/image";
 
-async function sendUpdateRequest({ event }: { event: EventSchemaType }) {
+async function sendUpdateRequest({ event, auth }: { event: EventSchemaType, auth: LocalUserType }) {
   const { imageFile, ...rest } = event;
   const requestFormData = new FormData();
   imageFile && requestFormData.append("imageFile", imageFile);
   requestFormData.append("rest", JSON.stringify(rest));
+  requestFormData.append("auth", JSON.stringify(auth));
 
   await fetch("/api/data/update/user_events/", {
     method: "POST",
     body: requestFormData,
   })
     .then((res) => res.json())
-    .then((data) => console.log(data))
+    .then((data) => console.log("updat request sent", data))
     .catch((error) => console.log(error));
 }
 
@@ -120,7 +121,7 @@ export default function EventInfo(params: {
   const [eventIDState, setEventIDState] = useState<number>(
     Number(generateRandomId(20))
   );
-  const [userInfoState, setUserInfoState] = useState<User>();
+  const [userInfoState, setUserInfoState] = useState<LocalUserType>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [startDateState, setStartDateState] = useState<Date | undefined>();
   const [endDateState, setEndDateState] = useState<Date | undefined>();
@@ -332,7 +333,7 @@ export default function EventInfo(params: {
 
     // return;
 
-    await sendUpdateRequest({ event: eventWithExtraParams })
+   userInfoState && await sendUpdateRequest({ event: eventWithExtraParams, auth: userInfoState })
       .catch((err) => console.log(err, "err"))
       .then(() => {
         setSuccess(true);

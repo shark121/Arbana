@@ -4,9 +4,29 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Head from "next/head";
 import { Toaster } from "@/components/ui/toaster";
-import React, { createContext, useState, useContext, ReactNode } from "react";
-import { User } from "firebase/auth";
-import { UserProvider, useUserContext } from "@/contexts/userContext";
+import React, { useState } from "react";
+import { UserProvider} from "@/contexts/userContext";
+import {onAuthStateChanged} from "firebase/auth"
+import { auth } from "@/firebase.config";
+import { storeUserInfo } from "@/lib/utils";
+import Cookies from "js-cookie";
+
+onAuthStateChanged(auth, async (user) => {
+
+  console.log("auth")
+
+  const userDoesNotExist = Cookies.get("user") === null || Cookies.get("user") === undefined;
+  
+  console.log(user, "user from layout............")
+  try {
+    userDoesNotExist && user && user.emailVerified && await storeUserInfo(user);
+  } catch (e) {
+    console.log(e);
+  }
+})
+
+
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,7 +41,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [user, setUser] = useState<User | null>(null);
+
+  
 
   return (
     <html lang="en">

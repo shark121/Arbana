@@ -3,6 +3,7 @@ import { useState, useRef } from "react";
 import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
+  
 } from "firebase/auth";
 import { auth, database } from "../src/firebase.config";
 import { Input } from "@/components/ui/input";
@@ -26,10 +27,12 @@ async function createNewUserWithEmailAndPassword(
             description: "Email verification sent",
             variant: "default",
           });
+
+          window.location.href = "/home";
         })
         .catch((error) => {
           console.error(error.code);
-        });
+        })
     })
     .catch((error) => {
       console.error(error.code);

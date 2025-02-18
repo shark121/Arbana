@@ -27,29 +27,30 @@ export async function POST(
         
     console.log(ticketData, "ticketData");
     
-    // const response = await startPaymentProcess({
-    //   amount,
-    //   provider,
-    //   ticketData,
-    //   domain : process.env.NEXT_PUBLIC_DOMAIN
-    // });
-
-    const response = await fetch("https://us-central1-arbana-02.cloudfunctions.net/startPaymentProcess", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        amount,
-        provider,
-        ticketData,
-        domain : process.env.NEXT_PUBLIC_DOMAIN
-      }),
+    const response = await startPaymentProcess({
+      amount,
+      provider,
+      ticketData,
+      domain : process.env.NEXT_PUBLIC_DOMAIN
     });
+
+    // const response = await fetch("https://us-central1-arbana-02.cloudfunctions.net/startPaymentProcess", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({
+    //     amount,
+    //     provider,
+    //     ticketData,
+    //     domain : process.env.NEXT_PUBLIC_DOMAIN
+    //   }),
+    // });
     console.log(response, "response");
     
     return NextResponse.json({ type: "data", response });
   } catch (error) {
+
     console.error("Error completing payment process:", error);
     return NextResponse.json({ type: "error", response: "An error occured, please try again later" });
   }

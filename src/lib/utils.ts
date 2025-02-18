@@ -2,7 +2,16 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import dotenv from "dotenv";
 import Cookies from "js-cookie";
-
+import {
+  UserCredential,
+  User,
+  getAdditionalUserInfo,
+  GoogleAuthProvider,
+} from "firebase/auth";
+import { database } from "@/firebase.config";
+import { setDoc, doc, collection } from "firebase/firestore";
+import { UserInfo, UserInfoWithToken, UserData } from "@/lib/types";
+import { use } from "react";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -14,24 +23,18 @@ export function setCookie(data: string, values: string, days: number) {
   document.cookie = `${data}=${values}; expires=${expires.toUTCString()}; path=/`;
 }
 
-
-
 export function getCookie(name: string): Record<string, string> | null {
-  if(Cookies.get(name) !== null){
-  
-    try{
-      return JSON.parse(Cookies.get(name) as string); 
-    }catch(error){
+  if (Cookies.get(name) !== null) {
+    try {
+      return JSON.parse(Cookies.get(name) as string);
+    } catch (error) {
       console.error(`Failed to parse cookie "${name}":`, error);
       return null;
+    }
   }
 
+  return null;
 }
-
-return null
-
-}
-
 
 export function deleteCookie(name: string, path?: string, domain?: string) {
   if (getCookie(name)) {
@@ -126,35 +129,176 @@ export function convertTo12HourFormat(time24: string) {
   return `${hours12}:${minutes} ${period}`;
 }
 
-
-export function convertTo24Hour(timeStr:string) {
-  let [time, period] = timeStr.split(' ');
-  let [hours, minutes] = time.split(':').map(Number);
+export function convertTo24Hour(timeStr: string) {
+  let [time, period] = timeStr.split(" ");
+  let [hours, minutes] = time.split(":").map(Number);
 
   if (period === "AM") {
-      if (hours === 12) {
-          hours = 0;
-      }
+    if (hours === 12) {
+      hours = 0;
+    }
   } else {
-      if (hours !== 12) {
-          hours += 12;
-      }
+    if (hours !== 12) {
+      hours += 12;
+    }
   }
 
-  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  return `${hours.toString().padStart(2, "0")}:${minutes
+    .toString()
+    .padStart(2, "0")}`;
 }
 
-
-function setClientCache({pathToServer, key, value}:{pathToServer: string | undefined, key: string, value: any
-}){ 
-  pathToServer && fetch(pathToServer, {
-    method: "POST",
-    body: JSON.stringify({key, value})
-  })
-
+function setClientCache({
+  pathToServer,
+  key,
+  value,
+}: {
+  pathToServer: string | undefined;
+  key: string;
+  value: any;
+}) {
+  pathToServer &&
+    fetch(pathToServer, {
+      method: "POST",
+      body: JSON.stringify({ key, value }),
+    });
 }
 
+// export async function storeUserInfo(userCredential:  UserCredential, toast:any){
+//   console.log("used pop up...........................");
+//   const credential = GoogleAuthProvider.credentialFromResult(userCredential);
+//   const token = await userCredential.user.getIdTokenResult();
+//   console.log(token)
 
+//   console.log(userCredential);
 
+//   // The signed-in user info.
+//   // const user = result.user;
 
+//   const {
+//     uid,
+//     email,
+//     emailVerified,
+//     photoURL,
+//     displayName,
+//     phoneNumber,
+//     providerData,
+//   } = userCredential.user;
 
+//   const user = {
+//     uid,
+//     email,
+//     emailVerified,
+//     photoURL,
+//     displayName,
+//     phoneNumber,
+//     providerData,
+//   };
+
+//   const userInfo = { ...user, token };
+
+//   Cookies.set("user", JSON.stringify(userInfo), {secure:true, sameSite:"strict", expires : new Date(token.expirationTime)});
+
+//   const userInfoWithExtraFields = {
+//     accountInfo: { name: displayName, uid, email, emailVerified: true },
+//     events: [],
+//     tickets: [],
+//     followers: [],
+//     following: [],
+//   };
+
+//    const additionalUserInfo = userCredential
+//           ? getAdditionalUserInfo(userCredential)
+//           : null;
+//         if (additionalUserInfo && additionalUserInfo.isNewUser) {
+//           setDoc(
+//             doc(collection(database, "users"), userInfo.uid),
+//             userInfoWithExtraFields,
+//             { merge: true }
+//           );
+
+//   console.log(userInfo);
+//   //   console.log(user);
+//   toast({ description: "signed in successfully" });
+
+//   setTimeout(()=>window.location.href="/",1000)
+
+//   return user;
+// }
+
+// }
+
+export async function storeUserInfo(user: User): Promise<UserInfo | null> {
+  try {
+    console.log("Signing in...");
+
+    const token = await user.getIdTokenResult();
+    console.log("Token received:", token);
+
+    const {
+      uid,
+      email,
+      emailVerified,
+      photoURL,
+      displayName,
+      phoneNumber,
+      providerData,
+    } = user;
+     
+    
+    const userInfo: UserInfoWithToken = {
+      uid,
+      email,
+      emailVerified,
+      photoURL,
+      displayName,
+      phoneNumber,
+      providerData,
+      token,
+    };
+
+    Cookies.set("user", JSON.stringify(userInfo), {
+      secure: true,
+      sameSite: "strict",
+      expires: new Date(token.expirationTime),
+    });
+
+    setTimeout(() => {
+      window.location.href = "/";
+    }, 1000);
+
+    return userInfo;
+  } catch (error) {
+    console.error("Error during sign-in:", error);
+    // toast({ description: "Sign-in failed. Please try again.", status: "error" });
+    return null;
+  }
+}
+
+export async function storeIfNewUser(userCredential: UserCredential) {
+  const additionalUserInfo = getAdditionalUserInfo(userCredential);
+
+  const userData: UserData = {
+    accountInfo: {
+      name: userCredential.user.displayName,
+      uid: userCredential.user.uid,
+      email: userCredential.user.email,
+      emailVerified: userCredential.user.emailVerified,
+    },
+    events: [],
+    tickets: [],
+    followers: [],
+    following: [],
+  };
+
+  if (additionalUserInfo && additionalUserInfo.isNewUser) {
+    await setDoc(
+      doc(collection(database, "users"), userCredential.user.uid),
+      userData,
+      { merge: true }
+    );
+    console.log("New user data stored.");
+  }
+
+  // console.log("User signed in:", userInfo);
+}

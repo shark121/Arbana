@@ -15,6 +15,21 @@ import {
   setMultipleCache,
 } from "@/lib/server_utils";
 
+
+async function getEventsWithoutCache(userID: string) {
+  if (!userID) return null;
+
+  const userDocRef = doc(collection(database, "users"), userID);
+
+  const eventsInfo = await getDoc(userDocRef).then(async (doc) => {
+    if (doc.exists()) {
+      return doc.data().events || [];
+    } 
+  });
+
+  return eventsInfo ? eventsInfo : null;
+}
+
 async function getUserEvents(userID: string) {
   if (!userID) return null;
 
@@ -46,9 +61,11 @@ async function getUserEvents(userID: string) {
 }
 
 export async function POST(req: NextRequest) {
-  const userID = await req.json();
-  console.log(userID, "userID.................");
-  const userEvents = await getUserEvents(userID.uid);
+  const userDetails = await req.json();
+  console.log(userDetails, "userID.................");
+  
+  const userEvents = await getEventsWithoutCache(userDetails.uid);
+
   // console.log(userEvents,".............");
 
   return NextResponse.json({

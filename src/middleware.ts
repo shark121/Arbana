@@ -37,12 +37,12 @@ export function middleware(request: NextRequest, event: NextFetchEvent) {
       return;
 
     const trxref = request.url.slice(
-      request.url.indexOf("trxref=") + 1 + "trxref=".length,
+      request.url.indexOf("trxref=")  + "trxref=".length,
       request.url.indexOf("&")
     );
 
     const reference = request.url.slice(
-      request.url.indexOf("reference=") + 1 + "reference=".length
+      request.url.indexOf("reference=")  + "reference=".length
     );
 
     console.log(ticketId, trxref, reference);

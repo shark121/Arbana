@@ -1,20 +1,10 @@
-import {
-  getAuth,
-  signInWithPopup,
-  GoogleAuthProvider,
-  getAdditionalUserInfo,
-} from "firebase/auth";
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import GoogleSVG from "../public/images/Google__G__logo.svg.png";
 import { auth } from "../src/firebase.config";
 import Image from "next/image";
-import { setCookie } from "@/lib/utils";
-import { setDoc, doc, collection } from "firebase/firestore";
-import { database } from "@/firebase.config";
 import { useToast } from "@/hooks/use-toast";
-import Cookies from "js-cookie";
 import { useUserContext } from "@/contexts/userContext";
-import {User} from "firebase/auth";
-import { set } from "date-fns";
+import { storeIfNewUser } from "@/lib/utils";
 
 export default function GoogleAuth() {
   const { toast } = useToast();
@@ -23,83 +13,19 @@ export default function GoogleAuth() {
   const provider = new GoogleAuthProvider();
 
   async function triggerPopup() {
-
     return signInWithPopup(auth, provider)
       .then(async (result) => {
-        // This gives you a Google Access Token. You can use it to access the Google API.
 
-        console.log("used pop up...........................");
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        // const token = credential && credential.accessToken;
-        const token = await result.user.getIdTokenResult();
-        console.log(token)
+        await storeIfNewUser(result).catch((e) => {
+          toast({ description: e.message, variant: "destructive" });
+        })
+        
 
-        setUser(result.user);
+        toast({ description: "Signed in successfully" });
+        
+        window.location.href = "/";
 
-        console.log(result);
-
-        // The signed-in user info.
-        // const user = result.user;
-
-        const {
-          uid,
-          email,
-          emailVerified,
-          photoURL,
-          displayName,
-          phoneNumber,
-          providerData,
-        } = result.user;
-
-        const user = {
-          uid,
-          email,
-          emailVerified,
-          photoURL,
-          displayName,
-          phoneNumber,
-          providerData,
-        };
-
-        const userInfo = { ...user, token };
-
-
-        Cookies.set("user", JSON.stringify(userInfo), {secure:true, sameSite:"strict", expires : new Date(token.expirationTime)});
-
-    
-        const userInfoWithExtraFields = {
-          accountInfo: { name: displayName, uid, email, emailVerified: true },
-          events: [],
-          tickets: [],
-          followers: [],
-          following: [],
-        };
-
-        const additionalUserInfo = result
-          ? getAdditionalUserInfo(result)
-          : null;
-        if (result && additionalUserInfo && additionalUserInfo.isNewUser) {
-          setDoc(
-            doc(collection(database, "users"), userInfo.uid),
-            userInfoWithExtraFields,
-            { merge: true }
-          );
-
-          sessionStorage.setItem(
-            "user",
-            JSON.stringify(userInfoWithExtraFields)
-          );
-        }
-
-        console.log(userInfo);
-        //   console.log(user);
-        toast({ description: "signed in successfully" });
-
-        setTimeout(()=>window.location.href="/",1000)
-
-        return user;
-
-        // ...
+     
       })
       .catch((error) => {
         // Handle Errors here.
@@ -119,10 +45,9 @@ export default function GoogleAuth() {
   }
 
   function handleOnClick() {
-    triggerPopup()
-      .then((result) => {
-        console.log(result);
-      })
+    triggerPopup().then((result) => {
+      console.log(result);
+    });
   }
 
   return (
