@@ -9,6 +9,7 @@ import { LucideLogOut, User, UserRoundCog, Tickets, CalendarCheck2 } from "lucid
 import { deleteCookie } from "@/lib/utils";
 import Logo from "@/images/svg/logo";
 import {auth } from "@/firebase.config"
+import CustomerService from "@/images/svg/customerService";
 
 export const menuItems = [
   {
@@ -52,7 +53,14 @@ export const menuItems = [
       window.location.href = "/account";
     },
   },
-
+{
+    text: "Contact",
+    url: "/contact",
+    icon: <CustomerService size={20} />,
+    callback: () => {
+      window.location.href = "/contact";
+    },
+},
   {
     text: "Logout | Login",
     url: "/home",

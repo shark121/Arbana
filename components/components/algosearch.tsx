@@ -195,7 +195,7 @@ export default function AlgoSearch({
             setScannerState(false);
           }}
         >
-          <ChevronLeft color="red" size={35} />
+          <ChevronLeft color="red" size={30} />
         </button>
       ) : (
         <button onClick={() => setScannerState((state) => !state)}>

@@ -26,6 +26,8 @@ import { auth } from "@/firebase.config";
 import { onAuthStateChanged, signInAnonymously } from "firebase/auth";
 import { useContext } from "react";
 import { SignInAlert } from "../../../../../components/ui/signInAlert";
+import {storeIfNewUser} from "@/lib/utils"
+
 
 const comfortaa = Comfortaa({
   subsets: ["latin"],
@@ -204,6 +206,9 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
   async function continueWithoutSignIn() {
     await signInAnonymously(auth)
       .then(async (res) => {
+
+        await storeIfNewUser(res)
+        
         console.log(res);
         const userInfo = {
           uid: res.user.uid,
