@@ -8,7 +8,7 @@ export function middleware(request: NextRequest, event: NextFetchEvent) {
   const protocol = request.headers.get("x-forwarded-proto") || "http";
   const domain = `${protocol}://${host}`;
   
-  const allowedDomains = ["localhost:3000", "arbana.vercel.app", "localhost:3001"];
+  const allowedDomains = ["localhost:3000", "arbana.vercel.app", "localhost:3001", "www.arbana.io"];
 
   if (!allowedDomains.includes(host as string)) return NextResponse.json({ message: "Domain not allowed" }, { status: 400 });
 
