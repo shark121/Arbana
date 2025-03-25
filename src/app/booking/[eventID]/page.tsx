@@ -21,7 +21,7 @@ import { auth, functions } from "@/firebase.config";
 import Cookies from "js-cookie";
 import { httpsCallable } from "firebase/functions";
 
-const startPaymentProcess = httpsCallable(functions, "startPaymentProcess", {
+const startPaymentProcess = httpsCallable(functions, "start", {
   limitedUseAppCheckTokens: true,
 });
 
