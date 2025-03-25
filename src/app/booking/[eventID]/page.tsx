@@ -21,9 +21,7 @@ import { auth, functions } from "@/firebase.config";
 import Cookies from "js-cookie";
 import { httpsCallable } from "firebase/functions";
 
-const startPaymentProcess = httpsCallable(functions, "start", {
-  limitedUseAppCheckTokens: true,
-});
+const startPaymentProcess = httpsCallable(functions, "start");
 
 const Providers = [
   { label: "MTN", value: "MTN" },
