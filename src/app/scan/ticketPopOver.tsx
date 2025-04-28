@@ -53,6 +53,8 @@ export default function TicketPopover({
     const date = new Date(dateString);
     return format(date, "MMM d, yyyy h:mm a");
   };
+  console.log(groupNumber!*quantity - scans)
+  console.log(groupNumber, quantity, scans);
 
   return (
     data && <Card className="w-full box-border max-w-md mx-auto shadow-md m-4">
@@ -138,7 +140,7 @@ export default function TicketPopover({
           <div className="flex items-center mb-2">
             {scans ? <CheckCircle className="h-4 w-4 mr-2 text-green-500" /> : <XCircle className="h-4 w-4 mr-2 text-red-500" />}
             <div className="flex flex-col">
-              <span className="text-sm">Scanned {groupNumber!*quantity - scans} time(s)</span>
+              <span className="text-sm">Scanned {(groupNumber ?? 1)*quantity - scans} time(s)</span>
             </div>
           </div>
           <div className="text-xs text-gray-500 space-y-1">
