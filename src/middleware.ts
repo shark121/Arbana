@@ -8,11 +8,11 @@ export function middleware(request: NextRequest, event: NextFetchEvent) {
   const protocol = request.headers.get("x-forwarded-proto") || "http";
   const domain = `${protocol}://${host}`;
   
-  const allowedDomains = ["localhost:3000", "arbana.vercel.app", "localhost:3001", "www.arbana.io"];
+  const allowedDomains = ["localhost:3000", "arbana.vercel.app", "localhost:3001", "www.arbana.io", "41c7-76-78-187-63.ngrok-free.app"];
 
   if (!allowedDomains.includes(host as string)) return NextResponse.json({ message: "Domain not allowed" }, { status: 400 });
 
-  console.log(request.cookies.get("user")?.value, "user cookie");
+  // console.log(request.cookies.get("user")?.value, "user cookie");
 
   if (
     request.nextUrl.pathname.startsWith("/myEvents") ||
@@ -45,7 +45,7 @@ export function middleware(request: NextRequest, event: NextFetchEvent) {
       request.url.indexOf("reference=")  + "reference=".length
     );
 
-    console.log(ticketId, trxref, reference);
+    // console.log(ticketId, trxref, reference);
 
     event.waitUntil(
       fetch(domain + "/api/payment/response/data/", {

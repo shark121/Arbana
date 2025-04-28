@@ -136,13 +136,20 @@ export default function Booking({ params }: { params: {} }) {
 
     let parsedTicket = JSON.parse(ticket) as Omit<
       TicketSchemaType,
-      "transactionID"
+      "transactionID"|
+      "ticketID"
     >;
-    setTicketState(parsedTicket);
+
+    const parsedTicketWithID = {...parsedTicket, ticketID : generateRandomId(10)} as Omit<TicketSchemaType,"transactionID">;
+
+    setTicketState(parsedTicketWithID);
+
+    sessionStorage.setItem("ticket", JSON.stringify(parsedTicketWithID));
   }, []);
 
   useEffect(() => {
-    setIsLoading(false);
+    setIsLoading(false);    
+
   }, [ticketState]);
 
   async function handleOnClick(

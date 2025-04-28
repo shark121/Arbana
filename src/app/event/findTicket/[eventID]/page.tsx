@@ -180,8 +180,9 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
 
 
     if (!eventState) return;
+    
 
-    const ticeketData: Omit<TicketSchemaType, "transactionID"> = {
+    const ticeketData: Omit<TicketSchemaType, "transactionID" | "ticketID"> = {
       name: eventState.name,
       startDate: eventState.startDate,
       endDate: eventState.endDate,
@@ -193,7 +194,7 @@ export default function FindEventItem(params: { params: { eventID: string } }) {
       quantity: defaultValueState,
       createdAt: new Date().toISOString(),
       uid: userInfoState?.uid ,
-      ticketID: generateRandomId(10),
+      // ticketID: generateRandomId(10),  
       groupNumber:
         eventState?.availableSeats.find((el) => el.tier === currentTier)
           ?.groupNumber ?? 1,

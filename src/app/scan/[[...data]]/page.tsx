@@ -3,21 +3,17 @@ import { Button } from "@/components/ui/button";
 import QrCodeScanner from "../../../../components/components/qrcodeScanner";
 import { useState, useEffect } from "react";
 import SheetComponent from "../../../../components/components/sheet";
-import {
-  EllipsisIcon,
-  ChevronLeft,
-  QrCode,
-} from "lucide-react";
+import { EllipsisIcon, ChevronLeft, QrCode } from "lucide-react";
 import { comfortaa } from "@/app/page";
 import { Html5Qrcode, Html5QrcodeScanner } from "html5-qrcode";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
-import { EventSchemaType, scanResultType} from "@/lib/types";
+import { EventSchemaType, scanResultType, TicketSchemaType } from "@/lib/types";
 import { functions } from "@/firebase.config";
 import { httpsCallable } from "firebase/functions";
 import ScanAnimation from "@/animations/scan";
-
+import TicketPopOver from "../ticketPopOver";
 
 const scanTicket = httpsCallable(functions, "scanTicket");
 
@@ -32,26 +28,30 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
   const [processingState, setProcessing] = useState<boolean>(false);
   const [userState, setUserState] = useState<any>();
   const [queryingState, setQuerying] = useState<boolean>(false);
-  const [ticketData, setTicketData] = useState<any>();
+  const [ticketData, setTicketData] = useState<TicketSchemaType | undefined>();
+  const [shouldOpen, setShouldOpen] = useState<boolean>(false);
   const router = useRouter();
   const { toast } = useToast();
 
-
-  function displayResult({scans, quantity}:scanResultType) {
+  function displayResult({ scans, quantity, ticketData }: scanResultType) {
     // console.log(scans, quantity);
     if (scans === null) {
       toast({ description: "invalid ticket", variant: "destructive" });
     }
 
-    if ( scans && scans > 0) {
-      toast({ description: "ticket verified" });
+    if (scans && scans > 0) {
+      // toast({ description: "ticket verified" });
+      const ticket = ticketData ?? ({} as TicketSchemaType);
+      setShouldOpen(true);
     }
 
     if (scans == 0) {
       toast({
         description: "ticket has no available scans",
-        variant: "destructive",        
+        variant: "destructive",
       });
+
+      setShouldOpen(true);
     }
   }
 
@@ -68,8 +68,6 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
       setEventData(JSON.parse(eventData));
     }
   }, []);
-
-
 
   async function checkTicket({
     scannedID,
@@ -95,16 +93,22 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
       if (userID !== eventData?.creator?.uid) {
         console.log("user not creator");
         // Handle scanning ticket if the userID doesn't match creator ID
-        const response = await scanTicket({
+        const response = (await scanTicket({
           eventId: eventID,
           ticketID: scannedID,
           userId: userID,
-        }) as {data : scanResultType}
+        })) as { data: scanResultType };
 
         console.log(response.data, "response from cloud function");
-        
-        if(response.data.scans !== null || undefined) displayResult({scans : response.data.scans, quantity : response.data.quantity});
 
+        setTicketData(response.data.ticketData);
+
+        if (response.data.scans !== null || undefined)
+          displayResult({
+            scans: response.data.scans,
+            quantity: response.data.quantity,
+            ticketData: response.data.ticketData,
+          });
       } else {
         // Handle fetching ticket scan data
         const response = await fetch("/api/data/read/scan", {
@@ -120,7 +124,7 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
         }
 
         const res = await response.json();
-        setTicketData(res.data);
+        setTicketData(res.data.ticketData);
         displayResult(res.data);
         setErrorState(String(res.data.scans));
         console.log("Ticket data:", res);
@@ -138,7 +142,7 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
 
   async function scannerInit() {
     // checkTicket({
-    //   scannedID: "0544016639",
+    //   scannedID: "8391559640",
     //   eventID: eventID,
     //   setProcessing: setProcessing,
     //   setQuerying: setQuerying,
@@ -187,9 +191,20 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
       });
   }
 
+  if (shouldOpen && ticketData)
+    return (
+      <div className="w-screen h-screen flex items-center justify-center">
+        <TicketPopOver
+          open={shouldOpen}
+          setOpen={setShouldOpen}
+          data={ticketData}
+        />
+      </div>
+    );
+
   return (
     <div
-      className={` text-gray-700 w-screen h-screen flex flex-col items-center`}
+      className={` text-gray-700 w-screen h-screen flex flex-col items-center relative`}
     >
       <div className="flex justify-between h-[4rem] w-full p-4 z-10 bg-none">
         <button className="h-full aspect-square" onClick={() => router.back()}>
@@ -199,7 +214,9 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
         <SheetComponent />
       </div>
       <div>
-      <p className="font-bold text-[2rem] text-center text-wrap ">Click 'Scan' when you're ready to scan ticket.</p>
+        <p className="font-bold text-[2rem] text-center text-wrap ">
+          Click 'Scan' when you're ready to scan ticket.
+        </p>
       </div>
       <div
         id="qr-code-reader"
