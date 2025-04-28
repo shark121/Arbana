@@ -141,17 +141,17 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
   // let count = 0;
 
   async function scannerInit() {
-    checkTicket({
-      scannedID: "7701385336",
-      eventID: eventID,
-      setProcessing: setProcessing,
-      setQuerying: setQuerying,
-      setTicketData: setTicketData,
-      setIdle: setIdle,
-      userID: userState?.uid,
-    });
+    // checkTicket({
+    //   scannedID: "7701385336",
+    //   eventID: eventID,
+    //   setProcessing: setProcessing,
+    //   setQuerying: setQuerying,
+    //   setTicketData: setTicketData,
+    //   setIdle: setIdle,
+    //   userID: userState?.uid,
+    // });
 
-    return;
+    // return;
 
     setScanning(true);
     setIdle(false);
