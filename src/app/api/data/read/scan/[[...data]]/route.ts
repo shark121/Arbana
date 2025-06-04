@@ -12,7 +12,7 @@ async function processTransaction(eventID: string, ticketID: string)  : Promise<
 
       const ticketBookings = await transaction.get(eventBookingsRef);
 
-      console.log(ticketBookings.data());
+      // console.log(ticketBookings.data());
 
       if (!ticketBookings.exists()) {
         console.log("Document does not exist in the database");
@@ -21,12 +21,12 @@ async function processTransaction(eventID: string, ticketID: string)  : Promise<
 
       const bookingsData = ticketBookings.data();
 
-      console.log(Object.keys(bookingsData));
+      // console.log(Object.keys(bookingsData));
 
       if (Object.keys(bookingsData).includes(ticketID)) {
-        console.log(bookingsData, "bookings data");
+        // console.log(bookingsData, "bookings data");
         const ticketData = bookingsData[ticketID];
-        console.log(ticketData, "ticket Data.......................");
+        // console.log(ticketData, "ticket Data.......................");
 
         const scans = ticketData.scans;
 
