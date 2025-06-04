@@ -142,54 +142,54 @@ export default function ScanQRCode(params: { params: { data: string[] } }) {
   // let count = 0;
 
   async function scannerInit() {
-    checkTicket({
-      scannedID: "7039118279",
-      eventID: eventID,
-      setProcessing: setProcessing,
-      setQuerying: setQuerying,
-      setTicketData: setTicketData,
-      setIdle: setIdle,
-      userID: userState?.uid,
-    });
+    // checkTicket({
+    //   scannedID: "7039118279",
+    //   eventID: eventID,
+    //   setProcessing: setProcessing,
+    //   setQuerying: setQuerying,
+    //   setTicketData: setTicketData,
+    //   setIdle: setIdle,
+    //   userID: userState?.uid,
+    // });
 
-    // return;
+    // // return;
 
-    // setScanning(true);
-    // setIdle(false);
-    // const qrCodeReader = new Html5Qrcode("qr-code-reader", true);
+    setScanning(true);
+    setIdle(false);
+    const qrCodeReader = new Html5Qrcode("qr-code-reader", true);
 
-    // await QrCodeScanner(qrCodeReader)
-    //   .then((res) => {
-    //     setscannedID(res as string);
-    //     setErrorState("");
+    await QrCodeScanner(qrCodeReader)
+      .then((res) => {
+        setscannedID(res as string);
+        setErrorState("");
 
-    //     setScanning(false);
+        setScanning(false);
 
-    //     setProcessing(true);
+        setProcessing(true);
 
-    //     console.log("Scanned ID:", res);
-    //     if (!res) {
-    //       setProcessing(false);
-    //       setIdle(true);
-    //       toast({ description: "Couldn't read QR", variant: "destructive" });
-    //       return;
-    //     }
+        console.log("Scanned ID:", res);
+        if (!res) {
+          setProcessing(false);
+          setIdle(true);
+          toast({ description: "Couldn't read QR", variant: "destructive" });
+          return;
+        }
 
-    //     checkTicket({
-    //       scannedID: res as string,
-    //       eventID: eventID,
-    //       setProcessing: setProcessing,
-    //       setQuerying: setQuerying,
-    //       setTicketData: setTicketData,
-    //       setIdle: setIdle,
-    //       userID: userState?.uid,
-    //       // creatorID: eventData?.creator.uid
-    //     });
-    //   })
-    //   .catch((error) => {
-    //     setScanning(false);
-    //     // setErrorState(String(error) + count);
-    //   });
+        checkTicket({
+          scannedID: res as string,
+          eventID: eventID,
+          setProcessing: setProcessing,
+          setQuerying: setQuerying,
+          setTicketData: setTicketData,
+          setIdle: setIdle,
+          userID: userState?.uid,
+          // creatorID: eventData?.creator.uid
+        });
+      })
+      .catch((error) => {
+        setScanning(false);
+        // setErrorState(String(error) + count);
+      });
   }
 
   if (shouldOpen && ticketData)
